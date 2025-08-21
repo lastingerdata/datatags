@@ -1,0 +1,23 @@
+<!doctype html><meta charset="utf-8">
+<h1>Tags</h1>
+<button id="load">Load Tags</button>
+<pre id="out"></pre>
+<h2>Add Tag</h2>
+<form id="addForm">
+  <input name="tag_name" placeholder="Tag Name" required>
+  <input name="description" placeholder="Description">
+  <button>Add</button>
+</form>
+<script>
+const out = document.getElementById('out');
+document.getElementById('load').onclick = async () => {
+  const r = await fetch('./api/tags.py', {credentials:'include'});
+  out.textContent = await r.text();
+};
+document.getElementById('addForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const r = await fetch('./api/tags.py', {method:'POST', body: fd, credentials:'include'});
+  out.textContent = await r.text();
+};
+</script>

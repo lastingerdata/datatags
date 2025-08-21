@@ -1,0 +1,10 @@
+
+AuthType shibboleth
+ShibRequireSession On
+Require valid-user
+
+Options +ExecCGI
+AddHandler cgi-script .py
+
+SetEnv API_BASE "https://tags.lastinger.center.ufl.edu"
+SetEnv API_TIMEOUT "6"
