@@ -6,4 +6,8 @@ Require valid-user
 Options +ExecCGI
 AddHandler cgi-script .py
 
+SetEnv API_KEY "kdjfghssdujhrjasdfkjasl;kdqwiueqiotru.,sdvmb,mxnvbiuwerfueghb"
 SetEnv API_TIMEOUT "6"
+
+
+
