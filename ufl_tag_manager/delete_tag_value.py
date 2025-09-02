@@ -30,15 +30,10 @@ if method == "POST":
             }
 
             r = requests.post(API_URL, headers=headers, data=post_data, verify=False, allow_redirects=False)
-
-            if r.status_code == 200:
-                redirect_url = f"/ufl_tag_manager/tag_values.py?selected_tag={tag_id}&deleted=1"
-                print("Status: 303 See Other")
-                print(f"Location: {redirect_url}\n")
-            else:
-                redirect_url = f"/ufl_tag_manager/tag_values.py?selected_tag={tag_id}&deleted=0"
-                print("Status: 303 See Other")
-                print(f"Location: {redirect_url}\n")
+            redirect_url = r.headers.get('Location', '/tag_values.py')
+            redirect_url = redirect_url.replace('/tag_values', '/ufl_tag_manager/tag_values.py')
+            print("Status: 303 See Other")
+            print(f"Location: {redirect_url}\n")
 
         except Exception as e:
             print("Content-Type: text/html\n")
