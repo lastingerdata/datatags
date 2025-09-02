@@ -23,11 +23,18 @@ if method == "POST":
             payload = [("selected_sections", item) for item in post_data]
             payload.append(("user", os.environ.get("REMOTE_USER", "unknown")))
 
-            response = requests.post(API_URL, headers=headers, data=payload, verify=False)
+            query_string = os.environ.get("QUERY_STRING", "")
 
-           
-            print("Status: 303 See Other")
-            print("Location: /ufl_tag_manager/section_tags.py\n")
+            r = requests.post(API_URL, headers=headers, data=payload, verify=False)
+
+            if r.status_code == 200:
+                url = f"/ufl_tag_manager/section_tags.py?deleted=1&{query_string}" if query_string else "/ufl_tag_manager/section_tags.py?deleted=1"
+                print("Status: 303 See Other")
+                print(f"Location: {url}\n") 
+            else:
+                url = f"/ufl_tag_manager/section_tags.py?deleted=0&{query_string}" if query_string else "/ufl_tag_manager/section_tags.py?deleted=0"
+                print("Status: 303 See Other")
+                print(f"Location: {url}\n")
 
         except Exception as e:
             print("Content-Type: text/html\n")

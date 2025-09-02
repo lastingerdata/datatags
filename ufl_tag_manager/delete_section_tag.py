@@ -28,12 +28,17 @@ if method == "POST":
                 "tag_entry_id": tag_entry_id,
                 "user": os.environ.get("REMOTE_USER", "unknown")
             }
+            query_string = os.environ.get("QUERY_STRING", "")
+            r = requests.post(API_URL, headers=headers, data=post_data, verify=False)
 
-            response = requests.post(API_URL, headers=headers, data=post_data, verify=False)
-
-            
-            print("Status: 303 See Other")
-            print("Location: /ufl_tag_manager/section_tags.py\n")
+            if r.status_code == 200:
+                url = f"/ufl_tag_manager/section_tags.py?deleted=1&{query_string}" if query_string else "/ufl_tag_manager/section_tags.py?deleted=1"
+                print("Status: 303 See Other")
+                print(f"Location: {url}\n") 
+            else:
+                url = f"/ufl_tag_manager/section_tags.py?deleted=0&{query_string}" if query_string else "/ufl_tag_manager/section_tags.py?deleted=0"
+                print("Status: 303 See Other")
+                print(f"Location: {url}\n")
 
         except Exception as e:
             print("Content-Type: text/html\n")

@@ -18,7 +18,7 @@ try:
         post_data = {key: form.getvalue(key) for key in form.keys()}
         post_data["user"] = os.environ.get("REMOTE_USER", "unknown")
         headers = {"ApiKey": API_KEY}       
-        r = requests.post(API_URL, headers=headers, data=post_data, verify=False)
+        r = requests.post(API_URL, headers=headers, data=post_data, verify=False, allow_redirects=False)
 
         if r.status_code == 200:
             print("Status: 303 See Other")

@@ -29,7 +29,7 @@ if method == "POST":
                 "user": os.environ.get("REMOTE_USER", "unknown")
             }
 
-            r = requests.post(API_URL, headers=headers, data=post_data, verify=False)
+            r = requests.post(API_URL, headers=headers, data=post_data, verify=False, allow_redirects=False)
 
             if r.status_code == 200:
                 redirect_url = f"/ufl_tag_manager/tag_values.py?selected_tag={tag_id}&deleted=1"
