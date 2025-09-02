@@ -1,5 +1,0 @@
-AuthType shibboleth
-ShibRequireSession On
-Require valid-user
-Options +ExecCGI
-AddHandler cgi-script .py
