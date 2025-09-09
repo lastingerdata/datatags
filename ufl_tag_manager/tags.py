@@ -25,7 +25,6 @@ try:
         url = api_url("/tags") + ("?" + query_string if query_string else "")
         r = safe_request(url, headers=headers, verify=False)
 
-    
     if isinstance(r, dict) :
         print(f"<h1>{r['error']}</h1>")
     else:

@@ -4,7 +4,6 @@ import os, json, requests
 ROOT = os.path.dirname(os.path.abspath(__file__))
 ENV_FILE = os.path.join(ROOT, '.env')
 
-# TEST_API_BASE = "https://tags.lastinger.center.ufl.edu"
 TEST_API_BASE = "https://sushma.lastinger.center.ufl.edu"
 PROD_API_BASE = "https://tags.lastinger.center.ufl.edu"
 

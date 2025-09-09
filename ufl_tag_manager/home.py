@@ -14,7 +14,6 @@ API_URL = "https://sushma.lastinger.center.ufl.edu/"
 API_KEY = get_api_key()
 PDF_URL = "/ufl_tag_manager/assets/Tagging%20website%20Documentation.pdf"
 
-# Detect if redirected via query param
 query = os.environ.get("QUERY_STRING", "")
 params = parse_qs(query)
 was_redirected = "home.py" in os.environ.get("REQUEST_URI", "") 
@@ -23,8 +22,6 @@ try:
     headers = {"ApiKey": API_KEY}
     r = requests.get(API_URL, headers=headers, verify=False)
     html_content = r.text
-
-    # Fix internal links
     html_content = html_content.replace('href="/"', 'href="/ufl_tag_manager/home"')
     html_content = html_content.replace('/section_tags_inserts"', '/ufl_tag_manager/section_tags_inserts"')
     html_content = html_content.replace('/section_tags"', '/ufl_tag_manager/section_tags"')
@@ -34,10 +31,9 @@ try:
         .replace('href="#"', f'href="{PDF_URL}" target="_blank" rel="noopener"')\
         .replace('>About</a>', f' target="_blank" rel="noopener" href="{PDF_URL}">About</a>')
 
-    # Add redirect message if needed
     if was_redirected:
         message = '<div style="background:#ffe6e6;color:#b30000;padding:10px;margin-bottom:15px;border-radius:5px;">' \
-                  '⚠️ You were redirected to the home page because the requested route was invalid or unauthorized.' \
+                  ' You were redirected to the home page because the requested route was invalid or unauthorized.' \
                   '</div>'
         html_content = message + html_content
 

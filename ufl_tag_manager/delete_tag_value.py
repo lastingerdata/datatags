@@ -7,9 +7,6 @@ from env_config import get_api_key
 
 cgitb.enable()
 
-# print("Content-Type: text/plain; charset=utf-8")
-
-
 API_URL = "https://sushma.lastinger.center.ufl.edu/delete_tag_value"
 API_KEY = get_api_key()
 
