@@ -7,7 +7,20 @@ Options +ExecCGI
 AddHandler cgi-script .py
 
 SetEnv API_KEY "kdjfghssdujhrjasdfkjasl;kdqwiueqiotru.,sdvmb,mxnvbiuwerfueghb"
-SetEnv API_TIMEOUT "6"
+SetEnv API_TIMEOUT "60"
 
+RewriteEngine On
 
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
 
+RewriteCond %{REQUEST_FILENAME}.py -f
+RewriteRule ^(.+)$ $1.py [L,QSA]
+
+RewriteCond %{REQUEST_URI} !^/ufl_tag_manager/home
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+# redirect to /ufl_tag_manager/home
+RewriteRule ^.*$ /ufl_tag_manager/home?redirected=1 [R=302,L]

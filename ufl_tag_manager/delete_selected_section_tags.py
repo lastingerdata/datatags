@@ -3,12 +3,12 @@ import os
 import cgi
 import cgitb
 import requests
-import certifi
+from env_config import get_api_key
 
 cgitb.enable()
 
 API_URL = "https://sushma.lastinger.center.ufl.edu/delete_selected_section_tags"
-API_KEY = "your-api-key"
+API_KEY = get_api_key()
 headers = {"ApiKey": API_KEY}
 
 method = os.environ.get("REQUEST_METHOD", "GET").upper()
@@ -28,11 +28,11 @@ if method == "POST":
             r = requests.post(API_URL, headers=headers, data=payload, verify=False)
 
             if r.status_code == 200:
-                url = f"/ufl_tag_manager/section_tags.py?deleted=1&{query_string}" if query_string else "/ufl_tag_manager/section_tags.py?deleted=1"
+                url = f"/ufl_tag_manager/section_tags?deleted=1&{query_string}" if query_string else "/ufl_tag_manager/section_tags?deleted=1"
                 print("Status: 303 See Other")
                 print(f"Location: {url}\n") 
             else:
-                url = f"/ufl_tag_manager/section_tags.py?deleted=0&{query_string}" if query_string else "/ufl_tag_manager/section_tags.py?deleted=0"
+                url = f"/ufl_tag_manager/section_tags?deleted=0&{query_string}" if query_string else "/ufl_tag_manager/section_tags?deleted=0"
                 print("Status: 303 See Other")
                 print(f"Location: {url}\n")
 

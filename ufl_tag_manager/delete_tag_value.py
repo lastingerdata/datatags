@@ -3,7 +3,7 @@ import os
 import cgi
 import cgitb
 import requests
-import certifi
+from env_config import get_api_key
 
 cgitb.enable()
 
@@ -11,7 +11,7 @@ cgitb.enable()
 
 
 API_URL = "https://sushma.lastinger.center.ufl.edu/delete_tag_value"
-API_KEY = "your-api-key"
+API_KEY = get_api_key()
 
 method = os.environ.get("REQUEST_METHOD", "GET").upper()
 
@@ -30,8 +30,8 @@ if method == "POST":
             }
 
             r = requests.post(API_URL, headers=headers, data=post_data, verify=False, allow_redirects=False)
-            redirect_url = r.headers.get('Location', '/tag_values.py')
-            redirect_url = redirect_url.replace('/tag_values', '/ufl_tag_manager/tag_values.py')
+            redirect_url = r.headers.get('Location', '/tag_values')
+            redirect_url = redirect_url.replace('/tag_values', '/ufl_tag_manager/tag_values')
             print("Status: 303 See Other")
             print(f"Location: {redirect_url}\n")
 

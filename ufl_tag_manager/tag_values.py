@@ -3,38 +3,42 @@ import os
 import cgi
 import cgitb
 import requests
-import certifi
+from env_config import get_api_key, api_url, api_base, safe_request
 
 cgitb.enable()
 
 print("Content-Type: text/html\n")
-
-API_URL = "https://sushma.lastinger.center.ufl.edu/tag_values"
-API_KEY = "your-api-key-here"
+API_KEY = get_api_key()
 
 method = os.environ.get("REQUEST_METHOD", "GET").upper()
 headers = {"ApiKey": API_KEY}
+PDF_URL = "/ufl_tag_manager/assets/Tagging%20website%20Documentation.pdf"
 
 try:
     if method == "POST":
         form = cgi.FieldStorage()
         post_data = {key: form.getvalue(key) for key in form.keys()}
+        post_data["ApiKey"] = API_KEY
         post_data["user"] = os.environ.get("REMOTE_USER", "unknown")
     
-        response = requests.post(API_URL, headers=headers, data=post_data, verify=False)
+        response = requests.post(api_url("/tag_values"), headers=headers, data=post_data, verify=False)
     else:
       
         query_string = os.environ.get("QUERY_STRING", "")
-        url = API_URL + "?" + query_string if query_string else API_URL
-        response = requests.get(url, headers=headers, verify=False)
+        url = api_url("/tag_values") + ("?" + query_string if query_string else "")
+        response = safe_request(url, headers=headers, verify=False)
+    if isinstance(response, dict):
+        print(f"<h1>{r['error']}</h1>")
+    else:
+        html = response.text
 
-    html = response.text
-
-    html = html.replace('href="/"', 'href="/ufl_tag_manager/home.py"')
-    html = html.replace('action="/tag_values"', 'action="/ufl_tag_manager/tag_values.py"')
-    html = html.replace('action="/delete_tag_value"', 'action="/ufl_tag_manager/delete_tag_value.py"')
-
-    print(html)
+        html = html.replace('href="/"', 'href="/ufl_tag_manager/home"')
+        html = html.replace('action="/tag_values"', 'action="/ufl_tag_manager/tag_values"')
+        html = html.replace('action="/delete_tag_value"', 'action="/ufl_tag_manager/delete_tag_value"')
+        html = html.replace('/static/docs/Tagging%20website%20Documentation.pdf', PDF_URL)\
+                .replace('href="#"', f'href="{PDF_URL}" target="_blank" rel="noopener"')\
+                .replace('>About</a>', f' target="_blank" rel="noopener" href="{PDF_URL}">About</a>')
+        print(html)
 
 except Exception as e:
     print(f"<h1 style='color:red;'>Error: {e}</h1>")

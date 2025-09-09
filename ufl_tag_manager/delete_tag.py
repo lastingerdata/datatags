@@ -3,12 +3,13 @@ import os
 import cgi
 import cgitb
 import requests
+from env_config import get_api_key
 
 cgitb.enable()
 
 API_URL = "https://sushma.lastinger.center.ufl.edu/delete_tag"
 
-API_KEY = 'kdjfghssdujhrjasdfkjasl;kdqwiueqiotru.,sdvmb,mxnvbiuwerfueghb'
+API_KEY = get_api_key()
 
 method = os.environ.get("REQUEST_METHOD", "GET").upper()
 
@@ -19,8 +20,8 @@ try:
         post_data["user"] = os.environ.get("REMOTE_USER", "unknown")
         headers = {"ApiKey": API_KEY}
         r = requests.post(API_URL, headers=headers, data=post_data, verify=False, allow_redirects=False)
-        redirect_url = r.headers.get('Location', '/tags.py')
-        redirect_url = redirect_url.replace('/tags', '/ufl_tag_manager/tags.py')
+        redirect_url = r.headers.get('Location', '/tags')
+        redirect_url = redirect_url.replace('/tags', '/ufl_tag_manager/tags')
         print("Status: 303 See Other")
         print(f"Location: {redirect_url}\n")
         
