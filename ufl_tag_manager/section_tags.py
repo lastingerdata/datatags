@@ -20,7 +20,8 @@ try:
         print(f"<h1>{r['error']}</h1>")
     else:
         html = r.text
-        html = html.replace('href="/"', 'href="/ufl_tag_manager/home"')
+        # html = html.replace('href="/"', 'href="/ufl_tag_manager/home"')
+        html = html.replace('/tags_index"', '/ufl_tag_manager/home"')
         html = html.replace('action="/section_tags_inserts"', 'action="/ufl_tag_manager/add_section_tags"')
         html = html.replace('action="/delete_section_tag"', 'action="/ufl_tag_manager/delete_section_tag"')
         html = html.replace('action="/delete_selected_section_tags"', 'action="/ufl_tag_manager/delete_selected_section_tags"')

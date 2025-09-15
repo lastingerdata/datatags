@@ -5,7 +5,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 ENV_FILE = os.path.join(ROOT, '.env')
 
 TEST_API_BASE = "https://sushma.lastinger.center.ufl.edu"
-PROD_API_BASE = "https://tags.lastinger.center.ufl.edu"
+PROD_API_BASE = "https://compute.lastinger.center.ufl.edu"
 
 def get_api_key() -> str:
     user = os.environ.get("REMOTE_USER", "unknown")
@@ -34,10 +34,12 @@ def api_url(path: str) -> str:
     base = api_base().rstrip("/")
     return f"{base}/{path.lstrip('/')}"
 
-def safe_request(url: str, **kwargs):
+def safe_request(url: str, method = "GET", **kwargs):
+    url = url or api_url()
     try:
-        response = requests.get(url, timeout=10, **kwargs)
+        response = requests.request(method, url, timeout=10, **kwargs)
         response.raise_for_status()
         return response
     except requests.exceptions.RequestException:
         return {"error": "Unable to connect to test API. This is expected if the server is off, Contact Sushma(su.palle@ufl.edu)"}
+

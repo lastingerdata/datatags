@@ -3,11 +3,11 @@ import os
 import cgi
 import cgitb
 import requests
-from env_config import get_api_key
+from env_config import get_api_key, api_url, safe_request
 
 cgitb.enable()
 
-API_URL = "https://sushma.lastinger.center.ufl.edu/delete_selected_section_tags"
+API_URL = api_url("/delete_selected_section_tags")
 API_KEY = get_api_key()
 headers = {"ApiKey": API_KEY}
 

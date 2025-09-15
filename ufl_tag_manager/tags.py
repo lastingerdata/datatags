@@ -29,14 +29,13 @@ try:
         print(f"<h1>{r['error']}</h1>")
     else:
         html_out = r.text
-
         html = r.text
-        html = html.replace('href="/"', 'href="/ufl_tag_manager/home"')
+        html = html.replace('href="/tags_index"', 'href="/ufl_tag_manager/home"')
         html = html.replace('action="/delete_tag"', 'action="/ufl_tag_manager/delete_tag"')
         html = html.replace('action="/tags"', 'action="/ufl_tag_manager/tags"')
         html = html.replace('/static/docs/Tagging%20website%20Documentation.pdf', PDF_URL)\
-                .replace('href="#"', f'href="{PDF_URL}" target="_blank" rel="noopener"')\
-                .replace('>About</a>', f' target="_blank" rel="noopener" href="{PDF_URL}">About</a>')
+                    .replace('href="#"', f'href="{PDF_URL}" target="_blank" rel="noopener"')\
+                    .replace('>About</a>', f' target="_blank" rel="noopener" href="{PDF_URL}">About</a>')
         print(html)
 
 except Exception as e:

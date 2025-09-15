@@ -5,12 +5,11 @@ import requests
 import os
 import html
 from urllib.parse import parse_qs
-from env_config import api_url, api_base, get_api_key
+from env_config import api_url, api_base, get_api_key, safe_request
 
 print("Content-Type: text/html; charset=utf-8")
 print("")
 
-API_URL = "https://sushma.lastinger.center.ufl.edu/"
 API_KEY = get_api_key()
 PDF_URL = "/ufl_tag_manager/assets/Tagging%20website%20Documentation.pdf"
 
@@ -20,9 +19,10 @@ was_redirected = "home.py" in os.environ.get("REQUEST_URI", "")
 
 try:
     headers = {"ApiKey": API_KEY}
-    r = requests.get(API_URL, headers=headers, verify=False)
+    r = safe_request(api_url("/tags_index"), headers=headers, verify=False)
+
     html_content = r.text
-    html_content = html_content.replace('href="/"', 'href="/ufl_tag_manager/home"')
+    html_content = html_content.replace('href="/tags_index"', 'href="/ufl_tag_manager/home"')
     html_content = html_content.replace('/section_tags_inserts"', '/ufl_tag_manager/section_tags_inserts"')
     html_content = html_content.replace('/section_tags"', '/ufl_tag_manager/section_tags"')
     html_content = html_content.replace('/tag_values"', '/ufl_tag_manager/tag_values"')

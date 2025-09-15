@@ -32,7 +32,7 @@ try:
     else:
         html = response.text
 
-        html = html.replace('href="/"', 'href="/ufl_tag_manager/home"')
+        html = html.replace('href="/tags_index"', 'href="/ufl_tag_manager/home"')
         html = html.replace('action="/tag_values"', 'action="/ufl_tag_manager/tag_values"')
         html = html.replace('action="/delete_tag_value"', 'action="/ufl_tag_manager/delete_tag_value"')
         html = html.replace('/static/docs/Tagging%20website%20Documentation.pdf', PDF_URL)\
