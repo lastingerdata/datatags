@@ -1,8 +1,0 @@
-AuthType Shibboleth
-ShibRequireSession on
-Require valid-user
-
-RewriteEngine On
-RewriteCond %{REQUEST_URI} (.*)/checkshib/$
-RewriteRule .* %1/checkshib/env_serv.php
-
