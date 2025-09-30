@@ -13,7 +13,6 @@ ssh cnswww-test.datatags.lastinger@az1-apacheint-prod02.server.ufl.edu
 Production Server:
 ssh cnswww-datatags.lastinger@az1-apacheint-prod02.server.ufl.edu
 
-
 The application reads from an env.txt file to determine the environment:
 test → uses test API endpoints
 prod → uses production endpoints
