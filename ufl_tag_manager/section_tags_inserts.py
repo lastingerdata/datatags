@@ -3,6 +3,7 @@ import os
 import cgi
 import cgitb
 import requests
+import re
 import certifi
 from env_config import get_api_key, api_url, safe_request
 
@@ -42,6 +43,7 @@ try:
         html = html.replace('href="/tags_index"', 'href="/ufl_tag_manager/home"')
         html = html.replace('action="/section_tags_inserts"', 'action="/ufl_tag_manager/add_section_tags"')
         html = html.replace('action="/delete_section_tag"', 'action="/ufl_tag_manager/delete_section_tag"')
+        html = re.sub(r'href="/section_tags_inserts(\?.*)?"', r'href="/ufl_tag_manager/section_tags_inserts\1"', html)
         html = html.replace('action="/delete_selected_section_tags"', 'action="/ufl_tag_manager/delete_selected_section_tags"')
         html = html.replace('/static/docs/Tagging%20website%20Documentation.pdf', PDF_URL)\
                 .replace('href="#"', f'href="{PDF_URL}" target="_blank" rel="noopener"')\
@@ -50,3 +52,4 @@ try:
 
 except Exception as e:
     print(f"<h1 style='color:red;'>Error: {e}</h1>")
+

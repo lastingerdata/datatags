@@ -18,4 +18,14 @@ The application reads from an env.txt file to determine the environment:
 test → uses test API endpoints
 prod → uses production endpoints
 
+The application requires the following pip modules:
+- `ibna`
+- `requests`
+
+## File Permissions
+
+For convenience, you can fix script permissions across the project using:
+find ./ -name "*.py" -exec chmod 755 {} \;
+
+
 contact Sushma-(su.palle@ufl.edu) for SSH access requests.

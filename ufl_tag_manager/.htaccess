@@ -11,6 +11,9 @@ SetEnv API_TIMEOUT "60"
 
 RewriteEngine On
 
+RewriteCond %{REQUEST_URI} (?i)\.json$
+RewriteRule ^.*$ /ufl_tag_manager/home?redirected=1 [R=302,L]
+
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
