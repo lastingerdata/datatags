@@ -21,22 +21,16 @@ request_uri = os.environ.get("REQUEST_URI", "")
 try:
     headers = {"ApiKey": API_KEY}
     r = safe_request(api_url("/tags_index"), headers=headers, verify=False)
-
     html_content = r.text
-    html_content = html_content.replace('href="/tags_index"', 'href="/ufl_tag_manager/home"')
+    html_content = html_content.replace('href="/tags_index"', 'href="/ufl_tag_manager/tags_index"')
     html_content = html_content.replace('/section_tags_inserts"', '/ufl_tag_manager/section_tags_inserts"')
     html_content = html_content.replace('/section_tags"', '/ufl_tag_manager/section_tags"')
     html_content = html_content.replace('/tag_values"', '/ufl_tag_manager/tag_values"')
     html_content = html_content.replace('/tags', '/ufl_tag_manager/tags"')
     html_content = html_content.replace('/static/docs/Tagging%20website%20Documentation.pdf', PDF_URL)\
-        .replace('href="#"', f'href="{PDF_URL}" target="_blank" rel="noopener"')\
-        .replace('>About</a>', f' target="_blank" rel="noopener" href="{PDF_URL}">About</a>')
-
-    # print("<h3>Currently under development, some features may not function properly. Reachout to sushma (su.palle@ufl.edu)for the downtime.</h3>")
+            .replace('href="#"', f'href="{PDF_URL}" target="_blank" rel="noopener"')\
+            .replace('>About</a>', f' target="_blank" rel="noopener" href="{PDF_URL}">About</a>')
+    # print("<h3>Currently under development, some features may not function as expected.</h3>")
     print(html_content)
-
 except Exception as e:
     print(f"<h1>Error: {html.escape(str(e))}</h1>")
-
-
-

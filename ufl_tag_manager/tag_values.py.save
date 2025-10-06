@@ -20,16 +20,17 @@ try:
         post_data = {key: form.getvalue(key) for key in form.keys()}
         post_data["ApiKey"] = API_KEY
         post_data["user"] = os.environ.get("REMOTE_USER", "unknown")
+
         r = requests.post(api_url("/tag_values"), headers=headers, data=post_data, verify=False)
     else:
 
         query_string = os.environ.get("QUERY_STRING", "")
         url = api_url("/tag_values") + ("?" + query_string if query_string else "")
         r = safe_request(url, headers=headers, verify=False)
-    if isinstance(r, dict):
+    if isinstance(response, dict):
         print(f"<h1>{r['error']}</h1>")
     else:
-        html = r.text
+        html = response.text
 
         html = html.replace('href="/tags_index"', 'href="/ufl_tag_manager/home"')
         html = html.replace('action="/tag_values"', 'action="/ufl_tag_manager/tag_values"')
