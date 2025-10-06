@@ -1,4 +1,3 @@
-
 AuthType shibboleth
 ShibRequireSession On
 Require valid-user
@@ -13,7 +12,7 @@ DirectoryIndex /ufl_tag_manager/home.py
 RewriteEngine On
 
 
-RewriteRule ^$ ufl_tag_manager/home.py [L]
+RewriteRule ^/?$ ufl_tag_manager/home.py [L]
 
 RewriteRule ^ufl_tag_manager/home$ ufl_tag_manager/home.py [L]
 
