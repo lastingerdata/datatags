@@ -9,14 +9,9 @@ AddHandler cgi-script .py
 SetEnv API_KEY "kdjfghssdujhrjasdfkjasl;kdqwiueqiotru.,sdvmb,mxnvbiuwerfueghb"
 SetEnv API_TIMEOUT "60"
 
-DirectoryIndex /ufl_tag_manager/home.py
 RewriteEngine On
 
-
-RewriteRule ^$ ufl_tag_manager/home.py [L]
-
-RewriteRule ^ufl_tag_manager/home$ ufl_tag_manager/home.py [L]
-
+RewriteCond %{REQUEST_
 
 RewriteCond %{REQUEST_URI} (?i)\.json$
 RewriteRule ^.*$ /ufl_tag_manager/home?redirected=1 [R=302,L]
@@ -28,12 +23,9 @@ RewriteRule ^ - [L]
 RewriteCond %{REQUEST_FILENAME}.py -f
 RewriteRule ^(.+)$ $1.py [L,QSA]
 
-RewriteCond %{REQUEST_URI} !^/ufl_tag_manager/home(?:\.py)?$
-RewriteRule ^.*$ /ufl_tag_manager/home?redirected=1 [R=302,L]
+RewriteCond %{REQUEST_URI} !^/ufl_tag_manager/home
 
-#RewriteCond %{REQUEST_URI} !^/ufl_tag_manager/home
-
-#RewriteCond %{REQUEST_FILENAME} !-f
-#RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
 # redirect to /ufl_tag_manager/home
-#RewriteRule ^.*$ /ufl_tag_manager/home?redirected=1 [R=302,L]
+RewriteRule ^.*$ /ufl_tag_manager/home?redirected=1 [R=302,L]

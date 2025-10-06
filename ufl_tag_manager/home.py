@@ -30,7 +30,7 @@ try:
     html_content = html_content.replace('/static/docs/Tagging%20website%20Documentation.pdf', PDF_URL)\
             .replace('href="#"', f'href="{PDF_URL}" target="_blank" rel="noopener"')\
             .replace('>About</a>', f' target="_blank" rel="noopener" href="{PDF_URL}">About</a>')
-    # print("<h3>Currently under development, some features may not function as expected.</h3>")
+    #print("<h3>Currently under development, some features may not function as expected.</h3>")
     print(html_content)
 except Exception as e:
     print(f"<h1>Error: {html.escape(str(e))}</h1>")
