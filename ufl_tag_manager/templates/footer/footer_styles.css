@@ -1,0 +1,129 @@
+/* Footer Component Styles */
+
+.uf-footer {
+  background: #002657;
+  color: white;
+  padding: 2rem 0;
+  margin-top: auto;
+}
+
+/* Footer Logo */
+.footer-logo {
+  display: flex;
+  align-items: center;
+}
+
+.footer-logo-img {
+  width: 235px;
+  height: 60px;
+  object-fit: contain;
+}
+
+/* Footer Links */
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.footer-link {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 400;
+  transition: color 0.2s;
+}
+
+.footer-link:hover {
+  color: #FA4616;
+  text-decoration: none;
+}
+
+/* Footer Contact */
+.footer-contact {
+  text-align: left;
+}
+
+.contact-info p {
+  margin: 5px 0;
+  color: white;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.contact-email {
+  font-weight: 500;
+}
+
+.contact-address,
+.contact-city {
+  font-weight: 400;
+  color: #cccccc;
+}
+
+/* Footer Social */
+.footer-social {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+
+.social-icon {
+  color: white;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.social-icon:hover {
+  color: #FA4616;
+  background: rgba(255, 255, 255, 0.2);
+  text-decoration: none;
+}
+
+.social-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .uf-footer {
+    padding: 1.5rem 0;
+  }
+  
+  .footer-logo-img {
+    width: 200px;
+    height: 50px;
+  }
+  
+  .footer-links {
+    margin-top: 20px;
+    gap: 10px;
+  }
+  
+  .footer-contact {
+    margin-top: 20px;
+  }
+  
+  .footer-social {
+    margin-top: 20px;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 576px) {
+  .uf-footer .row > div {
+    margin-bottom: 20px;
+  }
+  
+  .footer-social {
+    justify-content: center;
+  }
+}

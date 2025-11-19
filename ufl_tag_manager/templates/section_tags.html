@@ -1,0 +1,324 @@
+{% extends 'tags_base.html' %}
+{% block title %}Section Tag Mappings{% endblock %}
+
+{% block content %}
+<div style="max-width:1200px;margin:auto;">
+
+  <h2>Section Tag Mappings</h2>
+
+  <a href="{{ base_path }}/tags_index{{ ext }}"
+     style="display:inline-block;margin-bottom:10px;">
+    Back to Tag Home
+  </a>
+
+  {% if messages %}
+    {% for cat, msg in messages %}
+      <div style="margin-bottom:6px;color:{{ 'red' if cat == 'danger' else 'green' }};">
+        {{ msg }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="GET" action="{{ base_path }}/section_tags{{ ext }}"
+        style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center;">
+
+    <input type="text" name="name" placeholder="Section name"
+           value="{{ name or '' }}"
+           style="padding:6px;min-width:180px;">
+
+    <select name="wild_card" style="padding:6px;min-width:150px;">
+      <option value="">Wildcard (name)</option>
+      <option value="contains" {% if wild_card=='contains' %}selected{% endif %}>Contains</option>
+      <option value="begins_with" {% if wild_card=='begins_with' %}selected{% endif %}>Begins With</option>
+      <option value="ends_with" {% if wild_card=='ends_with' %}selected{% endif %}>Ends With</option>
+      <option value="exact_match" {% if wild_card=='exact_match' %}selected{% endif %}>Exact Match</option>
+      <option value="does_not_contain" {% if wild_card=='does_not_contain' %}selected{% endif %}>Does Not Contain</option>
+    </select>
+
+    <input type="text" name="d2l_OrgUnitId" placeholder="D2L OrgUnitId"
+           value="{{ d2l_OrgUnitId or '' }}"
+           style="padding:6px;min-width:140px;">
+
+    <input type="text" name="genius_sectionId" placeholder="Genius Section ID"
+           value="{{ genius_sectionId or '' }}"
+           style="padding:6px;min-width:140px;">
+
+    <select name="tag_name_filter" id="tag_name_filter" style="padding:6px;min-width:180px;">
+      <option value="">Filter by Tag Name</option>
+      {% for tn in unique_tag_names %}
+        <option value="{{ tn }}" {% if tag_name_filter == tn %}selected{% endif %}>{{ tn }}</option>
+      {% endfor %}
+    </select>
+
+    <select name="tag_value_filter" id="tag_value_filter" style="padding:6px;min-width:180px;">
+      <option value="">Tag Value filter</option>
+    </select>
+
+    <button type="submit"
+            style="padding:6px 12px;background:#2563eb;color:#fff;border:0;border-radius:4px;cursor:pointer;">
+      Apply Filters
+    </button>
+
+    <a href="{{ base_path }}/section_tags{{ ext }}"
+       style="padding:6px 12px;margin-left:6px;background:#6b7280;color:#fff;border-radius:4px;text-decoration:none;">
+      Reset Filters
+    </a>
+  </form>
+
+  <form method="POST" action="{{ base_path }}/section_tags{{ ext }}">
+    <input type="hidden" name="name" value="{{ name or '' }}">
+    <input type="hidden" name="wild_card" value="{{ wild_card or '' }}">
+    <input type="hidden" name="tag_name_filter" value="{{ tag_name_filter or '' }}">
+    <input type="hidden" name="tag_value_filter" value="{{ tag_value_filter or '' }}">
+    <input type="hidden" name="page" value="{{ current_page }}">
+
+    <div class="mb-3 mt-2">
+      <div class="form-check" style="display:inline-block;margin-left:12px;">
+        <input type="checkbox" id="select-all-top" class="form-check-input">
+        <label class="form-check-label" for="select-all-top">Select All</label>
+
+        <button type="submit"
+                onclick="return confirm('Delete selected section tag mappings?');"
+                style="margin-left:12px;padding:6px 12px;background:#2563eb;color:#fff;border:0;border-radius:4px;cursor:pointer;">
+          Delete Selected
+        </button>
+
+        <button type="button"
+                style="margin-left:12px;padding:6px 12px;background:#6b7280;color:#fff;border:0;border-radius:4px;cursor:pointer;"
+                onclick="if (window.sortHistory) { sortHistory.length = 0; } location.reload();">
+          Reset Sort
+        </button>
+      </div>
+    </div>
+
+    {% if mappings and mappings|length > 0 %}
+      <table id="tag-mapping-table"
+             style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+        <thead>
+          <tr style="background:#e5e7eb;">
+            <th class="sortable" data-col="0" style="border:1px solid #d1d5db;padding:6px;cursor:pointer;">
+              Select <span class="sort-arrow"></span>
+            </th>
+            <th class="sortable" data-col="1" style="border:1px solid #d1d5db;padding:6px;cursor:pointer;">
+              D2L OrgUnitId <span class="sort-arrow"></span>
+            </th>
+            <th class="sortable" data-col="2" style="border:1px solid #d1d5db;padding:6px;cursor:pointer;">
+              Genius Section ID <span class="sort-arrow"></span>
+            </th>
+            <th class="sortable" data-col="3" style="border:1px solid #d1d5db;padding:6px;cursor:pointer;">
+              Section Name <span class="sort-arrow"></span>
+            </th>
+            <th class="sortable" data-col="4" style="border:1px solid #d1d5db;padding:6px;cursor:pointer;">
+              Tag Name <span class="sort-arrow"></span>
+            </th>
+            <th class="sortable" data-col="5" style="border:1px solid #d1d5db;padding:6px;cursor:pointer;">
+              Tag Value <span class="sort-arrow"></span>
+            </th>
+            <th class="sortable" data-col="6" style="border:1px solid #d1d5db;padding:6px;cursor:pointer;">
+              Actions <span class="sort-arrow"></span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in mappings %}
+            {% set sec_name = m.section_name or m['section_name'] %}
+            {% set d2l = m.d2l_OrgUnitId or m['d2l_OrgUnitId'] %}
+            {% set sec = m.genius_sectionId or m['genius_sectionId'] %}
+            {% set tname = m.tag_name or m['tag_name'] %}
+            {% set tval = m.tag_value or m['tag_value'] %}
+            {% set entry_id = m.tag_entry_id or m['tag_entry_id'] %}
+            {% set combo_id = d2l ~ '_' ~ sec ~ '_' ~ entry_id %}
+
+            <tr>
+              <td style="border:1px solid #e5e7eb;padding:6px;text-align:center;">
+                <input type="checkbox" class="section-select-checkbox"
+                       name="selected_sections"
+                       value="{{ combo_id }}">
+              </td>
+              <td style="border:1px solid #e5e7eb;padding:6px;">{{ d2l }}</td>
+              <td style="border:1px solid #e5e7eb;padding:6px;">{{ sec }}</td>
+              <td style="border:1px solid #e5e7eb;padding:6px;">{{ sec_name }}</td>
+              <td style="border:1px solid #e5e7eb;padding:6px;">{{ tname }}</td>
+              <td style="border:1px solid #e5e7eb;padding:6px;">{{ tval }}</td>
+              <td style="border:1px solid #e5e7eb;padding:6px;">
+                <button type="submit"
+                        name="single_delete"
+                        value="{{ combo_id }}"
+                        onclick="return confirm('Delete this section tag mapping?');"
+                        style="background:#dc2626;color:#fff;border:0;padding:4px 10px;border-radius:4px;cursor:pointer;">
+                  Delete
+                </button>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="mt-2" style="margin-left:12px;">
+        <input type="checkbox" id="select-all-bottom" class="form-check-input">
+        <label class="form-check-label" for="select-all-bottom">Select All</label>
+      </div>
+
+      {% if total_pages > 1 %}
+        <div style="margin-top:10px;font-size:0.8rem;display:flex;gap:12px;align-items:center;">
+          <span>Page {{ current_page }} of {{ total_pages }} ({{ total_count }} total)</span>
+          {% if current_page > 1 %}
+            <a href="{{ base_path }}/section_tags{{ ext }}?page={{ current_page - 1 }}">« Prev</a>
+          {% endif %}
+          {% if current_page < total_pages %}
+            <a href="{{ base_path }}/section_tags{{ ext }}?page={{ current_page + 1 }}">Next »</a>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% else %}
+      <p style="color:#666;">No section tag mappings found.</p>
+    {% endif %}
+  </form>
+
+</div>
+
+<style>
+  #tag-mapping-table {
+    font-size: 0.85rem;
+    border-collapse: collapse;
+  }
+  #tag-mapping-table th,
+  #tag-mapping-table td {
+    padding: 6px 8px;
+    border: 1px solid #d1d5db;
+  }
+  .sortable {
+    cursor: pointer;
+    user-select: none;
+  }
+  .sort-arrow {
+    font-size: 0.7rem;
+  }
+</style>
+
+<script>
+  function setAll(fromId) {
+    var master = document.getElementById(fromId);
+    if (!master) return;
+    var boxes = document.querySelectorAll('.section-select-checkbox');
+    boxes.forEach(function (cb) {
+      cb.checked = master.checked;
+    });
+    var otherId = fromId === 'select-all-top' ? 'select-all-bottom' : 'select-all-top';
+    var other = document.getElementById(otherId);
+    if (other) {
+      other.checked = master.checked;
+    }
+  }
+
+  let sortHistory = [];
+
+  function sortTable(colIndex) {
+    const existing = sortHistory.find(s => s.col === colIndex);
+    if (existing) {
+      existing.asc = !existing.asc;
+    } else {
+      sortHistory.push({ col: colIndex, asc: true });
+    }
+
+    const tbody = document.querySelector("#tag-mapping-table tbody");
+    const rows = Array.from(tbody.rows);
+
+    rows.sort((a, b) => {
+      for (const { col, asc } of sortHistory) {
+        const valA = (a.cells[col].textContent || "").trim().toLowerCase();
+        const valB = (b.cells[col].textContent || "").trim().toLowerCase();
+        const cmp = valA.localeCompare(valB, undefined, { numeric: true });
+        if (cmp !== 0) return asc ? cmp : -cmp;
+      }
+      return 0;
+    });
+
+    rows.forEach(row => tbody.appendChild(row));
+
+    document.querySelectorAll(".sortable").forEach((el) => {
+      const col = parseInt(el.getAttribute("data-col"));
+      const iconSpan = el.querySelector(".sort-arrow");
+      const hist = sortHistory.find(s => s.col === col);
+      if (!iconSpan) return;
+      iconSpan.textContent = hist ? (hist.asc ? "▲" : "▼") : "";
+    });
+  }
+
+  function bindSorting() {
+    document.querySelectorAll(".sortable").forEach(el => {
+      el.addEventListener("click", function () {
+        const colIdx = parseInt(el.getAttribute("data-col"), 10);
+        if (!isNaN(colIdx)) sortTable(colIdx);
+      });
+    });
+  }
+
+  function buildTagValueMap() {
+    const raw = {{ tag_values | tojson | safe }};
+    const map = {};
+    raw.forEach(function (row) {
+      if (!map[row.tag_name]) map[row.tag_name] = [];
+      if (!map[row.tag_name].includes(row.tag_value)) {
+        map[row.tag_name].push(row.tag_value);
+      }
+    });
+    Object.keys(map).forEach(k => map[k].sort());
+    return map;
+  }
+
+  function refillTagValueOptions(tagValueMap) {
+    const tagNameSel = document.getElementById("tag_name_filter");
+    const tagValueSel = document.getElementById("tag_value_filter");
+    if (!tagNameSel || !tagValueSel) return;
+
+    const selectedTagName = tagNameSel.value || "";
+    const currentValueFromServer = "{{ tag_value_filter | e }}";
+
+    while (tagValueSel.firstChild) tagValueSel.removeChild(tagValueSel.firstChild);
+
+    const defaultOpt = document.createElement("option");
+    defaultOpt.value = "";
+    defaultOpt.textContent = "Tag Value filter";
+    tagValueSel.appendChild(defaultOpt);
+
+    let valuesToShow = [];
+
+    if (selectedTagName && tagValueMap[selectedTagName]) {
+      valuesToShow = tagValueMap[selectedTagName];
+    } else {
+      const set = new Set();
+      Object.values(tagValueMap).forEach(arr => arr.forEach(v => set.add(v)));
+      valuesToShow = Array.from(set).sort();
+    }
+
+    valuesToShow.forEach(val => {
+      const opt = document.createElement("option");
+      opt.value = val;
+      opt.textContent = val;
+      if (currentValueFromServer === val) opt.selected = true;
+      tagValueSel.appendChild(opt);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var top = document.getElementById('select-all-top');
+    var bottom = document.getElementById('select-all-bottom');
+    if (top) top.addEventListener('change', function () { setAll('select-all-top'); });
+    if (bottom) bottom.addEventListener('change', function () { setAll('select-all-bottom'); });
+
+    bindSorting();
+
+    const tagValueMap = buildTagValueMap();
+    refillTagValueOptions(tagValueMap);
+
+    const tagNameSel = document.getElementById("tag_name_filter");
+    tagNameSel.addEventListener("change", function () {
+      const tagValueSel = document.getElementById("tag_value_filter");
+      tagValueSel.value = "";
+      refillTagValueOptions(tagValueMap);
+    });
+  });
+</script>
+
+{% endblock %}

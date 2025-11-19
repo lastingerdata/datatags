@@ -1,0 +1,221 @@
+{% extends 'tags_base.html' %}
+{% block title %}Bulk Tag Course Sections{% endblock %}
+{% block content %}
+<div style="max-width:1200px;margin:auto;">
+<h2>Bulk Tag Course Sections</h2>
+<a href="{{ url_for('tags_index') }}"  style="display:inline-block;margin-bottom:10px;" class="btn-link">Back to Tag Home</a>
+<form method="get" class="mb-3">
+<input type="text" name="search" placeholder="Section Name" value="{{ search }}" style="padding:6px;min-width:180px;">
+<select name="wild_card" style="padding:6px;min-width:180px;">
+<option value="">-- Wildcard --</option>
+<option value="contains"        {% if wild_card=='contains' %}selected{% endif %}>Contains</option>
+<option value="begins_with"     {% if wild_card=='begins_with' %}selected{% endif %}>Begins With</option>
+<option value="ends_with"       {% if wild_card=='ends_with' %}selected{% endif %}>Ends With</option>
+<option value="exact_match"     {% if wild_card=='exact_match' %}selected{% endif %}>Exact Match</option>
+<option value="does_not_contain" {% if wild_card=='does_not_contain' %}selected{% endif %}>Does not contain</option>
+</select>
+<input type="text" name="search_course" placeholder="Course Name" value="{{ search_course }}" style="padding:6px;min-width:180px;">
+<select name="wild_card_course" style="padding:6px;min-width:180px;">
+<option value="">-- Wildcard --</option>
+<option value="contains"      {% if wild_card_course=='contains' %}selected{% endif %}>Contains</option>
+<option value="begins_with"   {% if wild_card_course=='begins_with' %}selected{% endif %}>Begins With</option>
+<option value="ends_with"     {% if wild_card_course=='ends_with' %}selected{% endif %}>Ends With</option>
+<option value="exact_match"   {% if wild_card_course=='exact_match' %}selected{% endif %}>Exact Match</option>
+<option value="does_not_contain" {% if wild_card_course=='does_not_contain' %}selected{% endif %}>Does not contain</option>
+</select>
+<div style="padding:6px;min-width:180px; margin-top:6px;">
+<label>Courses starting from:</label>
+<input type="date" name="start_date" value="{{ start_date }}">
+
+<label>Courses ending on:</label>
+<input type="date" name="end_date" value="{{ end_date }}">
+</div>
+<div style="margin-top:6px;">
+<input type="text" name="department" placeholder="Genius Section ID" value="{{ department }}">
+<input type="text" name="term" placeholder="Term" value="{{ term }}">
+
+<select name="tagged_status" style="padding:6px;min-width:180px; margin-top:6px;">
+<option value="">-- Tag Status --</option>
+<option value="tagged"     {% if tagged_status=='tagged' %}selected{% endif %}>Tagged</option>
+<option value="not_tagged" {% if tagged_status=='not_tagged' %}selected{% endif %}>Not Tagged</option>
+</select>
+<button type="submit" class="btn btn-secondary">Filter</button>
+</form>
+
+<form method="post">
+<div style="margin:10px 0;">
+<label>Select Tag to Apply:</label>
+<select name="tag_entry_id" required>
+<option value="">-- Select Tag --</option>
+       {% for val in tag_values %}
+<option value="{{ val.tag_entry_id }}"
+         {% if tag_entry_id == val.tag_entry_id|string %}selected{% endif %}>
+         {{ val.tag_name }}: {{ val.tag_value }}
+</option>
+       {% endfor %}
+</select>
+<input type="hidden" name="user" value="{{ session_user or user }}">
+<input type="hidden" name="map" value="1">
+
+</div>
+<div class="form-check" style="display:inline-block;margin-left:12px;">
+<input type="checkbox" id="select-all-top" class="form-check-input">
+<label class="form-check-label" for="select-all-top">Select All</label>
+</div>
+<button type="submit" class="btn btn-primary">Apply Tag to Selected</button>
+
+<button type="button" class="btn btn-secondary" 
+             onclick="sortHistory.length=0; location.reload();">
+       Reset Sort
+</button>
+</div>
+
+   {% if courses %}
+<table id="tag-mapping-table" class="table table-bordered mt-3">
+<thead>
+<tr>
+<th id="th-0" onclick="sortTable(0)">Select<span></span></th>
+<th id="th-1" onclick="sortTable(1)">Genius SectionId<span></span></th>
+<th id="th-2" onclick="sortTable(2)">D2L OrgUnitId<span></span></th>
+<th id="th-3" onclick="sortTable(3)">Section Name<span></span></th>
+<th id="th-4" onclick="sortTable(4)">Start Date<span></span></th>
+<th id="th-5" onclick="sortTable(5)">End Date<span></span></th>
+<th id="th-6" onclick="sortTable(6)">Course Name<span></span></th>
+<th id="th-7" onclick="sortTable(7)">Department Name<span></span></th>
+<th id="th-8" onclick="sortTable(8)">Term<span></span></th>
+<th id="th-9" onclick="sortTable(9)">Tag Status<span></span></th>
+</tr>
+</thead>
+<tbody>
+         {% for course in courses %}
+<tr>
+<td>
+<input type="checkbox" name="selected_courses"
+               value="{{ course.d2l_OrgUnitId }}_{{ course.genius_sectionId }}"
+               {% if course.tag_name %}class="already-mapped"{% endif %}>
+</td>
+<td>{{ course.genius_sectionId }}</td>
+<td>{{ course.d2l_OrgUnitId }}</td>
+<td>{{ course.section_name }}</td>
+<td>{{ course.startDate }}</td>
+<td>{{ course.endDate }}</td>
+<td>{{ course.course_name }}</td>
+<td>{{ course.dept_name }}</td>
+<td>{{ course.termId }}</td>
+<td>
+             {% if course.tag_name %}
+               ✅ {{ course.tag_name }}: {{ course.tag_value }}
+             {% else %}
+               —
+             {% endif %}
+</td>
+</tr>
+         {% endfor %}
+</tbody>
+</table>
+
+     {% if total_pages > 1 %}
+<div class="pagination mt-4">
+<p>Page {{ page }} of {{ total_pages }} ({{ total_results }} courses)</p>
+<ul class="pagination">
+<li class="page-item {% if page == 1 %}disabled{% endif %}">
+<a class="page-link"
+             href="{{ url_for('section_tags_inserts',
+                    page=page-1,
+                    search=search, wild_card=wild_card,
+                    search_course=search_course, wild_card_course=wild_card_course,
+                    start_date=start_date, end_date=end_date,
+                    department=department, term=term,
+                    tagged_status=tagged_status,
+                    tag_entry_id=tag_entry_id) }}">
+             Previous
+</a>
+</li>
+         {% for p in range(1, total_pages + 1) %}
+<li class="page-item {% if p == page %}active{% endif %}">
+<a class="page-link"
+             href="{{ url_for('section_tags_inserts',
+                    page=p,
+                    search=search, wild_card=wild_card,
+                    search_course=search_course, wild_card_course=wild_card_course,
+                    start_date=start_date, end_date=end_date,
+                    department=department, term=term,
+                    tagged_status=tagged_status,
+                    tag_entry_id=tag_entry_id) }}">
+             {{ p }}
+</a>
+</li>
+         {% endfor %}
+<li class="page-item {% if page == total_pages %}disabled{% endif %}">
+<a class="page-link"
+             href="{{ url_for('section_tags_inserts',
+                    page=page+1,
+                    search=search, wild_card=wild_card,
+                    search_course=search_course, wild_card_course=wild_card_course,
+                    start_date=start_date, end_date=end_date,
+                    department=department, term=term,
+                    tagged_status=tagged_status,
+                    tag_entry_id=tag_entry_id) }}">
+             Next
+</a>
+</li>
+</ul>
+</div>
+     {% endif %}
+   {% else %}
+<p>No matching courses found.</p>
+   {% endif %}
+</form>
+</div>
+
+<script>
+ const selectAllTop = document.getElementById('select-all-top');
+ function setAll(val) {
+   document.querySelectorAll('input[name="selected_courses"]').forEach(cb => {
+     cb.checked = val;
+   });
+ }
+ if (selectAllTop) {
+   selectAllTop.addEventListener('change', e => setAll(e.target.checked));
+ }
+ const sortHistory = [];
+ function getCellText(row, idx) {
+   const td = row.children[idx];
+   return (td ? (td.innerText || td.textContent) : '').trim();
+ }
+ function sortTable(colIdx) {
+   const table = document.getElementById('tag-mapping-table');
+   const tbody = table.tBodies[0];
+   const rows = Array.from(tbody.rows).map((tr, i) => ({ tr, i }));
+   let direction = 'asc';
+   const prev = sortHistory[0];
+   if (prev && prev.col === colIdx && prev.dir === 'asc') direction = 'desc';
+   sortHistory.length = 0;
+   sortHistory.push({ col: colIdx, dir: direction });
+   rows.sort((A, B) => {
+     const a = getCellText(A.tr, colIdx);
+     const b = getCellText(B.tr, colIdx);
+     const na = Number(a.replace(/[^0-9.-]/g, ''));
+     const nb = Number(b.replace(/[^0-9.-]/g, ''));
+     let res;
+     if (!isNaN(na) && !isNaN(nb) && a !== '' && b !== '') {
+       res = na - nb;
+     } else {
+       const da = Date.parse(a);
+       const db = Date.parse(b);
+       if (!isNaN(da) && !isNaN(db)) {
+         res = da - db;
+       } else {
+         res = a.localeCompare(b);
+       }
+     }
+     if (res === 0) res = A.i - B.i;
+     return direction === 'asc' ? res : -res;
+   });
+   document.querySelectorAll('th[id^="th-"] span').forEach(s => s.textContent = '');
+   const th = document.getElementById('th-' + colIdx);
+   if (th) th.querySelector('span').textContent = direction === 'asc' ? ' ▲' : ' ▼';
+   rows.forEach(r => tbody.appendChild(r.tr));
+ }
+</script>
+{% endblock %}

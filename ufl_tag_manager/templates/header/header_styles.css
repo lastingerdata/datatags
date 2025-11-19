@@ -1,0 +1,92 @@
+/* Header Component Styles */
+
+/* Top blue bar */
+.top-bar {
+  background: #002657;
+  height: 56px;
+}
+
+/* Header */
+.uf-header {
+  background: #fff;
+  padding: 1rem 0;
+  height: 92px;
+  border-bottom: 3px solid #002657;
+}
+
+.uf-logo {
+  display: flex;
+  align-items: center;
+}
+
+.uf-logo-img {
+  width: auto;
+  height: 50px;
+  object-fit: contain;
+}
+
+.header-nav {
+  display: flex;
+  gap: 20px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.header-nav .nav-item {
+  color: #374151;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.header-nav .nav-item:hover {
+  color: var(--uf-blue);
+  text-decoration: none;
+}
+
+/* Sub Navigation */
+.sub-nav {
+  background-color: var(--uf-blue);
+  padding: 0.75rem 0;
+}
+
+.nav-links {
+  display: flex;
+  gap: 30px;
+}
+
+.sub-nav-link {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 16px;
+  transition: color 0.2s;
+}
+
+.sub-nav-link:hover {
+  color: var(--uf-orange);
+  text-decoration: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .uf-logo-img {
+    height: 40px;
+  }
+  
+  .header-nav {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-end;
+  }
+  
+  .nav-links {
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .sub-nav-link {
+    font-size: 14px;
+  }
+}

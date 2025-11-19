@@ -20,6 +20,7 @@ prod → uses production endpoints
 The application requires the following pip modules:
 - `ibna`
 - `requests`
+-  `jinja2`
 
 ## File Permissions
 

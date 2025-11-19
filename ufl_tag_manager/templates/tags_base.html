@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      crossorigin="anonymous">
+
+    <title>{% block title %}{% endblock %}</title>
+
+    <style>
+      
+      :root {
+        --uf-blue: #0021A5;
+        --uf-orange: #FA4616;
+        --uf-light: #f5f7fa;
+      }
+
+      body {
+        background-color: #f8fafc;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .top-bar {
+        background: #002657;
+        height: 56px;
+      }
+
+      /* Header */
+      .uf-header {
+        background: #fff;
+        padding: 1rem 0;
+        height: 92px;
+        border-bottom: 3px solid #002657;
+      }
+
+      .uf-logo {
+        display: flex;
+        align-items: center;
+      }
+
+      .uf-logo-img {
+        width: 235px;
+        height: 60px;
+        object-fit: contain;
+      }
+
+      /* Fallback text logo */
+      .uf-logo-fallback {
+        display: flex;
+        align-items: center;
+      }
+
+      .uf-logo-text {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .uf-brand {
+        background: #0021A5;
+        color: white;
+        font-weight: 900;
+        font-size: 24px;
+        padding: 8px 12px;
+        font-family: 'Arial', sans-serif;
+        border-radius: 2px;
+      }
+
+      .uf-divider {
+        width: 3px;
+        height: 40px;
+        background: #FA4616;
+      }
+
+      .uf-text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+      }
+
+      .uf-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: #0021A5;
+        font-family: 'Arial', sans-serif;
+      }
+
+      .uf-subtitle {
+        font-size: 11px;
+        font-weight: 500;
+        color: #0021A5;
+        letter-spacing: 1px;
+        font-family: 'Arial', sans-serif;
+      }
+
+      .header-nav {
+        display: flex;
+        gap: 20px;
+        justify-content: flex-end;
+        align-items: center;
+      }
+
+      .header-nav .nav-item {
+        color: #374151;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 14px;
+        transition: color 0.2s;
+      }
+
+      .header-nav .nav-item:hover {
+        color: var(--uf-blue);
+        text-decoration: none;
+      }
+
+      /* Sub Navigation */
+      .sub-nav {
+        background-color: var(--uf-blue);
+        padding: 0.75rem 0;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 30px;
+      }
+
+      .sub-nav-link {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 16px;
+        transition: color 0.2s;
+      }
+
+      .sub-nav-link:hover {
+        color: var(--uf-orange);
+        text-decoration: none;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .uf-logo-img {
+          height: 40px;
+        }
+        
+        .header-nav {
+          flex-direction: column;
+          gap: 10px;
+          align-items: flex-end;
+        }
+        
+        .nav-links {
+          flex-wrap: wrap;
+          gap: 15px;
+        }
+        
+        .sub-nav-link {
+          font-size: 14px;
+        }
+      }
+
+
+
+      h2 {
+        text-align: center;
+        color: var(--uf-blue);
+        margin-bottom: 30px;
+        font-weight: 600;
+      }
+
+   
+      a.btn-link {
+        display: inline-block;
+        padding: 8px 14px;
+        background: var(--uf-blue);
+        color: #fff;
+        text-decoration: none;
+        border-radius: 6px;
+        transition: 0.2s;
+        font-weight: 500;
+      }
+
+      a.btn-link:hover {
+        background: var(--uf-orange);
+        color: #fff;
+        text-decoration: none;
+      }
+
+
+      .dashboard-container {
+        max-width: 900px;
+        margin: 50px auto;
+        padding: 30px;
+        background: #fff;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, .06);
+        border-radius: 12px;
+        flex: 1;
+      }
+
+
+      .uf-footer {
+        background: #002657;
+        color: white;
+        padding: 2.5rem 0;
+        margin-top: auto;
+      }
+
+      .uf-footer .row {
+        align-items: center;
+      }
+
+      .footer-logo {
+        display: flex;
+        align-items: center;
+      }
+
+      .footer-logo-img {
+        width: 235px;
+        height: 60px;
+        object-fit: contain;
+      }
+
+      .footer-links {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .footer-link {
+        color: white;
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: 400;
+        transition: color 0.2s;
+      }
+
+      .footer-link:hover {
+        color: #FA4616;
+        text-decoration: none;
+      }
+
+      .footer-contact {
+        text-align: left;
+      }
+
+      .contact-info p {
+        margin: 5px 0;
+        color: white;
+        font-size: 14px;
+        line-height: 1.4;
+      }
+
+      .contact-email {
+        font-weight: 500;
+      }
+
+      .contact-address,
+      .contact-city {
+        font-weight: 400;
+        color: #cccccc;
+      }
+
+      .footer-social {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        align-items: center;
+        flex-wrap: nowrap;
+      }
+
+      .social-icon {
+        color: white;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 35px;
+        height: 35px;
+        background: white;
+        border-radius: 4px;
+      }
+
+      .social-icon:hover {
+        background: #FA4616;
+        text-decoration: none;
+        transform: translateY(-2px);
+      }
+
+      .social-icon svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      .social-icon-img {
+        width: 22px;
+        height: 22px;
+        object-fit: contain;
+        filter: none;
+      }
+
+      .social-icon:hover .social-icon-img {
+        filter: brightness(0) invert(1);
+      }
+
+      /* Footer Section Dividers */
+      .footer-divider {
+        width: 2px;
+        background: #FA4616;
+        height: 80px;
+        margin: 0;
+        align-self: center;
+      }
+
+      /* Footer Responsive Design */
+      @media (max-width: 768px) {
+        .uf-footer {
+          padding: 1.5rem 0;
+        }
+        
+        .footer-logo-img {
+          width: 200px;
+          height: 50px;
+        }
+        
+        .footer-links {
+          margin-top: 20px;
+          gap: 10px;
+        }
+        
+        .footer-contact {
+          margin-top: 20px;
+        }
+        
+        .footer-social {
+          margin-top: 20px;
+          justify-content: flex-start;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .uf-footer .row > div {
+          margin-bottom: 20px;
+        }
+        
+        .footer-social {
+          justify-content: center;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    {% include 'header/header.html' %}
+
+    <div class="container mt-4">
+      {% block content %}{% endblock %}
+    </div>
+
+    {% include 'footer/footer.html' %}
+
+    {% block extra_scripts %}{% endblock %}
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+  </body>
+</html>
