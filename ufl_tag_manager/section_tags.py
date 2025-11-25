@@ -15,7 +15,7 @@ env = Environment(
    loader=FileSystemLoader(TEMPLATES),
    autoescape=select_autoescape(["html", "xml"])
 )
-BASE_PATH = "/ufl_tag_manager"
+BASE_PATH = "/cgi-bin/ufl_tag_manager"
 EXT = ".py"
 
 def print_headers(content_type="text/html; charset=utf-8", status=None, extra=None):

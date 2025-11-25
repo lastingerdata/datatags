@@ -12,7 +12,7 @@ cgitb.enable()
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from env_config import api_url, get_api_key, safe_request
 
-BASE_PATH = "/ufl_tag_manager"
+BASE_PATH = "/cgi-bin/ufl_tag_manager"
 EXT = ".py"
 
 ROOT = os.path.dirname(os.path.abspath(__file__))

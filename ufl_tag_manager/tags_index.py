@@ -14,7 +14,7 @@ env = Environment(
 
 def main():
     html = env.get_template("tags_index.html").render(
-        base_path="/ufl_tag_manager",
+        base_path="/cgi-bin/ufl_tag_manager",
         ext=".py ",   
         user=os.environ.get("REMOTE_USER", "unknown"),
     )

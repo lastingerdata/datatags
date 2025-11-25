@@ -21,7 +21,7 @@ env = Environment(
     autoescape=select_autoescape(["html", "xml"])
 )
 
-BASE_PATH = "/ufl_tag_manager"
+BASE_PATH = "/cgi-bin/ufl_tag_manager"
 EXT = ".py"
 
 

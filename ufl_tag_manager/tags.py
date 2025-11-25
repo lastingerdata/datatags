@@ -1,5 +1,4 @@
-#!/h/cnswww-test.datatags.lastinger/test.datatags.lastinger.ufl.edu/htdocs/ufl_tag_manager/venv/bin/python3
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 import os
 import sys
@@ -21,7 +20,7 @@ env = Environment(
     autoescape=select_autoescape(["html", "xml"])
 )
 
-BASE_PATH = "/ufl_tag_manager"
+BASE_PATH = "/cgi-bin/ufl_tag_manager"
 EXT = ".py"
 
 
