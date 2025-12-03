@@ -4,6 +4,7 @@
 .top-bar {
   background: #002657;
   height: 56px;
+  width: 100%;
 }
 
 /* Header */
@@ -12,6 +13,12 @@
   padding: 1rem 0;
   height: 92px;
   border-bottom: 3px solid #002657;
+  width: 100%;
+}
+
+.uf-header .container-fluid {
+  max-width: 100%;
+  padding: 0 120px;
 }
 
 .uf-logo {
@@ -20,9 +27,10 @@
 }
 
 .uf-logo-img {
-  width: auto;
-  height: 50px;
+  width: 235px;
+  height: 60px;
   object-fit: contain;
+  opacity: 1;
 }
 
 .header-nav {
@@ -33,10 +41,15 @@
 }
 
 .header-nav .nav-item {
-  color: #374151;
+  color: #002657;
   text-decoration: none;
-  font-weight: 500;
-  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0%;
+  vertical-align: bottom;
   transition: color 0.2s;
 }
 

@@ -8,6 +8,10 @@
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
       crossorigin="anonymous">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
     <title>{% block title %}{% endblock %}</title>
 
@@ -19,9 +23,26 @@
         --uf-light: #f5f7fa;
       }
 
+      /* Override Bootstrap button styles */
+      .btn-primary {
+        background-color: #0021A5 !important;
+        background: #0021A5 !important;
+        border-color: #0021A5 !important;
+        color: #fff !important;
+      }
+
+      .btn-primary:hover,
+      .btn-primary:focus,
+      .btn-primary:active {
+        background-color: #001580 !important;
+        background: #001580 !important;
+        border-color: #001580 !important;
+        color: #fff !important;
+      }
+
       body {
-        background-color: #f8fafc;
-        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        background-color: #FFFFFF;
+        font-family: 'IBM Plex Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
         margin: 0;
         padding: 0;
         min-height: 100vh;
@@ -37,19 +58,25 @@
       /* Header */
       .uf-header {
         background: #fff;
-        padding: 1rem 0;
-        height: 92px;
+        padding: 1.5rem 0;
+        height: 110px;
         border-bottom: 3px solid #002657;
       }
 
       .uf-logo {
         display: flex;
         align-items: center;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      .uf-logo:hover {
+        text-decoration: none;
       }
 
       .uf-logo-img {
-        width: 235px;
-        height: 60px;
+        width: 290px;
+        height: 70px;
         object-fit: contain;
       }
 
@@ -107,14 +134,89 @@
         gap: 20px;
         justify-content: flex-end;
         align-items: center;
+        white-space: nowrap;
+        flex-wrap: nowrap;
       }
 
       .header-nav .nav-item {
-        color: #374151;
+        color: #002657;
         text-decoration: none;
-        font-weight: 500;
-        font-size: 14px;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-style: normal;
+        font-size: 16px;
+        line-height: 24px;
+        letter-spacing: 0%;
+        vertical-align: bottom;
         transition: color 0.2s;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      .nav-dropdown {
+        position: relative;
+        display: inline-block;
+      }
+
+      .nav-dropdown::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        right: 0;
+        height: 10px;
+      }
+
+      .dropdown-icon {
+        display: inline-block;
+        margin-left: 6px;
+        vertical-align: middle;
+        transition: transform 0.2s;
+      }
+
+      .nav-dropdown:hover .dropdown-icon {
+        transform: rotate(180deg);
+      }
+
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: white;
+        min-width: 200px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1000;
+        top: 100%;
+        margin-top: 5px;
+        left: 0;
+        border-radius: 4px;
+        padding: 8px 0;
+      }
+
+      .nav-dropdown:hover .dropdown-content,
+      .dropdown-content:hover {
+        display: block;
+      }
+
+      .dropdown-item {
+        color: #002657;
+        padding: 12px 20px;
+        text-decoration: none;
+        display: block;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 500;
+        font-size: 15px;
+        transition: background-color 0.2s;
+      }
+
+      .dropdown-item:hover {
+        background-color: #f5f5f5;
+        text-decoration: none;
+        color: #002657;
+      }
+
+      .dropdown-item.active {
+        background-color: #FA4616;
+        color: white;
       }
 
       .header-nav .nav-item:hover {
@@ -197,7 +299,6 @@
 
 
       .dashboard-container {
-        max-width: 900px;
         margin: 50px auto;
         padding: 30px;
         background: #fff;

@@ -12,7 +12,7 @@ import json
 cgitb.enable()
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import api_url, get_api_key, safe_request
+from env_config import api_url, get_api_key, safe_request, get_base_path
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES = os.path.join(ROOT, "templates")
@@ -21,7 +21,7 @@ env = Environment(
     autoescape=select_autoescape(["html", "xml"])
 )
 
-BASE_PATH = "/ufl_tag_manager"
+BASE_PATH = get_base_path()
 EXT = ".py"
 
 
@@ -274,6 +274,7 @@ def main():
             edit_mode=edit_mode,
             tag=tag_meta,
             values=values,
+            page_name='tag_values'
         )
 
         print_headers()

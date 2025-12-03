@@ -10,9 +10,9 @@ from html import escape
 cgitb.enable()
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import api_url, get_api_key, safe_request
+from env_config import api_url, get_api_key, safe_request, get_base_path
 
-BASE_PATH = "/ufl_tag_manager"
+BASE_PATH = get_base_path()
 EXT = ".py"
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -296,6 +296,7 @@ def section_tags_inserts():
         end_date=end_date,
         department=department,
         term=term,
+        page_name='section_tags_inserts',
         tagged_status=tagged_status,
         page=page,
         per_page=per_page,

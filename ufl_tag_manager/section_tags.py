@@ -8,14 +8,14 @@ import traceback
 import urllib.parse
 cgitb.enable()
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import api_url, get_api_key, safe_request
+from env_config import api_url, get_api_key, safe_request, get_base_path
 ROOT = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES = os.path.join(ROOT, "templates")
 env = Environment(
    loader=FileSystemLoader(TEMPLATES),
    autoescape=select_autoescape(["html", "xml"])
 )
-BASE_PATH = "/ufl_tag_manager"
+BASE_PATH = get_base_path()
 EXT = ".py"
 
 def print_headers(content_type="text/html; charset=utf-8", status=None, extra=None):
@@ -233,6 +233,7 @@ def main():
            current_page=current_page,
            per_page=per_page,
            name=name,
+           page_name='section_tags',
            wild_card=wild_card,
            d2l_OrgUnitId=d2l_OrgUnitId,
            genius_sectionId=genius_sectionId,
