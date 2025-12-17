@@ -1,37 +1,101 @@
 {% extends 'tags_base.html' %}
-{% block title %}Report Logs{% endblock %}
+{% block title %}Rules{% endblock %}
 {% block content %}
-<style>.wrap { max-width: 1100px; margin: 0 auto; }.msg { margin: 8px 0; }.msg.success { color:#0a8a0a; }.msg.danger { color:#c62828; } 
-table { width:100%; border-collapse: collapse; background:#fff; }
-th, td {
-padding:10px;
-border-bottom:1px solid #eee;
-text-align:left;
-font-size:14px;
-vertical-align: top;
-}
+
+<style>
+  .wrap { max-width: 1300px; margin: 0 auto; }
+  .msg { margin: 8px 0; }
+  .msg.success { color:#0a8a0a; }
+  .msg.danger { color:#c62828; }
+
+  table { width:100%; border-collapse: collapse; background:#fff; table-layout: fixed; }
+  th, td {
+    padding:10px;
+    border-bottom:1px solid #eee;
+    text-align:left;
+    font-size:14px;
+    vertical-align: top;
+    word-break: break-word;
+  }
   th {
-      background:#f3f4f6;
-      position:sticky;
-      top:0;
-      z-index:1;
-      }
-   a { text-decoration: none; }
-  </style>
+    background:#f3f4f6;
+    position:sticky;
+    top:0;
+    z-index:1;
+    font-weight:600;
+  }
+  a { text-decoration: none; }
+
+  th.rule-name, td.rule-name { min-width: 280px; max-width: 360px; }
+  th.column-col, td.column-col { min-width: 220px; max-width: 320px; }
+  th.description, td.description { min-width: 320px; max-width: 420px; }
+
+  td.rule-name code {
+    display:block;
+    line-height:1.4;
+    background:#f1f5f9;
+    padding:4px 6px;
+    border-radius:4px;
+    font-size:12px;
+  }
+</style>
+
 <div class="wrap">
-{% if view == "summary" %}
-<h2>Rules</h2>
+
+  <h2>Rules</h2>
   <style>h2 {color: #2c6cc7;text-align:center;margin-bottom:30px;}</style>
-{% else %}
-<h2>Report </h2>
-<p><a href="{{ base_path }}/rules{{ ext }}">&larr; Back to all reports</a></p>
-<table>
-    <thead>
+
+  {% if messages %}
+    {% for cat, msg in messages %}
+      <div class="msg {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endif %}
+
+  {% if rows|length == 0 %}
+    <div class="msg danger">No rules found.</div>
+  {% else %}
+    <table>
+      <thead>
         <tr>
-            <th>Rule Name</th>
-            <th>endpoint</th>
-            <th>method</th>
-            <th></th>
+          <th class="rule-name">Rule Name</th>
+          <th>Endpoint</th>
+          <th>Segment</th>
+          <th>Section Tag</th>
+          <th>Tag Name</th>
+          <th>Tag Value</th>
+          <th class="column-col">Column</th>
+          <th>Order</th>
+          <th class="description">Description</th>
+          <th>Link to rule details</th>
         </tr>
-    </thead>
-</table>
+      </thead>
+
+      <tbody>
+        {% for r in rows %}
+          <tr>
+            <td class="rule-name"><code>{{ r.rule_name or 'Unknown' }}</code></td>
+            <td>{{ r.endpoint or '-' }}</td>
+            <td>{{ r.segment or '-' }}</td>
+            <td>{{ r.section_tag or '-' }}</td>
+            <td>{{ r.tag_name or '-' }}</td>
+            <td>{{ r.tag_value_text or '-' }}</td>
+            <td class="column-col">{{ r.column or '-' }}</td>
+            <td>{{ r.order or '-' }}</td>
+            <td class="description">{{ r.description or '-' }}</td>
+            <td>
+              <a href="{{ base_path }}/rules{{ ext }}?detail={{ r.rule_name|urlencode }}">
+                View details
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+
+  <p style="margin-top:16px;">
+    <a href="{{ base_path }}/tags_index{{ ext }}">Back to Tag Home</a>
+  </p>
+
+</div>
+{% endblock %}
