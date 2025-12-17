@@ -7,15 +7,16 @@
   .msg { margin: 8px 0; }
   .msg.success { color:#0a8a0a; }
   .msg.danger { color:#c62828; }
+  a { text-decoration:none; }
 
-  table { width:100%; border-collapse: collapse; background:#fff; table-layout: fixed; }
+  table { width:100%; border-collapse:collapse; background:#fff; table-layout:fixed; }
   th, td {
     padding:10px;
     border-bottom:1px solid #eee;
     text-align:left;
     font-size:14px;
-    vertical-align: top;
-    word-break: break-word;
+    vertical-align:top;
+    word-break:break-word;
   }
   th {
     background:#f3f4f6;
@@ -24,11 +25,17 @@
     z-index:1;
     font-weight:600;
   }
-  a { text-decoration: none; }
 
-  th.rule-name, td.rule-name { min-width: 280px; max-width: 360px; }
-  th.column-col, td.column-col { min-width: 220px; max-width: 320px; }
-  th.description, td.description { min-width: 320px; max-width: 420px; }
+  th.rule-name, td.rule-name { width: 26%; }
+  th.column-col, td.column-col { width: 14%; }
+  th.description, td.description { width: 30%; }
+  th.endpoint, td.endpoint { width: 15%; }
+  th.segment, td.segment { width: 15%; }
+  th.section-tag, td.section-tag { width: 14%; }
+  th.tag-name, td.tag-name { width: 10%; }
+  th.tag-value, td.tag-value { width: 15%; }
+  th.order, td.order { width: 10%; }
+  th.code, td.code { width: 8%; }
 
   td.rule-name code {
     display:block;
@@ -38,64 +45,127 @@
     border-radius:4px;
     font-size:12px;
   }
+
+  .detail-card{
+    background:#fff;
+    border:1px solid #eee;
+    border-radius:10px;
+    padding:18px;
+    margin-top:14px;
+  }
+  .detail-card .label{
+    font-weight:700;
+    margin-top:10px;
+  }
+  pre.codebox{
+    margin-top: 10px;
+    background:#0b1020;
+    color:#e5e7eb;
+    padding:16px;
+    border-radius:6px;
+    overflow-x:auto;
+    font-size:13px;
+    line-height:1.5;
+  }
 </style>
 
 <div class="wrap">
 
-  <h2>Rules</h2>
-  <style>h2 {color: #2c6cc7;text-align:center;margin-bottom:30px;}</style>
+  {% if view == "detail" %}
 
-  {% if messages %}
-    {% for cat, msg in messages %}
-      <div class="msg {{ cat }}">{{ msg }}</div>
-    {% endfor %}
-  {% endif %}
+    <p><a href="{{ base_path }}/rules{{ ext }}">&larr; Back to all rules</a></p>
 
-  {% if rows|length == 0 %}
-    <div class="msg danger">No rules found.</div>
+    {% if r %}
+      <h2>Rule: <code>{{ r.rule_name }}</code></h2>
+
+      <div class="detail-card">
+        <div class="label">Endpoint</div>
+        <div>{{ r.endpoint or "" }}</div>
+
+        <div class="label">Segment</div>
+        <div>{{ r.segment or "" }}</div>
+
+        <div class="label">Section Tag</div>
+        <div>{{ r.section_tag or "" }}</div>
+
+        <div class="label">Tag Name</div>
+        <div>{{ r.tag_name or "" }}</div>
+
+        <div class="label">Tag Value Text</div>
+        <div>{{ r.tag_value_text or "" }}</div>
+
+        <div class="label">Order</div>
+        <div>{{ r.order or "" }}</div>
+
+        <div class="label">Column</div>
+        <div>{{ r.column or "" }}</div>
+
+        <div class="label">Description</div>
+        <div>{{ r.description or "" }}</div>
+      </div>
+
+      <h3 style="margin-top:20px;">Method / Code</h3>
+      <pre class="codebox">{{ r.method_source }}</pre>
+
+    {% else %}
+      <div class="msg danger">No rule details to display.</div>
+    {% endif %}
+
   {% else %}
-    <table>
-      <thead>
-        <tr>
-          <th class="rule-name">Rule Name</th>
-          <th>Endpoint</th>
-          <th>Segment</th>
-          <th>Section Tag</th>
-          <th>Tag Name</th>
-          <th>Tag Value</th>
-          <th class="column-col">Column</th>
-          <th>Order</th>
-          <th class="description">Description</th>
-          <th>Link to rule details</th>
-        </tr>
-      </thead>
 
-      <tbody>
-        {% for r in rows %}
+    <h2 style="color:#2c6cc7;text-align:center;margin-bottom:30px;">Rules</h2>
+
+    {% if messages %}
+      {% for cat, msg in messages %}
+        <div class="msg {{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+
+    {% if rows|length == 0 %}
+      <div class="msg danger">No rules found.</div>
+    {% else %}
+      <table>
+        <thead>
           <tr>
-            <td class="rule-name"><code>{{ r.rule_name or 'Unknown' }}</code></td>
-            <td>{{ r.endpoint or '-' }}</td>
-            <td>{{ r.segment or '-' }}</td>
-            <td>{{ r.section_tag or '-' }}</td>
-            <td>{{ r.tag_name or '-' }}</td>
-            <td>{{ r.tag_value_text or '-' }}</td>
-            <td class="column-col">{{ r.column or '-' }}</td>
-            <td>{{ r.order or '-' }}</td>
-            <td class="description">{{ r.description or '-' }}</td>
-            <td>
-              <a href="{{ base_path }}/rules{{ ext }}?detail={{ r.rule_name|urlencode }}">
-                View details
-              </a>
-            </td>
+            <th class="rule-name">Rule Name</th>
+            <th class="endpoint">Endpoint</th>
+            <th class="segment">Segment</th>
+            <th class="section-tag">Section Tag</th>
+            <th class="tag-name">Tag Name</th>
+            <th class="tag-value">Tag Value</th>
+            <th class="column-col">Column</th>
+            <th class="order">Order</th>
+            <th class="description">Description</th>
+            <th class="code">Code</th>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% endif %}
+        </thead>
+        <tbody>
+          {% for r in rows %}
+            <tr>
+              <td class="rule-name"><code>{{ r.rule_name }}</code></td>
+              <td class="endpoint">{{ r.endpoint or "-" }}</td>
+              <td class="segment">{{ r.segment or "-" }}</td>
+              <td class="section-tag">{{ r.section_tag or "-" }}</td>
+              <td class="tag-name">{{ r.tag_name or "-" }}</td>
+              <td class="tag-value">{{ r.tag_value_text or "-" }}</td>
+              <td class="column-col">{{ r.column or "-" }}</td>
+              <td class="order">{{ r.order or "-" }}</td>
+              <td class="description">{{ r.description or "-" }}</td>
+              <td class="code">
+                <a href="{{ base_path }}/rules{{ ext }}?detail={{ r.rule_name|urlencode }}">View</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
 
-  <p style="margin-top:16px;">
-    <a href="{{ base_path }}/tags_index{{ ext }}">Back to Tag Home</a>
-  </p>
+    <p style="margin-top:16px;">
+      <a href="{{ base_path }}/tags_index{{ ext }}">Back to Tag Home</a>
+    </p>
+
+  {% endif %}
 
 </div>
+
 {% endblock %}

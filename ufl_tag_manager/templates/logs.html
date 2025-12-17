@@ -1,85 +1,122 @@
 {% extends 'tags_base.html' %}
 {% block title %}Report Logs{% endblock %}
 {% block content %}
-<style>.wrap { max-width: 1100px; margin: 0 auto; }.msg { margin: 8px 0; }.msg.success { color:#0a8a0a; }.msg.danger { color:#c62828; } 
-table { width:100%; border-collapse: collapse; background:#fff; }
-th, td {
-padding:10px;
-border-bottom:1px solid #eee;
-text-align:left;
-font-size:14px;
-vertical-align: top;
-}
-th {
-background:#f3f4f6;
-position:sticky;
-top:0;
-z-index:1;
-}
-a { text-decoration: none; }
+
+<style>
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .msg { margin: 8px 0; }
+  .msg.success { color:#0a8a0a; }
+  .msg.danger { color:#c62828; }
+
+  table { width:100%; border-collapse: collapse; background:#fff; }
+  th, td {
+    padding:10px;
+    border-bottom:1px solid #eee;
+    text-align:left;
+    font-size:14px;
+    vertical-align: top;
+  }
+  th {
+    background:#f3f4f6;
+    position:sticky;
+    top:0;
+    z-index:1;
+  }
+  a { text-decoration: none; }
 </style>
+
 <div class="wrap">
-{% if view == "summary" %}
-<h2>Report Logs</h2>
-<style>h2 {color: #2c6cc7;text-align:center;margin-bottom:30px;}</style>
-{% else %}
-<h2>Report History: {{ report_name }}</h2>
-<p><a href="{{ base_path }}/logs{{ ext }}">&larr; Back to all reports</a></p>
-{% endif %}
-{% if messages %}
-{% for cat, msg in messages %}
-<div class="msg {{ cat }}">{{ msg }}</div>
-{% endfor %}
-{% endif %}
-{% if rows|length == 0 %}
-<div class="msg danger">No logs found.</div>
-{% else %}
-<table>
-<thead>
-<style> {background-color: #0b4c91;} </style>
-<tr>
-<th>Report name</th>
-<th>Description</th>
-<th>Start time</th>
-<th>End time</th>
-<th>Result</th>
-<th>Link to log details</th>
-{% if view == "summary" %}
-<th>Link to history</th>
-{% endif %}
-</tr>
-</thead>
-<tbody>
-{% for row in rows %}
-<tr>
-<td>{{ row.report_name or 'Unknown' }}</td>
-<td>{{ row.description }}</td>
-<td>{{ row.start_time }}</td>
-<td>{{ row.end_time }}</td>
-<td>{{ row.result }}</td>
-<td>
-{% if row.details_url %}
-<a href="{{ row.details_url }}" target="_blank">View details</a>
-{% else %}
--
-{% endif %}
-</td>
-{% if view == "summary" %}
-<td>
-<a href="{{ base_path }}/logs{{ ext }}?report={{ row.report_name|urlencode }}">
-View history
-</a>
-</td>
-{% endif %}
-</tr>
-{% endfor %}
-</tbody>
-</table>
-{% endif %}
-  {% if view == "summary" %}
-  <p style="margin-top:16px;">
-  <a href="{{ base_path }}/tags_index{{ ext }}">Back to Tag Home</a>
-  </p>
+
+  {% if view == "detail" %}
+    <h2>Log Details</h2>
+    <p><a href="{{ base_path }}/logs{{ ext }}">&larr; Back to all reports</a></p>
+
+    {% if detail_key %}
+      <p class="msg"><small>detail: <code>{{ detail_key }}</code></small></p>
+    {% endif %}
+
+    <pre style="
+      margin-top: 12px;
+      background:#0b1020;
+      color:#e5e7eb;
+      padding:16px;
+      border-radius:6px;
+      overflow-x:auto;
+      font-size:13px;
+      line-height:1.5;
+    ">{{ content }}</pre>
+
+  {% else %}
+
+    {% if view == "summary" %}
+      <h2>Report Logs</h2>
+      <style>h2 {color: #2c6cc7;text-align:center;margin-bottom:30px;}</style>
+    {% else %}
+      <h2>Report History: {{ report_name }}</h2>
+      <p><a href="{{ base_path }}/logs{{ ext }}">&larr; Back to all reports</a></p>
+    {% endif %}
+
+    {% if messages %}
+      {% for cat, msg in messages %}
+        <div class="msg {{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+
+    {% if rows|length == 0 %}
+      <div class="msg danger">No logs found.</div>
+    {% else %}
+      <table>
+        <thead>
+          <tr>
+            <th>Report name</th>
+            <th>Description</th>
+            <th>Start time</th>
+            <th>End time</th>
+            <th>Result</th>
+            <th>Link to log details</th>
+            {% if view == "summary" %}
+              <th>Link to history</th>
+            {% endif %}
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for row in rows %}
+            <tr>
+              <td>{{ row.report_name or 'Unknown' }}</td>
+              <td>{{ row.description }}</td>
+              <td>{{ row.start_time }}</td>
+              <td>{{ row.end_time }}</td>
+              <td>{{ row.result }}</td>
+              <td>
+                {% if row.details_url %}
+                  <a href="{{ row.details_url }}">View details</a>
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+
+              {% if view == "summary" %}
+                <td>
+                  <a href="{{ base_path }}/logs{{ ext }}?report={{ row.report_name|urlencode }}">
+                    View history
+                  </a>
+                </td>
+              {% endif %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+
+    {% if view == "summary" %}
+      <p style="margin-top:16px;">
+        <a href="{{ base_path }}/tags_index{{ ext }}">Back to Tag Home</a>
+      </p>
+    {% endif %}
+
   {% endif %}
-  </div>
-  {% endblock %}}
+
+</div>
+
+{% endblock %}
