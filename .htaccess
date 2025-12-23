@@ -1,0 +1,8 @@
+DirectoryIndex ufl_tag_manager/tags_index.py
+RewriteEngine On
+
+# Serve static assets directly
+RewriteRule ^ufl_tag_manager/assets/(.*)$ ufl_tag_manager/assets/$1 [L]
+
+# Default routing (homepage)
+RewriteRule ^$ ufl_tag_manager/tags_index.py [L]
