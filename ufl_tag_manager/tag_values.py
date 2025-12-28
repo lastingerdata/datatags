@@ -36,19 +36,27 @@ def print_headers(content_type="text/html; charset=utf-8", status=None, extra=No
 
 
 def redirect_with_messages(messages, extra_qs=None):
+    import time
     pairs = [("m", f"{c}:{t}") for c, t in messages]
+    # Add timestamp to prevent caching
+    pairs.append(("_t", str(int(time.time() * 1000))))
     if extra_qs:
         for k, v in extra_qs.items():
             if v is not None and v != "":
                 pairs.append((k, str(v)))
     qs = urllib.parse.urlencode(pairs)
+    location = f"{BASE_PATH}/tag_values{EXT}" + (f"?{qs}" if qs else "")
     print_headers(
         status="303 See Other",
         extra={
-            "Cache-Control": "no-store",
-            "Location": f"{BASE_PATH}/tag_values{EXT}" + (f"?{qs}" if qs else "")
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+            "Location": location
         }
     )
+    # Output minimal HTML body for browsers that don't auto-redirect
+    print(f'<html><head><meta http-equiv="refresh" content="0;url={location}"></head><body>Redirecting...</body></html>')
+    sys.stdout.flush()
 
 
 def parse_messages_from_qs():
@@ -101,8 +109,16 @@ def fetch_tags_list():
 
 
 def fetch_values_for_tag(tag_id):
-    headers = {"Accept": "application/json", "ApiKey": get_api_key()}
-    url = api_url(f"/tag_values?tag_id={urllib.parse.quote_plus(str(tag_id))}&format=json")
+    import time
+    # Add timestamp to prevent caching
+    cache_buster = int(time.time() * 1000)
+    headers = {
+        "Accept": "application/json", 
+        "ApiKey": get_api_key(),
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Pragma": "no-cache"
+    }
+    url = api_url(f"/tag_values?tag_id={urllib.parse.quote_plus(str(tag_id))}&format=json&_t={cache_buster}")
     resp = safe_request(url, headers=headers, verify=False)
 
     if isinstance(resp, dict):
@@ -276,8 +292,12 @@ def main():
             values=values,
             page_name='tag_values'
         )
-
-        print_headers()
+        
+        print_headers(extra={
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        })
         sys.stdout.write(html)
 
     except Exception:

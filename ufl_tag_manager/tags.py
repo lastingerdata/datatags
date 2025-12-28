@@ -35,12 +35,20 @@ def print_headers(content_type="text/html; charset=utf-8", status=None, extra=No
 
 
 def redirect_with_messages(messages):
-    qs = urllib.parse.urlencode([("m", f"{c}:{t}") for c, t in messages])
+    import time
+    pairs = [("m", f"{c}:{t}") for c, t in messages]
+    # Add timestamp to prevent caching
+    pairs.append(("_t", str(int(time.time() * 1000))))
+    qs = urllib.parse.urlencode(pairs)
+    redirect_url = f"{BASE_PATH}/tags{EXT}" + (f"?{qs}" if qs else "")
     extra = {
-        "Cache-Control": "no-store",
-        "Location": f"{BASE_PATH}/tags{EXT}" + (f"?{qs}" if qs else "")
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+        "Location": redirect_url
     }
     print_headers(status="303 See Other", extra=extra)
+    # Print a simple redirect page body for browsers that don't auto-follow
+    print(f'<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url={redirect_url}"></head><body>Redirecting...</body></html>')
 
 
 def parse_messages_from_qs():
@@ -229,7 +237,11 @@ def main():
             page_name='tags'
         )
 
-        print_headers()
+        print_headers(extra={
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        })
         sys.stdout.write(html)
 
     except Exception:

@@ -1,80 +1,633 @@
 {% extends 'tags_base.html' %}
 {% block title %}Bulk Tag Course Sections{% endblock %}
+
 {% block content %}
-<div style="max-width:1200px;margin:auto;">
-<h2>Bulk Tag Course Sections</h2>
-<a href="{{ url_for('tags_index') }}"  style="display:inline-block;margin-bottom:10px;" class="btn-link">Back to Tag Home</a>
-<form method="get" class="mb-3">
-<input type="text" name="search" placeholder="Section Name" value="{{ search }}" style="padding:6px;min-width:180px;">
-<select name="wild_card" style="padding:6px;min-width:180px;">
-<option value="">-- Wildcard --</option>
-<option value="contains"        {% if wild_card=='contains' %}selected{% endif %}>Contains</option>
-<option value="begins_with"     {% if wild_card=='begins_with' %}selected{% endif %}>Begins With</option>
-<option value="ends_with"       {% if wild_card=='ends_with' %}selected{% endif %}>Ends With</option>
-<option value="exact_match"     {% if wild_card=='exact_match' %}selected{% endif %}>Exact Match</option>
-<option value="does_not_contain" {% if wild_card=='does_not_contain' %}selected{% endif %}>Does not contain</option>
-</select>
-<input type="text" name="search_course" placeholder="Course Name" value="{{ search_course }}" style="padding:6px;min-width:180px;">
-<select name="wild_card_course" style="padding:6px;min-width:180px;">
-<option value="">-- Wildcard --</option>
-<option value="contains"      {% if wild_card_course=='contains' %}selected{% endif %}>Contains</option>
-<option value="begins_with"   {% if wild_card_course=='begins_with' %}selected{% endif %}>Begins With</option>
-<option value="ends_with"     {% if wild_card_course=='ends_with' %}selected{% endif %}>Ends With</option>
-<option value="exact_match"   {% if wild_card_course=='exact_match' %}selected{% endif %}>Exact Match</option>
-<option value="does_not_contain" {% if wild_card_course=='does_not_contain' %}selected{% endif %}>Does not contain</option>
-</select>
-<div style="padding:6px;min-width:180px; margin-top:6px;">
-<label>Courses starting from:</label>
-<input type="date" name="start_date" value="{{ start_date }}">
+<style>
+  /* Override the base template container centering */
+  .container.mt-4 {
+    max-width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
 
-<label>Courses ending on:</label>
-<input type="date" name="end_date" value="{{ end_date }}">
-</div>
-<div style="margin-top:6px;">
-<input type="text" name="department" placeholder="Genius Section ID" value="{{ department }}">
-<input type="text" name="term" placeholder="Term" value="{{ term }}">
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
 
-<select name="tagged_status" style="padding:6px;min-width:180px; margin-top:6px;">
-<option value="">-- Tag Status --</option>
-<option value="tagged"     {% if tagged_status=='tagged' %}selected{% endif %}>Tagged</option>
-<option value="not_tagged" {% if tagged_status=='not_tagged' %}selected{% endif %}>Not Tagged</option>
-</select>
-<button type="submit" class="btn btn-secondary">Filter</button>
-</form>
+  .bulk-tag-page {
+    font-family: 'IBM Plex Sans', sans-serif;
+    width: 90vw;
+    max-width: 90vw;
+    margin: 0;
+    padding: 20px 40px 0;
+  }
 
-<form method="post">
-<div style="margin:10px 0;">
-<label>Select Tag to Apply:</label>
-<select name="tag_entry_id" required>
-<option value="">-- Select Tag --</option>
-       {% for val in tag_values %}
-<option value="{{ val.tag_entry_id }}"
-         {% if tag_entry_id == val.tag_entry_id|string %}selected{% endif %}>
-         {{ val.tag_name }}: {{ val.tag_value }}
-</option>
-       {% endfor %}
-</select>
-<input type="hidden" name="user" value="{{ session_user or user }}">
-<input type="hidden" name="map" value="1">
+  .page-header {
+    position: relative;
+    margin-bottom: 30px;
+  }
 
-</div>
-<div class="form-check" style="display:inline-block;margin-left:12px;">
-<input type="checkbox" id="select-all-top" class="form-check-input">
-<label class="form-check-label" for="select-all-top">Select All</label>
-</div>
-<button type="submit" class="btn btn-primary">Apply Tag to Selected</button>
+  .page-header-divider {
+    width: 4px;
+    height: 48px;
+    background: #FA4616;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
 
-<button type="button" class="btn btn-secondary" 
-             onclick="sortHistory.length=0; location.reload();">
-       Reset Sort
-</button>
-</div>
+  .page-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: #002657;
+    margin: 0;
+    padding-left: 20px;
+    line-height: 48px;
+  }
 
-   {% if courses %}
-<table id="tag-mapping-table" class="table table-bordered mt-3">
+  .page-header-divider {
+    width: 4px;
+    height: 48px;
+    background: #FA4616;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  .btn-back {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #002657;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 20px;
+    transition: background 0.2s ease;
+  }
+
+  .btn-back:hover {
+    background: #001a3d;
+    color: white;
+  }
+
+  .filter-section {
+    background: white;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    margin-bottom: 24px;
+  }
+
+  .filter-section h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #002657;
+    margin: 0 0 20px 0;
+  }
+
+  .filter-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .filter-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .filter-field {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .filter-field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+  }
+
+  .filter-field input,
+  .filter-field select {
+    padding: 10px 12px;
+    border: 1px solid #D1D5DB;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    transition: border-color 0.2s ease;
+    background: white;
+  }
+
+  .filter-field input:focus,
+  .filter-field select:focus {
+    outline: none;
+    border-color: #002657;
+  }
+
+  .filter-buttons {
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .filter-actions-inline {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .filter-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .btn-filter {
+    padding: 10px 24px;
+    background: #0021A5;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    text-transform: uppercase;
+  }
+
+  .btn-filter:hover {
+    background: #001580;
+  }
+
+  .btn-reset {
+    padding: 10px 24px;
+    background: #6C757D;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    text-transform: uppercase;
+  }
+
+  .btn-reset:hover {
+    background: #5A6268;
+  }
+
+  .section-heading {
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #002657;
+    margin: 32px 0 16px 0;
+  }
+
+  .tag-select-dropdown {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #D1D5DB;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: white;
+    transition: border-color 0.2s ease;
+  }
+
+  .tag-select-dropdown:focus {
+    outline: none;
+    border-color: #002657;
+  }
+
+  .select-all-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .select-all-wrapper input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+
+  .select-all-wrapper label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #4A4A4A;
+    cursor: pointer;
+    margin: 0;
+  }
+
+  .btn-apply-tag {
+    padding: 10px 24px;
+    background: #0021A5;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    text-transform: uppercase;
+  }
+
+  .btn-apply-tag:hover {
+    background: #001580;
+  }
+
+  .btn-reset-sort {
+    padding: 10px 24px;
+    background: #6C757D;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .btn-reset-sort:hover {
+    background: #5A6268;
+  }
+
+  .courses-table-wrapper {
+    background: white;
+    border-radius: 8px;
+    overflow-x: auto;
+    overflow-y: visible;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .courses-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    table-layout: fixed;
+  }
+
+  .courses-table thead th:nth-child(1) {
+    width: 50px; /* Checkbox */
+  }
+
+  .courses-table thead th:nth-child(2) {
+    width: 100px; /* Genius SectionId */
+  }
+
+  .courses-table thead th:nth-child(3) {
+    width: 100px; /* D2L OrgUnitId */
+  }
+
+  .courses-table thead th:nth-child(4) {
+    width: 250px; /* Section Name - increased */
+  }
+
+  .courses-table thead th:nth-child(5) {
+    width: 120px; /* Start Date */
+  }
+
+  .courses-table thead th:nth-child(6) {
+    width: 120px; /* End Date */
+  }
+
+  .courses-table thead th:nth-child(7) {
+    width: auto; /* Course Name */
+  }
+
+  .courses-table thead th:nth-child(8) {
+    width: auto; /* Department Name */
+  }
+
+  .courses-table thead th:nth-child(9) {
+    width: 80px; /* Term */
+  }
+
+  .courses-table thead {
+    background: #002657;
+  }
+
+  .courses-table thead th {
+    color: #FFFFFF;
+    font-weight: 600;
+    text-align: left;
+    padding: 16px 12px;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s ease;
+  }
+
+  .courses-table thead th:hover {
+    background: #003580;
+  }
+
+  .courses-table thead th span {
+    margin-left: 4px;
+    opacity: 0.7;
+  }
+
+  .courses-table tbody tr {
+    border-bottom: 1px solid #E5E5E5;
+  }
+
+  .courses-table tbody tr:nth-child(even) {
+    background: #F9FAFB;
+  }
+
+  .courses-table tbody tr:hover {
+    background: #F3F4F6;
+  }
+
+  .courses-table tbody td {
+    padding: 14px 12px;
+    color: #4A4A4A;
+  }
+
+  .courses-table tbody td:first-child {
+    padding-left: 12px;
+  }
+
+  .courses-table tbody td input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    margin: 0;
+  }
+
+  .courses-table thead th input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    margin: 0;
+  }
+
+  .tag-status-tagged {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #333;
+    font-weight: 400;
+    font-size: 14px;
+  }
+
+  .tag-status-icon {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .pagination-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0 0 0;
+    margin-top: 20px;
+    margin-bottom: 0;
+    gap: 12px;
+  }
+
+  .pagination-info {
+    font-size: 14px;
+    color: #6B7280;
+    order: 2;
+  }
+
+  .pagination-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    order: 1;
+  }
+
+  .pagination-btn {
+    padding: 8px 16px;
+    border: 1px solid #D1D5DB;
+    background: white;
+    color: #4A4A4A;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .pagination-btn:hover:not(.disabled) {
+    background: #F3F4F6;
+    border-color: #9CA3AF;
+  }
+
+  .pagination-btn.active {
+    background: #0021A5;
+    color: white;
+    border-color: #0021A5;
+  }
+
+  .pagination-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .pagination-ellipsis {
+    padding: 8px 12px;
+    color: #6B7280;
+    font-size: 14px;
+    user-select: none;
+  }
+
+  .no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6B7280;
+    font-size: 16px;
+  }
+
+  .rows-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .rows-display label {
+    font-size: 14px;
+    color: #4A4A4A;
+  }
+
+  .rows-display select {
+    padding: 6px 10px;
+    border: 1px solid #D1D5DB;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+</style>
+
+<div class="bulk-tag-page">
+  <div class="page-header">
+    <div class="page-header-divider"></div>
+    <h1 class="page-title">Add Tags</h1>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="filter-section">
+    <h3>Filter Courses</h3>
+    <form method="get">
+      <!-- Row 1: Section Name, Condition, Course Name, Condition -->
+      <div class="filter-grid">
+        <div class="filter-field">
+          <label>Section Name</label>
+          <input type="text" name="search" placeholder="Field value" value="{{ search }}">
+        </div>
+        <div class="filter-field">
+          <label>Condition</label>
+          <select name="wild_card">
+            <option value="">Field value</option>
+            <option value="contains" {% if wild_card=='contains' %}selected{% endif %}>Contains</option>
+            <option value="begins_with" {% if wild_card=='begins_with' %}selected{% endif %}>Begins With</option>
+            <option value="ends_with" {% if wild_card=='ends_with' %}selected{% endif %}>Ends With</option>
+            <option value="exact_match" {% if wild_card=='exact_match' %}selected{% endif %}>Exact Match</option>
+            <option value="does_not_contain" {% if wild_card=='does_not_contain' %}selected{% endif %}>Does not contain</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <label>Course Name</label>
+          <input type="text" name="search_course" placeholder="Field value" value="{{ search_course }}">
+        </div>
+        <div class="filter-field">
+          <label>Condition</label>
+          <select name="wild_card_course">
+            <option value="">Field value</option>
+            <option value="contains" {% if wild_card_course=='contains' %}selected{% endif %}>Contains</option>
+            <option value="begins_with" {% if wild_card_course=='begins_with' %}selected{% endif %}>Begins With</option>
+            <option value="ends_with" {% if wild_card_course=='ends_with' %}selected{% endif %}>Ends With</option>
+            <option value="exact_match" {% if wild_card_course=='exact_match' %}selected{% endif %}>Exact Match</option>
+            <option value="does_not_contain" {% if wild_card_course=='does_not_contain' %}selected{% endif %}>Does not contain</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Row 2: Genius Section ID, Term, Course Start Date, Course End Date -->
+      <div class="filter-grid">
+        <div class="filter-field">
+          <label>Genius Section ID</label>
+          <input type="text" name="department" placeholder="Field value" value="{{ department }}">
+        </div>
+        <div class="filter-field">
+          <label>Term</label>
+          <input type="text" name="term" placeholder="Term" value="{{ term }}">
+        </div>
+        <div class="filter-field">
+          <label>Course Start Date</label>
+          <input type="date" name="start_date" placeholder="Field value" value="{{ start_date }}">
+        </div>
+        <div class="filter-field">
+          <label>Course End Date</label>
+          <input type="date" name="end_date" placeholder="Field value" value="{{ end_date }}">
+        </div>
+      </div>
+
+      <!-- Row 3: Tag Status, Filter and Reset buttons -->
+      <div class="filter-grid">
+        <div class="filter-field">
+          <label>Tag Status</label>
+          <select name="tagged_status">
+            <option value="">Field value</option>
+            <option value="tagged" {% if tagged_status=='tagged' %}selected{% endif %}>Tagged</option>
+            <option value="not_tagged" {% if tagged_status=='not_tagged' %}selected{% endif %}>Not Tagged</option>
+          </select>
+        </div>
+        <div class="filter-field filter-buttons">
+          <label>&nbsp;</label>
+          <div class="filter-actions-inline">
+            <button type="submit" class="btn-filter">FILTER</button>
+            <button type="button" class="btn-reset" 
+             onclick="window.location.href=`{{ url_for('section_tags_inserts') }}`">
+              RESET
+            </button>
+          </div>
+        </div>
+      </div>
+        </div>
+      </div>
+      
+      <!-- Hidden field to preserve per_page -->
+      <input type="hidden" name="per_page" value="{{ per_page }}">
+    </form>
+  </div>
+
+  <!-- Add Tags Form Section -->
+  <div style="margin: 0 40px;">
+    <form method="post" action="{{ url_for('section_tags_inserts') }}">
+      <input type="hidden" name="user" value="{{ session_user or user }}">
+      <input type="hidden" name="map" value="1">
+      <input type="hidden" name="search" value="{{ search }}">
+      <input type="hidden" name="wild_card" value="{{ wild_card }}">
+      <input type="hidden" name="search_course" value="{{ search_course }}">
+      <input type="hidden" name="wild_card_course" value="{{ wild_card_course }}">
+      <input type="hidden" name="start_date" value="{{ start_date }}">
+      <input type="hidden" name="end_date" value="{{ end_date }}">
+      <input type="hidden" name="department" value="{{ department }}">
+      <input type="hidden" name="term" value="{{ term }}">
+      <input type="hidden" name="tagged_status" value="{{ tagged_status }}">
+      <input type="hidden" name="page" value="{{ page }}">
+      <input type="hidden" name="per_page" value="{{ per_page }}">
+
+      <!-- Add Tags Section -->
+      <h3 class="section-heading">Add Tags</h3>
+      
+      <div style="display: flex; align-items: flex-end; gap: 16px; margin-bottom: 24px;">
+        <div class="filter-field" style="flex: 0 0 300px;">
+          <label>Tag</label>
+          <select name="tag_entry_id" class="tag-select-dropdown" required>
+            <option value="">Field value</option>
+            {% for val in tag_values %}
+            <option value="{{ val.tag_entry_id }}" {% if tag_entry_id == val.tag_entry_id|string %}selected{% endif %}>
+              {{ val.tag_name }}: {{ val.tag_value }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div style="flex: 0 0 auto;">
+          <button type="submit" class="btn-apply-tag">ADD TAG TO SELECTED</button>
+        </div>
+        {% if courses %}
+        <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+          <label style="font-size: 14px; color: #4A4A4A; margin: 0;">Show</label>
+          <select id="rows-per-page" onchange="changeRowsPerPage(this.value)" style="padding: 10px 12px; border: 1px solid #D1D5DB; border-radius: 4px; font-size: 14px;" disabled>
+            <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+            <option value="25" {% if per_page == 25 %}selected{% endif %}>25</option>
+            <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+            <option value="100" {% if per_page == 100 %}selected{% endif %}>100</option>
+            <option value="200" {% if per_page == 200 %}selected{% endif %}>200</option>
+          </select>
+          <label style="font-size: 14px; color: #4A4A4A; margin: 0;">rows</label>
+        </div>
+        {% endif %}
+      </div>   {% if courses %}
+<div class="courses-table-wrapper">
+<table id="tag-mapping-table" class="courses-table">
 <thead>
 <tr>
-<th id="th-0" onclick="sortTable(0)">Select<span></span></th>
+<th id="th-0" style="width: 60px; text-align: left; padding-left: 12px;">
+  <input type="checkbox" id="select-all-top">
+</th>
 <th id="th-1" onclick="sortTable(1)">Genius SectionId<span></span></th>
 <th id="th-2" onclick="sortTable(2)">D2L OrgUnitId<span></span></th>
 <th id="th-3" onclick="sortTable(3)">Section Name<span></span></th>
@@ -104,7 +657,10 @@
 <td>{{ course.termId }}</td>
 <td>
              {% if course.tag_name %}
-               ✅ {{ course.tag_name }}: {{ course.tag_value }}
+               <span class="tag-status-tagged">
+                 <img src="/ufl_tag_manager/assets/tag_icn.png" alt="Tag" class="tag-status-icon">
+                 {{ course.tag_name }}: {{ course.tag_value }}
+               </span>
              {% else %}
                —
              {% endif %}
@@ -113,59 +669,55 @@
          {% endfor %}
 </tbody>
 </table>
+</div>
 
      {% if total_pages > 1 %}
-<div class="pagination mt-4">
-<p>Page {{ page }} of {{ total_pages }} ({{ total_results }} courses)</p>
-<ul class="pagination">
-<li class="page-item {% if page == 1 %}disabled{% endif %}">
-<a class="page-link"
-             href="{{ url_for('section_tags_inserts',
-                    page=page-1,
-                    search=search, wild_card=wild_card,
-                    search_course=search_course, wild_card_course=wild_card_course,
-                    start_date=start_date, end_date=end_date,
-                    department=department, term=term,
-                    tagged_status=tagged_status,
-                    tag_entry_id=tag_entry_id) }}">
-             Previous
-</a>
-</li>
-         {% for p in range(1, total_pages + 1) %}
-<li class="page-item {% if p == page %}active{% endif %}">
-<a class="page-link"
-             href="{{ url_for('section_tags_inserts',
-                    page=p,
-                    search=search, wild_card=wild_card,
-                    search_course=search_course, wild_card_course=wild_card_course,
-                    start_date=start_date, end_date=end_date,
-                    department=department, term=term,
-                    tagged_status=tagged_status,
-                    tag_entry_id=tag_entry_id) }}">
-             {{ p }}
-</a>
-</li>
-         {% endfor %}
-<li class="page-item {% if page == total_pages %}disabled{% endif %}">
-<a class="page-link"
-             href="{{ url_for('section_tags_inserts',
-                    page=page+1,
-                    search=search, wild_card=wild_card,
-                    search_course=search_course, wild_card_course=wild_card_course,
-                    start_date=start_date, end_date=end_date,
-                    department=department, term=term,
-                    tagged_status=tagged_status,
-                    tag_entry_id=tag_entry_id) }}">
-             Next
-</a>
-</li>
-</ul>
+<div class="pagination-wrapper">
+  <div class="pagination-info">
+    Showing {{ ((page - 1) * per_page) + 1 }} to {% if page * per_page < total_results %}{{ page * per_page }}{% else %}{{ total_results }}{% endif %} of {{ total_results }} entries
+  </div>
+  <div class="pagination-controls">
+    <a href="{{ url_for('section_tags_inserts', page=page-1, per_page=per_page, search=search, wild_card=wild_card, search_course=search_course, wild_card_course=wild_card_course, start_date=start_date, end_date=end_date, department=department, term=term, tagged_status=tagged_status, tag_entry_id=tag_entry_id) }}" 
+       class="pagination-btn {% if page == 1 %}disabled{% endif %}">Previous</a>
+    
+    {# Always show first page #}
+    <a href="{{ url_for('section_tags_inserts', page=1, per_page=per_page, search=search, wild_card=wild_card, search_course=search_course, wild_card_course=wild_card_course, start_date=start_date, end_date=end_date, department=department, term=term, tagged_status=tagged_status, tag_entry_id=tag_entry_id) }}" 
+       class="pagination-btn {% if page == 1 %}active{% endif %}">1</a>
+    
+    {# Show ellipsis if gap between first page and start of range #}
+    {% if page > 4 %}
+      <span class="pagination-ellipsis">...</span>
+    {% endif %}
+    
+    {# Show pages around current page #}
+    {% for p in range(2, total_pages) %}
+      {% if p >= page - 2 and p <= page + 2 %}
+        <a href="{{ url_for('section_tags_inserts', page=p, per_page=per_page, search=search, wild_card=wild_card, search_course=search_course, wild_card_course=wild_card_course, start_date=start_date, end_date=end_date, department=department, term=term, tagged_status=tagged_status, tag_entry_id=tag_entry_id) }}" 
+           class="pagination-btn {% if p == page %}active{% endif %}">{{ p }}</a>
+      {% endif %}
+    {% endfor %}
+    
+    {# Show ellipsis if gap between end of range and last page #}
+    {% if page < total_pages - 3 %}
+      <span class="pagination-ellipsis">...</span>
+    {% endif %}
+    
+    {# Always show last page if there is more than 1 page #}
+    {% if total_pages > 1 %}
+      <a href="{{ url_for('section_tags_inserts', page=total_pages, per_page=per_page, search=search, wild_card=wild_card, search_course=search_course, wild_card_course=wild_card_course, start_date=start_date, end_date=end_date, department=department, term=term, tagged_status=tagged_status, tag_entry_id=tag_entry_id) }}" 
+         class="pagination-btn {% if page == total_pages %}active{% endif %}">{{ total_pages }}</a>
+    {% endif %}
+    
+    <a href="{{ url_for('section_tags_inserts', page=page+1, per_page=per_page, search=search, wild_card=wild_card, search_course=search_course, wild_card_course=wild_card_course, start_date=start_date, end_date=end_date, department=department, term=term, tagged_status=tagged_status, tag_entry_id=tag_entry_id) }}" 
+       class="pagination-btn {% if page == total_pages %}disabled{% endif %}">Next</a>
+  </div>
 </div>
      {% endif %}
    {% else %}
-<p>No matching courses found.</p>
+      <div class="no-results">No matching courses found.</div>
    {% endif %}
-</form>
+    </form>
+  </div>
 </div>
 
 <script>
@@ -175,9 +727,48 @@
      cb.checked = val;
    });
  }
+ 
+ function updateSelectAllState() {
+   const checkboxes = document.querySelectorAll('input[name="selected_courses"]');
+   const totalCount = checkboxes.length;
+   const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+   
+   if (selectAllTop) {
+     if (checkedCount === 0) {
+       selectAllTop.checked = false;
+       selectAllTop.indeterminate = false;
+     } else if (checkedCount === totalCount) {
+       selectAllTop.checked = true;
+       selectAllTop.indeterminate = false;
+     } else {
+       selectAllTop.checked = false;
+       selectAllTop.indeterminate = true;
+     }
+   }
+ }
+ 
  if (selectAllTop) {
    selectAllTop.addEventListener('change', e => setAll(e.target.checked));
  }
+ 
+ // Attach event listeners to individual checkboxes
+ document.addEventListener('DOMContentLoaded', function() {
+   const checkboxes = document.querySelectorAll('input[name="selected_courses"]');
+   checkboxes.forEach(checkbox => {
+     checkbox.addEventListener('change', updateSelectAllState);
+   });
+ });
+ 
+ function changeRowsPerPage(perPage) {
+   const url = new URL(window.location.href);
+   console.log('Before:', url.toString());
+   console.log('Setting per_page to:', perPage);
+   url.searchParams.set('per_page', perPage);
+   url.searchParams.set('page', '1'); // Reset to first page
+   console.log('After:', url.toString());
+   window.location.href = url.toString();
+ }
+ 
  const sortHistory = [];
  function getCellText(row, idx) {
    const td = row.children[idx];

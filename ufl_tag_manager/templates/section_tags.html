@@ -2,69 +2,504 @@
 {% block title %}Section Tag Mappings{% endblock %}
 
 {% block content %}
-<div style="max-width:1200px;margin:auto;">
+<style>
+  .container.mt-4 {
+    max-width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
 
-  <h2>Section Tag Mappings</h2>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
 
-  <a href="{{ base_path }}/tags_index{{ ext }}"
-     style="display:inline-block;margin-bottom:10px;">
-    Back to Tag Home
-  </a>
+  .section-tags-page {
+    font-family: 'IBM Plex Sans', sans-serif;
+    width: 90vw;
+    max-width: 90vw;
+    margin: 0 auto;
+    padding: 20px 40px 0;
+  }
+
+  .page-header {
+    position: relative;
+    margin-bottom: 30px;
+  }
+
+  .page-header-divider {
+    width: 4px;
+    height: 48px;
+    background: #FA4616;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  .page-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: #002657;
+    margin: 0;
+    padding-left: 20px;
+    line-height: 48px;
+  }
+
+  .filter-section {
+    background: white;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    margin-bottom: 24px;
+  }
+
+  .filter-section h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #002657;
+    margin: 0 0 20px 0;
+  }
+
+  .filter-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .filter-field {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .filter-field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+  }
+
+  .filter-field input,
+  .filter-field select {
+    padding: 10px 12px;
+    border: 1px solid #D1D5DB;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    transition: border-color 0.2s ease;
+    background: white;
+  }
+
+  .filter-field input:focus,
+  .filter-field select:focus {
+    outline: none;
+    border-color: #002657;
+  }
+
+  .filter-buttons {
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .filter-actions-inline {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .btn-filter {
+    padding: 10px 24px;
+    background: #0021A5;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    text-transform: uppercase;
+  }
+
+  .btn-filter:hover {
+    background: #001580;
+  }
+
+  .btn-reset {
+    padding: 10px 24px;
+    background: #6C757D;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    text-transform: uppercase;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn-reset:hover {
+    background: #5A6268;
+    color: white;
+  }
+
+  .section-heading {
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #002657;
+    margin: 32px 0 16px 0;
+  }
+
+  .action-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .select-all-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .select-all-wrapper input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+
+  .select-all-wrapper label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #4A4A4A;
+    cursor: pointer;
+    margin: 0;
+  }
+
+  .btn-delete {
+    padding: 10px 24px;
+    background: #DC2626;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    text-transform: uppercase;
+  }
+
+  .btn-delete:hover {
+    background: #B91C1C;
+  }
+
+  .btn-reset-sort {
+    padding: 10px 24px;
+    background: #6C757D;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .btn-reset-sort:hover {
+    background: #5A6268;
+  }
+
+  .mappings-table-wrapper {
+    background: white;
+    border-radius: 8px;
+    overflow-x: auto;
+    overflow-y: visible;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .mappings-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    table-layout: fixed;
+  }
+
+  .mappings-table thead th:nth-child(1) {
+    width: 50px; /* Checkbox */
+  }
+
+  .mappings-table thead th:nth-child(2) {
+    width: 120px; /* D2L OrgUnitId */
+  }
+
+  .mappings-table thead th:nth-child(3) {
+    width: 120px; /* Genius Section ID */
+  }
+
+  .mappings-table thead th:nth-child(4) {
+    width: auto; /* Section Name */
+  }
+
+  .mappings-table thead th:nth-child(5) {
+    width: 150px; /* Tag Name */
+  }
+
+  .mappings-table thead th:nth-child(6) {
+    width: 150px; /* Tag Value */
+  }
+
+  .mappings-table thead th:nth-child(7) {
+    width: 100px; /* Actions */
+  }
+
+  .mappings-table thead {
+    background: #002657;
+  }
+
+  .mappings-table thead th {
+    color: #FFFFFF;
+    font-weight: 600;
+    text-align: left;
+    padding: 16px 12px;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s ease;
+  }
+
+  .mappings-table thead th:hover {
+    background: #003580;
+  }
+
+  .mappings-table thead th span {
+    margin-left: 4px;
+    opacity: 0.7;
+  }
+
+  .mappings-table tbody tr {
+    border-bottom: 1px solid #E5E5E5;
+  }
+
+  .mappings-table tbody tr:nth-child(even) {
+    background: #F9FAFB;
+  }
+
+  .mappings-table tbody tr:hover {
+    background: #F3F4F6;
+  }
+
+  .mappings-table tbody td {
+    padding: 14px 12px;
+    color: #4A4A4A;
+  }
+
+  .mappings-table tbody td:first-child {
+    padding-left: 12px;
+    text-align: center;
+  }
+
+  .mappings-table tbody td input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    margin: 0;
+  }
+
+  .mappings-table thead th input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    margin: 0;
+  }
+
+  .btn-delete-single {
+    background: transparent;
+    color: #DC2626;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 500;
+    transition: background 0.2s ease;
+  }
+
+  .btn-delete-single:hover {
+    background: #FEE2E2;
+  }
+
+  .pagination-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0 0 0;
+    margin-top: 20px;
+    margin-bottom: 0;
+    gap: 12px;
+  }
+
+  .pagination-info {
+    font-size: 14px;
+    color: #6B7280;
+    order: 2;
+  }
+
+  .pagination-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    order: 1;
+  }
+
+  .pagination-btn {
+    padding: 8px 16px;
+    border: 1px solid #D1D5DB;
+    background: white;
+    color: #4A4A4A;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .pagination-btn:hover:not(.disabled) {
+    background: #F3F4F6;
+    border-color: #9CA3AF;
+  }
+
+  .pagination-btn.active {
+    background: #0021A5;
+    color: white;
+    border-color: #0021A5;
+  }
+
+  .pagination-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .pagination-ellipsis {
+    padding: 8px 12px;
+    color: #6B7280;
+    font-size: 14px;
+    user-select: none;
+  }
+
+  .no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6B7280;
+    font-size: 16px;
+  }
+
+  .alert {
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    font-size: 14px;
+  }
+
+  .alert-success {
+    background: #D1FAE5;
+    color: #065F46;
+    border: 1px solid #6EE7B7;
+  }
+
+  .alert-danger {
+    background: #FEE2E2;
+    color: #991B1B;
+    border: 1px solid #FCA5A5;
+  }
+</style>
+
+<div class="section-tags-page">
+  <div class="page-header">
+    <div class="page-header-divider"></div>
+    <h1 class="page-title">View & Remove Tags</h1>
+  </div>
 
   {% if messages %}
     {% for cat, msg in messages %}
-      <div style="margin-bottom:6px;color:{{ 'red' if cat == 'danger' else 'green' }};">
+      <div class="alert alert-{{ cat }}">
         {{ msg }}
       </div>
     {% endfor %}
   {% endif %}
 
-  <form method="GET" action="{{ base_path }}/section_tags{{ ext }}"
-        style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center;">
+  <!-- Filter Section -->
+  <div class="filter-section">
+    <h3>Filter Courses</h3>
+    <form method="GET" action="{{ base_path }}/section_tags{{ ext }}">
+      <!-- Row 1: Course Name, Condition, Genius Section ID, D2L Org Unit ID -->
+      <div class="filter-grid">
+        <div class="filter-field">
+          <label>Course Name</label>
+          <input type="text" name="name" placeholder="Field value" value="{{ name or '' }}">
+        </div>
+        <div class="filter-field">
+          <label>Condition</label>
+          <select name="wild_card">
+            <option value="">Field value</option>
+            <option value="contains" {% if wild_card=='contains' %}selected{% endif %}>Contains</option>
+            <option value="begins_with" {% if wild_card=='begins_with' %}selected{% endif %}>Begins With</option>
+            <option value="ends_with" {% if wild_card=='ends_with' %}selected{% endif %}>Ends With</option>
+            <option value="exact_match" {% if wild_card=='exact_match' %}selected{% endif %}>Exact Match</option>
+            <option value="does_not_contain" {% if wild_card=='does_not_contain' %}selected{% endif %}>Does Not Contain</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <label>Genius Section ID</label>
+          <input type="text" name="genius_sectionId" placeholder="Field value" value="{{ genius_sectionId or '' }}">
+        </div>
+        <div class="filter-field">
+          <label>D2L Org Unit ID</label>
+          <input type="text" name="d2l_OrgUnitId" placeholder="Field value" value="{{ d2l_OrgUnitId or '' }}">
+        </div>
+      </div>
 
-    <input type="text" name="name" placeholder="Section name"
-           value="{{ name or '' }}"
-           style="padding:6px;min-width:180px;">
+      <!-- Row 2: Tag Category, Tag Value, Filter/Reset buttons -->
+      <div class="filter-grid">
+        <div class="filter-field">
+          <label>Tag Category</label>
+          <select name="tag_name_filter" id="tag_name_filter">
+            <option value="">Field value</option>
+            {% for tn in unique_tag_names %}
+              <option value="{{ tn }}" {% if tag_name_filter == tn %}selected{% endif %}>{{ tn }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="filter-field">
+          <label>Tag Value</label>
+          <select name="tag_value_filter" id="tag_value_filter">
+            <option value="">Field value</option>
+          </select>
+        </div>
+        <div class="filter-field filter-buttons">
+          <label>&nbsp;</label>
+          <div class="filter-actions-inline">
+            <button type="submit" class="btn-filter">FILTER</button>
+            <a href="{{ base_path }}/section_tags{{ ext }}" class="btn-reset">RESET</a>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
 
-    <select name="wild_card" style="padding:6px;min-width:150px;">
-      <option value="">Wildcard (name)</option>
-      <option value="contains" {% if wild_card=='contains' %}selected{% endif %}>Contains</option>
-      <option value="begins_with" {% if wild_card=='begins_with' %}selected{% endif %}>Begins With</option>
-      <option value="ends_with" {% if wild_card=='ends_with' %}selected{% endif %}>Ends With</option>
-      <option value="exact_match" {% if wild_card=='exact_match' %}selected{% endif %}>Exact Match</option>
-      <option value="does_not_contain" {% if wild_card=='does_not_contain' %}selected{% endif %}>Does Not Contain</option>
-    </select>
-
-    <input type="text" name="d2l_OrgUnitId" placeholder="D2L OrgUnitId"
-           value="{{ d2l_OrgUnitId or '' }}"
-           style="padding:6px;min-width:140px;">
-
-    <input type="text" name="genius_sectionId" placeholder="Genius Section ID"
-           value="{{ genius_sectionId or '' }}"
-           style="padding:6px;min-width:140px;">
-
-    <select name="tag_name_filter" id="tag_name_filter" style="padding:6px;min-width:180px;">
-      <option value="">Filter by Tag Name</option>
-      {% for tn in unique_tag_names %}
-        <option value="{{ tn }}" {% if tag_name_filter == tn %}selected{% endif %}>{{ tn }}</option>
-      {% endfor %}
-    </select>
-
-    <select name="tag_value_filter" id="tag_value_filter" style="padding:6px;min-width:180px;">
-      <option value="">Tag Value filter</option>
-    </select>
-
-    <button type="submit"
-            style="padding:6px 12px;background:#2563eb;color:#fff;border:0;border-radius:4px;cursor:pointer;">
-      Apply Filters
-    </button>
-
-    <a href="{{ base_path }}/section_tags{{ ext }}"
-       style="padding:6px 12px;margin-left:6px;background:#6b7280;color:#fff;border-radius:4px;text-decoration:none;">
-      Reset Filters
-    </a>
-  </form>
-
+  <!-- Mappings Section -->
   <form method="POST" action="{{ base_path }}/section_tags{{ ext }}">
     <input type="hidden" name="name" value="{{ name or '' }}">
     <input type="hidden" name="wild_card" value="{{ wild_card or '' }}">
@@ -72,129 +507,124 @@
     <input type="hidden" name="tag_value_filter" value="{{ tag_value_filter or '' }}">
     <input type="hidden" name="page" value="{{ current_page }}">
 
-    <div class="mb-3 mt-2">
-      <div class="form-check" style="display:inline-block;margin-left:12px;">
-        <input type="checkbox" id="select-all-top" class="form-check-input">
-        <label class="form-check-label" for="select-all-top">Select All</label>
-
-        <button type="submit"
-                onclick="return confirm('Delete selected section tag mappings?');"
-                style="margin-left:12px;padding:6px 12px;background:#2563eb;color:#fff;border:0;border-radius:4px;cursor:pointer;">
-          Delete Selected
-        </button>
-
-        <button type="button"
-                style="margin-left:12px;padding:6px 12px;background:#6b7280;color:#fff;border:0;border-radius:4px;cursor:pointer;"
-                onclick="if (window.sortHistory) { sortHistory.length = 0; } location.reload();">
-          Reset Sort
-        </button>
-      </div>
-    </div>
-
     {% if mappings and mappings|length > 0 %}
-      <table id="tag-mapping-table"
-             style="width:100%;border-collapse:collapse;font-size:0.85rem;">
-        <thead>
-          <tr style="background:#e5e7eb;">
-            <th class="sortable" data-col="0" style="border:1px solid #d1d5db;padding:6px;cursor:pointer;">
-              Select <span class="sort-arrow"></span>
-            </th>
-            <th class="sortable" data-col="1" style="border:1px solid #d1d5db;padding:6px;cursor:pointer;">
-              D2L OrgUnitId <span class="sort-arrow"></span>
-            </th>
-            <th class="sortable" data-col="2" style="border:1px solid #d1d5db;padding:6px;cursor:pointer;">
-              Genius Section ID <span class="sort-arrow"></span>
-            </th>
-            <th class="sortable" data-col="3" style="border:1px solid #d1d5db;padding:6px;cursor:pointer;">
-              Section Name <span class="sort-arrow"></span>
-            </th>
-            <th class="sortable" data-col="4" style="border:1px solid #d1d5db;padding:6px;cursor:pointer;">
-              Tag Name <span class="sort-arrow"></span>
-            </th>
-            <th class="sortable" data-col="5" style="border:1px solid #d1d5db;padding:6px;cursor:pointer;">
-              Tag Value <span class="sort-arrow"></span>
-            </th>
-            <th class="sortable" data-col="6" style="border:1px solid #d1d5db;padding:6px;cursor:pointer;">
-              Actions <span class="sort-arrow"></span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for m in mappings %}
-            {% set sec_name = m.section_name or m['section_name'] %}
-            {% set d2l = m.d2l_OrgUnitId or m['d2l_OrgUnitId'] %}
-            {% set sec = m.genius_sectionId or m['genius_sectionId'] %}
-            {% set tname = m.tag_name or m['tag_name'] %}
-            {% set tval = m.tag_value or m['tag_value'] %}
-            {% set entry_id = m.tag_entry_id or m['tag_entry_id'] %}
-            {% set combo_id = d2l ~ '_' ~ sec ~ '_' ~ entry_id %}
+      <h3 class="section-heading">Remove Tags</h3>
+      
+      <div class="action-bar">
+        <button type="submit" class="btn-delete" onclick="return confirm('Delete selected section tag mappings?');">
+          REMOVE SELECTED TAGS
+        </button>
+        <div style="color: #6B7280; font-size: 13px; font-style: italic; margin-left: 16px;">
+          Note: Removing a tag only removes the association between tables and does not affect the underlying data.
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+          <label style="font-size: 14px; color: #4A4A4A; margin: 0;">Show</label>
+          <select id="rows-per-page" onchange="changeRowsPerPage(this.value)" style="padding: 6px 10px; border: 1px solid #D1D5DB; border-radius: 4px; font-size: 14px;" disabled>
+            <option value="55" {% if per_page == 55 %}selected{% endif %}>55</option>
+            <option value="100" {% if per_page == 100 %}selected{% endif %}>100</option>
+            <option value="200" {% if per_page == 200 or per_page == 0 %}selected{% endif %}>200</option>
+          </select>
+          <label style="font-size: 14px; color: #4A4A4A; margin: 0;">rows</label>
+        </div>
+      </div>
 
+      <div class="mappings-table-wrapper">
+        <table id="tag-mapping-table" class="mappings-table">
+          <thead>
             <tr>
-              <td style="border:1px solid #e5e7eb;padding:6px;text-align:center;">
-                <input type="checkbox" class="section-select-checkbox"
-                       name="selected_sections"
-                       value="{{ combo_id }}">
-              </td>
-              <td style="border:1px solid #e5e7eb;padding:6px;">{{ d2l }}</td>
-              <td style="border:1px solid #e5e7eb;padding:6px;">{{ sec }}</td>
-              <td style="border:1px solid #e5e7eb;padding:6px;">{{ sec_name }}</td>
-              <td style="border:1px solid #e5e7eb;padding:6px;">{{ tname }}</td>
-              <td style="border:1px solid #e5e7eb;padding:6px;">{{ tval }}</td>
-              <td style="border:1px solid #e5e7eb;padding:6px;">
-                <button type="submit"
-                        name="single_delete"
-                        value="{{ combo_id }}"
-                        onclick="return confirm('Delete this section tag mapping?');"
-                        style="background:#dc2626;color:#fff;border:0;padding:4px 10px;border-radius:4px;cursor:pointer;">
-                  Delete
-                </button>
-              </td>
+              <th data-col="0" style="cursor: default; width: 50px; text-align: center;"><input type="checkbox" id="select-all-header"></th>
+              <th data-col="1" onclick="sortTable(1)">Genius Section ID<span></span></th>
+              <th data-col="2" onclick="sortTable(2)">D2L Org Unit ID<span></span></th>
+              <th data-col="3" onclick="sortTable(3)">Section Name<span></span></th>
+              <th data-col="4" onclick="sortTable(4)">Tag Category<span></span></th>
+              <th data-col="5" onclick="sortTable(5)">Tag Value<span></span></th>
+              <th data-col="6" style="cursor: default;">Remove Tag</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {% for m in mappings %}
+              {% set sec_name = m.section_name or m['section_name'] %}
+              {% set d2l = m.d2l_OrgUnitId or m['d2l_OrgUnitId'] %}
+              {% set sec = m.genius_sectionId or m['genius_sectionId'] %}
+              {% set tname = m.tag_name or m['tag_name'] %}
+              {% set tval = m.tag_value or m['tag_value'] %}
+              {% set entry_id = m.tag_entry_id or m['tag_entry_id'] %}
+              {% set combo_id = d2l ~ '_' ~ sec ~ '_' ~ entry_id %}
 
-      <div class="mt-2" style="margin-left:12px;">
-        <input type="checkbox" id="select-all-bottom" class="form-check-input">
-        <label class="form-check-label" for="select-all-bottom">Select All</label>
+              <tr>
+                <td>
+                  <input type="checkbox" class="section-select-checkbox"
+                         name="selected_sections"
+                         value="{{ combo_id }}">
+                </td>
+                <td>{{ sec }}</td>
+                <td>{{ d2l }}</td>
+                <td>{{ sec_name }}</td>
+                <td>{{ tname }}</td>
+                <td>{{ tval }}</td>
+                <td>
+                  <button type="submit"
+                          name="single_delete"
+                          value="{{ combo_id }}"
+                          class="btn-delete-single"
+                          onclick="return confirm('Delete this section tag mapping?');"
+                          title="Remove tag">
+                    <img src="/ufl_tag_manager/assets/link_off.svg" alt="Remove tag" style="width: 20px; height: 20px; vertical-align: middle;">
+                  </button>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
 
       {% if total_pages > 1 %}
-        <div style="margin-top:10px;font-size:0.8rem;display:flex;gap:12px;align-items:center;">
-          <span>Page {{ current_page }} of {{ total_pages }} ({{ total_count }} total)</span>
-          {% if current_page > 1 %}
-            <a href="{{ base_path }}/section_tags{{ ext }}?page={{ current_page - 1 }}">« Prev</a>
-          {% endif %}
-          {% if current_page < total_pages %}
-            <a href="{{ base_path }}/section_tags{{ ext }}?page={{ current_page + 1 }}">Next »</a>
-          {% endif %}
+        <div class="pagination-wrapper">
+          <div class="pagination-controls">
+            <a href="{{ base_path }}/section_tags{{ ext }}?page={{ current_page - 1 }}&name={{ name or '' }}&wild_card={{ wild_card or '' }}&d2l_OrgUnitId={{ d2l_OrgUnitId or '' }}&genius_sectionId={{ genius_sectionId or '' }}&tag_name_filter={{ tag_name_filter or '' }}&tag_value_filter={{ tag_value_filter or '' }}" 
+               class="pagination-btn {% if current_page == 1 %}disabled{% endif %}">Previous</a>
+            
+            {# Always show first page #}
+            <a href="{{ base_path }}/section_tags{{ ext }}?page=1&name={{ name or '' }}&wild_card={{ wild_card or '' }}&d2l_OrgUnitId={{ d2l_OrgUnitId or '' }}&genius_sectionId={{ genius_sectionId or '' }}&tag_name_filter={{ tag_name_filter or '' }}&tag_value_filter={{ tag_value_filter or '' }}" 
+               class="pagination-btn {% if current_page == 1 %}active{% endif %}">1</a>
+            
+            {# Show ellipsis if gap between first page and start of range #}
+            {% if current_page > 4 %}
+              <span class="pagination-ellipsis">...</span>
+            {% endif %}
+            
+            {# Show pages around current page #}
+            {% for p in range(2, total_pages) %}
+              {% if p >= current_page - 2 and p <= current_page + 2 %}
+                <a href="{{ base_path }}/section_tags{{ ext }}?page={{ p }}&name={{ name or '' }}&wild_card={{ wild_card or '' }}&d2l_OrgUnitId={{ d2l_OrgUnitId or '' }}&genius_sectionId={{ genius_sectionId or '' }}&tag_name_filter={{ tag_name_filter or '' }}&tag_value_filter={{ tag_value_filter or '' }}" 
+                   class="pagination-btn {% if p == current_page %}active{% endif %}">{{ p }}</a>
+              {% endif %}
+            {% endfor %}
+            
+            {# Show ellipsis if gap between end of range and last page #}
+            {% if current_page < total_pages - 3 %}
+              <span class="pagination-ellipsis">...</span>
+            {% endif %}
+            
+            {# Always show last page if there is more than 1 page #}
+            {% if total_pages > 1 %}
+              <a href="{{ base_path }}/section_tags{{ ext }}?page={{ total_pages }}&name={{ name or '' }}&wild_card={{ wild_card or '' }}&d2l_OrgUnitId={{ d2l_OrgUnitId or '' }}&genius_sectionId={{ genius_sectionId or '' }}&tag_name_filter={{ tag_name_filter or '' }}&tag_value_filter={{ tag_value_filter or '' }}" 
+                 class="pagination-btn {% if current_page == total_pages %}active{% endif %}">{{ total_pages }}</a>
+            {% endif %}
+            
+            <a href="{{ base_path }}/section_tags{{ ext }}?page={{ current_page + 1 }}&name={{ name or '' }}&wild_card={{ wild_card or '' }}&d2l_OrgUnitId={{ d2l_OrgUnitId or '' }}&genius_sectionId={{ genius_sectionId or '' }}&tag_name_filter={{ tag_name_filter or '' }}&tag_value_filter={{ tag_value_filter or '' }}" 
+               class="pagination-btn {% if current_page == total_pages %}disabled{% endif %}">Next</a>
+          </div>
+          <div class="pagination-info">
+            Showing {{ ((current_page - 1) * 200) + 1 }} to {% if current_page * 200 < total_count %}{{ current_page * 200 }}{% else %}{{ total_count }}{% endif %} of {{ total_count }} entries
+          </div>
         </div>
       {% endif %}
     {% else %}
-      <p style="color:#666;">No section tag mappings found.</p>
+      <div class="no-results">No section tag mappings found.</div>
     {% endif %}
   </form>
-
 </div>
-
-<style>
-  #tag-mapping-table {
-    font-size: 0.85rem;
-    border-collapse: collapse;
-  }
-  #tag-mapping-table th,
-  #tag-mapping-table td {
-    padding: 6px 8px;
-    border: 1px solid #d1d5db;
-  }
-  .sortable {
-    cursor: pointer;
-    user-select: none;
-  }
-  .sort-arrow {
-    font-size: 0.7rem;
-  }
-</style>
 
 <script>
   function setAll(fromId) {
@@ -204,58 +634,77 @@
     boxes.forEach(function (cb) {
       cb.checked = master.checked;
     });
-    var otherId = fromId === 'select-all-top' ? 'select-all-bottom' : 'select-all-top';
-    var other = document.getElementById(otherId);
-    if (other) {
-      other.checked = master.checked;
+    master.indeterminate = false;
+  }
+
+  function updateSelectAllState() {
+    var headerCheckbox = document.getElementById('select-all-header');
+    if (!headerCheckbox) return;
+    
+    var boxes = document.querySelectorAll('.section-select-checkbox');
+    var checkedCount = 0;
+    var totalCount = boxes.length;
+    
+    boxes.forEach(function(cb) {
+      if (cb.checked) checkedCount++;
+    });
+    
+    if (checkedCount === 0) {
+      headerCheckbox.checked = false;
+      headerCheckbox.indeterminate = false;
+    } else if (checkedCount === totalCount) {
+      headerCheckbox.checked = true;
+      headerCheckbox.indeterminate = false;
+    } else {
+      headerCheckbox.checked = false;
+      headerCheckbox.indeterminate = true;
     }
   }
 
   let sortHistory = [];
 
-  function sortTable(colIndex) {
-    const existing = sortHistory.find(s => s.col === colIndex);
-    if (existing) {
-      existing.asc = !existing.asc;
-    } else {
-      sortHistory.push({ col: colIndex, asc: true });
-    }
-
-    const tbody = document.querySelector("#tag-mapping-table tbody");
-    const rows = Array.from(tbody.rows);
-
-    rows.sort((a, b) => {
-      for (const { col, asc } of sortHistory) {
-        const valA = (a.cells[col].textContent || "").trim().toLowerCase();
-        const valB = (b.cells[col].textContent || "").trim().toLowerCase();
-        const cmp = valA.localeCompare(valB, undefined, { numeric: true });
-        if (cmp !== 0) return asc ? cmp : -cmp;
-      }
-      return 0;
-    });
-
-    rows.forEach(row => tbody.appendChild(row));
-
-    document.querySelectorAll(".sortable").forEach((el) => {
-      const col = parseInt(el.getAttribute("data-col"));
-      const iconSpan = el.querySelector(".sort-arrow");
-      const hist = sortHistory.find(s => s.col === col);
-      if (!iconSpan) return;
-      iconSpan.textContent = hist ? (hist.asc ? "▲" : "▼") : "";
-    });
+  function getCellText(row, idx) {
+    const td = row.children[idx];
+    return (td ? (td.innerText || td.textContent) : '').trim();
   }
 
-  function bindSorting() {
-    document.querySelectorAll(".sortable").forEach(el => {
-      el.addEventListener("click", function () {
-        const colIdx = parseInt(el.getAttribute("data-col"), 10);
-        if (!isNaN(colIdx)) sortTable(colIdx);
-      });
+  function sortTable(colIdx) {
+    const table = document.getElementById('tag-mapping-table');
+    const tbody = table.tBodies[0];
+    const rows = Array.from(tbody.rows).map((tr, i) => ({ tr, i }));
+    let direction = 'asc';
+    const prev = sortHistory[0];
+    if (prev && prev.col === colIdx && prev.dir === 'asc') direction = 'desc';
+    sortHistory.length = 0;
+    sortHistory.push({ col: colIdx, dir: direction });
+    rows.sort((A, B) => {
+      const a = getCellText(A.tr, colIdx);
+      const b = getCellText(B.tr, colIdx);
+      const na = Number(a.replace(/[^0-9.-]/g, ''));
+      const nb = Number(b.replace(/[^0-9.-]/g, ''));
+      let res;
+      if (!isNaN(na) && !isNaN(nb) && a !== '' && b !== '') {
+        res = na - nb;
+      } else {
+        const da = Date.parse(a);
+        const db = Date.parse(b);
+        if (!isNaN(da) && !isNaN(db)) {
+          res = da - db;
+        } else {
+          res = a.localeCompare(b);
+        }
+      }
+      if (res === 0) res = A.i - B.i;
+      return direction === 'asc' ? res : -res;
     });
+    document.querySelectorAll('th[data-col] span').forEach(s => s.textContent = '');
+    const th = document.querySelector('th[data-col="' + colIdx + '"]');
+    if (th) th.querySelector('span').textContent = direction === 'asc' ? ' ▲' : ' ▼';
+    rows.forEach(r => tbody.appendChild(r.tr));
   }
 
   function buildTagValueMap() {
-    const raw = {{ tag_values | tojson | safe }};
+    const raw = JSON.parse('{{ (tag_values or []) | tojson | safe }}');
     const map = {};
     raw.forEach(function (row) {
       if (!map[row.tag_name]) map[row.tag_name] = [];
@@ -279,7 +728,7 @@
 
     const defaultOpt = document.createElement("option");
     defaultOpt.value = "";
-    defaultOpt.textContent = "Tag Value filter";
+    defaultOpt.textContent = "Field value";
     tagValueSel.appendChild(defaultOpt);
 
     let valuesToShow = [];
@@ -301,23 +750,36 @@
     });
   }
 
-  document.addEventListener('DOMContentLoaded', function () {
-    var top = document.getElementById('select-all-top');
-    var bottom = document.getElementById('select-all-bottom');
-    if (top) top.addEventListener('change', function () { setAll('select-all-top'); });
-    if (bottom) bottom.addEventListener('change', function () { setAll('select-all-bottom'); });
+  function changeRowsPerPage(perPage) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('per_page', perPage);
+    url.searchParams.set('page', '1'); // Reset to first page
+    window.location.href = url.toString();
+  }
 
-    bindSorting();
+  document.addEventListener('DOMContentLoaded', function () {
+    var headerCheckbox = document.getElementById('select-all-header');
+    if (headerCheckbox) {
+      headerCheckbox.addEventListener('change', function () { setAll('select-all-header'); });
+    }
+
+    // Add change event listeners to all individual checkboxes
+    var individualCheckboxes = document.querySelectorAll('.section-select-checkbox');
+    individualCheckboxes.forEach(function(cb) {
+      cb.addEventListener('change', updateSelectAllState);
+    });
 
     const tagValueMap = buildTagValueMap();
     refillTagValueOptions(tagValueMap);
 
     const tagNameSel = document.getElementById("tag_name_filter");
-    tagNameSel.addEventListener("change", function () {
-      const tagValueSel = document.getElementById("tag_value_filter");
-      tagValueSel.value = "";
-      refillTagValueOptions(tagValueMap);
-    });
+    if (tagNameSel) {
+      tagNameSel.addEventListener("change", function () {
+        const tagValueSel = document.getElementById("tag_value_filter");
+        if (tagValueSel) tagValueSel.value = "";
+        refillTagValueOptions(tagValueMap);
+      });
+    }
   });
 </script>
 

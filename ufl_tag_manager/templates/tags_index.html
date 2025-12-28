@@ -1,5 +1,5 @@
 {% extends 'tags_base.html' %}
-{% from 'components/button.html' import button %}
+{% from 'components/button/button.html' import button %}
 {% block title %}Tag Manager | Lastinger Center{% endblock %}
 
 {% block content %}
@@ -118,8 +118,10 @@
   </div>
   
   <div class="hero-buttons">
-    {{ button('ADD TAGS', base_path + '/tags' + ext, 'primary', 'large') }}
-    {{ button('VIEW & REMOVE TAGS', base_path + '/section_tags' + ext, 'primary', 'large') }}
+    {{ button('Manage Tag Categories', base_path + '/tags' + ext, 'primary', 'large') }}
+    {{ button('Manage Tag Values', base_path + '/tag_values' + ext, 'primary', 'large') }}
+    {{ button('Manage Section Tag Mappings', base_path + '/section_tags' + ext, 'primary', 'large') }}
+    {{ button('Bulk Insert into Section Tags', base_path + '/section_tags_inserts' + ext, 'primary', 'large') }}
   </div>
 </div>
 {% endblock %}

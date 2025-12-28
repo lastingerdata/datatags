@@ -5,6 +5,7 @@ import sys
 import cgi
 import cgitb
 import urllib.parse
+import time
 from html import escape
 
 cgitb.enable()
@@ -44,8 +45,21 @@ def redirect_with_messages(location_path, messages, extra_qs=None):
             if v is None:
                 continue
             qs.append((k, v))
+    # Add timestamp for cache busting
+    qs.append(("_t", str(int(time.time() * 1000))))
     loc = f"{location_path}?{urllib.parse.urlencode(qs, doseq=True)}"
-    print_headers(status="303 See Other", extra={"Location": loc})
+    print_headers(
+        status="303 See Other",
+        extra={
+            "Location": loc,
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        }
+    )
+    # Output minimal HTML body for browsers that don't auto-redirect
+    print(f'<html><head><meta http-equiv="refresh" content="0;url={loc}"></head><body>Redirecting...</body></html>')
+    sys.stdout.flush()
     sys.exit(0)
 
 
@@ -174,6 +188,7 @@ def section_tags_inserts():
     term             = get_param(fs, "term", "").strip()
     tagged_status    = get_param(fs, "tagged_status", "").strip()
     page_str         = get_param(fs, "page", "1").strip()
+    per_page_str     = get_param(fs, "per_page", "200").strip()
 
     try:
         page = int(page_str)
@@ -181,6 +196,13 @@ def section_tags_inserts():
             page = 1
     except ValueError:
         page = 1
+    
+    try:
+        per_page_val = int(per_page_str)
+        if per_page_val not in [10, 25, 50, 100, 200]:
+            per_page_val = 200
+    except ValueError:
+        per_page_val = 200
 
     tag_entry_id = get_param(fs, "tag_entry_id", "").strip()
 
@@ -201,6 +223,7 @@ def section_tags_inserts():
             "term": term,
             "tagged_status": tagged_status,
             "page": str(page),
+            "per_page": str(per_page_val),
         }
 
         if not tag_entry_id:
@@ -244,21 +267,21 @@ def section_tags_inserts():
             wild_card=wild_card,
             wild_card_course=wild_card_course,
             page=str(page),
-            per_page="200",
+            per_page=str(per_page_val),
         )
         data = api_get_section_tags(params)
 
         tag_values  = data.get("tag_values", []) or []
         courses     = data.get("courses", []) or []
         total_count = int(data.get("total_results", data.get("total_count", 0)) or 0)
-        per_page    = int(data.get("per_page", 200) or 200)
+        per_page    = int(data.get("per_page", per_page_val) or per_page_val)
         total_pages = int(data.get("total_pages", 1) or 1)
 
     except Exception as e:
         tag_values = []
         courses = []
         total_count = 0
-        per_page = 200
+        per_page = per_page_val
         total_pages = 1
         qs_all.setdefault("c", []).append("danger")
         qs_all.setdefault("m", []).append(f"Failed to load data: {escape(str(e))}")
@@ -285,6 +308,8 @@ def section_tags_inserts():
     html = template.render(
         get_flashed_messages=lambda with_categories=False:
             flashed if with_categories else [m for _, m in flashed],
+        base_path=BASE_PATH,
+        ext=EXT,
         tag_values=tag_values,
         courses=courses,
         tag_entry_id=tag_entry_id,
@@ -299,13 +324,18 @@ def section_tags_inserts():
         page_name='section_tags_inserts',
         tagged_status=tagged_status,
         page=page,
-        per_page=per_page,
+        per_page=per_page_val,
         total_results=total_count,
         total_pages=total_pages,
         url_for=lambda name, **kw: build_url_for(name, **kw),
     )
 
-    print_headers()
+    cache_headers = {
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+        "Expires": "0"
+    }
+    print_headers(extra=cache_headers)
     sys.stdout.write(html)
 
 

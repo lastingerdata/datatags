@@ -1,314 +1,496 @@
 {% extends "tags_base.html" %}
+{% from 'components/table/table.html' import table %}
 
 {% block title %}Manage Tag Values{% endblock %}
 
-{% block extra_styles %}
+{% block content %}
 <style>
-  .tv-edit-toggle {
-    margin: 8px 0 16px;
+  .tag-values-page {
+    padding: 40px 60px;
+    max-width: 1400px;
+    margin: 0 auto;
   }
 
-  .tv-btn-toggle {
-    margin-right: 8px;
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 48px;
   }
 
-  .tv-table-wrapper {
-    border-radius: 10px;
-    overflow: hidden;
-    border: 1px solid #e5e7eb;
-    background: #ffffff;
+  .page-header-divider {
+    width: 4px;
+    height: 60px;
+    background: #FA4616;
   }
 
-  .tv-edit-row,
-  .tv-delete-row {
-    background: #f9fafb;
+  .page-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: #002657;
+    margin: 0;
   }
 
-  .tv-delete-box {
-    background: #fff7ed;
-    border: 1px solid #fdba74;
-    border-radius: 6px;
+  .tag-selector-section {
+    background: #FFFFFF;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #E5E5E5;
+    margin-bottom: 32px;
+  }
+
+  .tag-selector-label {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #002657;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .tag-selector {
+    width: 100%;
+    max-width: 400px;
+    padding: 12px 16px;
+    border: 1px solid #D1D5DB;
+    border-radius: 4px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    color: #4A4A4A;
+    background: white;
+    cursor: pointer;
+  }
+
+  .tag-selector:focus {
+    outline: none;
+    border-color: #0021A5;
+  }
+
+  .add-value-form {
+    background: #FFFFFF;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #E5E5E5;
+    margin-bottom: 48px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr auto;
+    gap: 16px;
+    align-items: end;
+  }
+
+  .form-field label {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #4A4A4A;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .form-field input {
+    width: 100%;
     padding: 10px 12px;
+    border: 1px solid #D1D5DB;
+    border-radius: 4px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    color: #4A4A4A;
+  }
+
+  .form-field input:focus {
+    outline: none;
+    border-color: #0021A5;
+  }
+
+  .btn-add {
+    padding: 10px 24px;
+    background: #0021A5;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-add:hover {
+    background: #001A85;
+  }
+
+  .btn-add:disabled {
+    background: #9CA3AF;
+    cursor: not-allowed;
+  }
+
+  /* Alert Styles */
+  .alert {
+    padding: 16px 24px;
+    border-radius: 4px;
+    margin-bottom: 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+  }
+
+  .alert-success {
+    background: #D1FAE5;
+    color: #065F46;
+    border: 1px solid #10B981;
+  }
+
+  .alert-error {
+    background: #FEE2E2;
+    color: #991B1B;
+    border: 1px solid #EF4444;
+  }
+
+  .alert-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 16px;
+    color: inherit;
+    opacity: 0.6;
+  }
+
+  .alert-close:hover {
+    opacity: 1;
+  }
+
+  /* Inline Edit Styles */
+  .edit-row {
+    background: #F9FAFB !important;
+  }
+
+  .edit-row td {
+    padding: 16px 12px !important;
+  }
+
+  .edit-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr auto;
+    gap: 16px;
+    align-items: end;
+  }
+
+  .edit-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .edit-form-field label {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #4A4A4A;
+  }
+
+  .edit-form-field input {
+    padding: 10px 12px;
+    border: 1px solid #D1D5DB;
+    border-radius: 4px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    color: #4A4A4A;
+  }
+
+  .edit-form-field input:focus {
+    outline: none;
+    border-color: #0021A5;
+  }
+
+  .edit-form-actions {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    padding-bottom: 2px;
+  }
+
+  .btn-update {
+    padding: 10px 20px;
+    background: #0021A5;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+
+  .btn-update:hover {
+    background: #001A85;
+  }
+
+  .btn-cancel {
+    padding: 10px 20px;
+    background: #6C757D;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+
+  .btn-cancel:hover {
+    background: #5A6268;
   }
 </style>
-{% endblock %}
 
-{% block content %}
-<div class="dashboard-container">
-
-  <h2>Manage Tag Values</h2>
-
-  {# flash messages #}
-  {% if messages %}
-    {% for cat, msg in messages %}
-      <div class="alert {{ 'alert-danger' if cat == 'danger' else 'alert-success' }} py-2">
-        {{ msg }}
-      </div>
-    {% endfor %}
-  {% endif %}
-
-  {# Edit / delete mode toggle #}
-  <div class="tv-edit-toggle">
-    <button id="enable-btn"
-            type="button"
-            class="btn btn-primary btn-sm tv-btn-toggle"
-            onclick="enableEditMode()">
-      Enable Edit/Delete Mode
-    </button>
-
-    <button id="cancel-btn"
-            type="button"
-            class="btn btn-secondary btn-sm"
-            style="display:none;"
-            onclick="cancelEditMode()">
-      Cancel Edit/Delete Mode
-    </button>
+<div class="tag-values-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-divider"></div>
+    <h1 class="page-title">Manage Tag Values</h1>
   </div>
 
-  {# Tag selector #}
-  <form method="GET"
-        action="{{ base_path }}/tag_values{{ ext }}"
-        class="form-inline mb-3">
-    <label for="selected_tag" class="mr-2 font-weight-bold">Select Tag:</label>
-    <select id="selected_tag"
-            name="selected_tag"
-            class="form-control"
-            onchange="this.form.submit()">
-      <option value="" {% if not selected_tag_id %}selected{% endif %}>-- Choose a tag --</option>
-      {% for t in tags %}
-        {% set tid = (t.tag_id or t.id) | string %}
-        <option value="{{ tid }}" {% if tid == (selected_tag_id | string) %}selected{% endif %}>
-          {{ t.tag_name }}
-        </option>
+  <!-- Alert Messages -->
+  {% for msg_type, msg_text in messages %}
+  <div class="alert alert-{{ msg_type }}" id="alert">
+    <span>{{ msg_text }}</span>
+    <button class="alert-close" onclick="closeAlert()">&times;</button>
+  </div>
+  {% endfor %}
+
+  <!-- Tag Selector -->
+  <div class="tag-selector-section">
+    <label for="tag-select" class="tag-selector-label">Select a Tag Category to Manage Values</label>
+    <select id="tag-select" class="tag-selector" onchange="loadTagValues(this.value)">
+      <option value="">-- Select a Tag --</option>
+      {% for tag in tags %}
+      <option value="{{ tag.tag_id }}" {% if selected_tag_id and selected_tag_id|string == tag.tag_id|string %}selected{% endif %}>
+        {{ tag.tag_name }}
+      </option>
       {% endfor %}
     </select>
-  </form>
+  </div>
 
   {% if selected_tag_id %}
-    {# Add value form #}
-    <form method="POST"
-          action="{{ base_path }}/tag_values{{ ext }}"
-          class="mb-3">
+  <!-- Add New Value Form -->
+  <div class="add-value-form">
+    <form method="POST" action="{{ base_path }}/tag_values{{ ext }}" onsubmit="return handleAddValue(this)">
       <input type="hidden" name="action" value="add">
       <input type="hidden" name="tag_id" value="{{ selected_tag_id }}">
-      <input type="hidden" name="selected_tag" value="{{ selected_tag_id }}">
-
-      <div class="form-row">
-        <div class="form-group col-md-4">
-          <label for="tag_value">New value</label>
-          <input type="text"
-                 id="tag_value"
-                 name="tag_value"
-                 class="form-control"
-                 required>
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="tag_value">Tag Value</label>
+          <input type="text" id="tag_value" name="tag_value" required>
         </div>
-
-        <div class="form-group col-md-6">
+        <div class="form-field">
           <label for="description">Description</label>
-          <input type="text"
-                 id="description"
-                 name="description"
-                 class="form-control"
-                 placeholder="Short description (optional)">
+          <input type="text" id="description" name="description">
         </div>
-
-        <div class="form-group col-md-2 d-flex align-items-end">
-          <button type="submit" class="btn btn-primary btn-block" style ="background-color:#0b3d91">
-            Add Value
-          </button>
-        </div>
+        <button type="submit" class="btn-add" id="add-btn">ADD</button>
       </div>
     </form>
-  {% endif %}
-
-  <hr>
-
-  <h3 class="mb-3">Values for Tag ID: {{ selected_tag_id or '—' }}</h3>
-
-  {% if values and values|length > 0 %}
-    <div class="tv-table-wrapper">
-      <div class="table-responsive">
-        <table class="table table-sm table-hover mb-0">
-          <thead>
-            <tr>
-              <th style="width: 30%;">Tag Value</th>
-              <th style="width: 55%;">Description</th>
-              <th style="width: 15%;" class="text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for val in values %}
-              {% set entry_id = val.tag_entry_id or val.id %}
-
-              {# DISPLAY ROW #}
-              <tr id="row-display-{{ entry_id }}">
-                <td>{{ val.tag_value }}</td>
-                <td>
-                  {% if val.description %}
-                    {{ val.description }}
-                  {% else %}
-                    <span class="text-muted">No description</span>
-                  {% endif %}
-                </td>
-                <td class="text-right">
-                  <div class="value-actions d-none" id="controls-{{ entry_id }}">
-                    <button type="button"
-                            class="btn btn-primary btn-sm mr-1"
-                            onclick="showEdit('{{ entry_id }}')">
-                      Edit
-                    </button>
-                    <button type="button"
-                            class="btn btn-danger btn-sm"
-                            onclick="showDelete('{{ entry_id }}')">
-                      Delete
-                    </button>
-                  </div>
-                </td>
-              </tr>
-
-              {# EDIT ROW #}
-              <tr id="row-edit-{{ entry_id }}" class="tv-edit-row d-none">
-                <td colspan="3">
-                  <form method="POST"
-                        action="{{ base_path }}/tag_values{{ ext }}">
-                    <input type="hidden" name="action" value="update">
-                    <input type="hidden" name="tag_entry_id" value="{{ entry_id }}">
-                    <input type="hidden" name="value_id" value="{{ entry_id }}">
-                    <input type="hidden" name="tag_id" value="{{ selected_tag_id }}">
-                    <input type="hidden" name="selected_tag" value="{{ selected_tag_id }}">
-
-                    <div class="form-row">
-                      <div class="form-group col-md-4">
-                        <label>Tag value</label>
-                        <input type="text"
-                               name="tag_value"
-                               value="{{ val.tag_value }}"
-                               required
-                               class="form-control">
-                      </div>
-                      <div class="form-group col-md-6">
-                        <label>Description</label>
-                        <input type="text"
-                               name="description"
-                               value="{{ val.description or '' }}"
-                               class="form-control"
-                               placeholder="Edit description">
-                      </div>
-                      <div class="form-group col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary btn-sm mr-1">
-                          Update
-                        </button>
-                        <button type="button"
-                                class="btn btn-secondary btn-sm"
-                                onclick="hideEditDelete('{{ entry_id }}')">
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  </form>
-                </td>
-              </tr>
-
-              {# DELETE CONFIRM ROW #}
-              <tr id="row-delete-{{ entry_id }}" class="tv-delete-row d-none">
-                <td colspan="3">
-                  <form method="POST"
-                        action="{{ base_path }}/tag_values{{ ext }}">
-                    <input type="hidden" name="action" value="delete">
-                    <input type="hidden" name="tag_entry_id" value="{{ entry_id }}">
-                    <input type="hidden" name="value_id" value="{{ entry_id }}">
-                    <input type="hidden" name="tag_id" value="{{ selected_tag_id }}">
-                    <input type="hidden" name="selected_tag" value="{{ selected_tag_id }}">
-                    <input type="hidden" name="tag_value" value="{{ val.tag_value }}">
-
-                    <div class="tv-delete-box">
-                      <span>Delete “{{ val.tag_value }}”?</span>
-                      <div>
-                        <button type="submit" class="btn btn-danger btn-sm mr-1">
-                          Yes, delete
-                        </button>
-                        <button type="button"
-                                class="btn btn-light btn-sm"
-                                onclick="hideEditDelete('{{ entry_id }}')">
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  </form>
-                </td>
-              </tr>
-
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  {% else %}
-    <div class="alert alert-secondary">
-      This tag has no values yet. Add your first value above.
-    </div>
-  {% endif %}
-
-  <div class="mt-3">
-    <a href="{{ base_path }}/tags_index{{ ext }}" class="btn-link">
-      Back to Tag Home
-    </a>
   </div>
+
+  <!-- Tag Values Table -->
+  {% if values %}
+    {% set table_data = [] %}
+    {% for value in values %}
+      {% set _ = table_data.append({
+        'ID': value.tag_entry_id,
+        'Value': value.tag_value,
+        'Description': value.description or 'No description',
+        'tag_entry_id': value.tag_entry_id,
+        'tag_value': value.tag_value
+      }) %}
+    {% endfor %}
+    
+    {% set action_list = [
+        {
+          'type': 'button',
+          'action': 'edit',
+          'icon': '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>',
+          'class': 'action-link-edit',
+          'title': 'Edit'
+        },
+        {
+          'type': 'button',
+          'action': 'delete',
+          'icon': '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>',
+          'class': 'action-link-delete',
+          'title': 'Delete'
+        }
+      ] %}
+    
+    {{ table(
+      columns=[
+        {'key': 'ID', 'label': 'ID', 'width': '10%'},
+        {'key': 'Value', 'label': 'Tag Value', 'width': '30%'},
+        {'key': 'Description', 'label': 'Description', 'width': '50%'}
+      ],
+      data=table_data,
+      title='Tag Values',
+      actions=action_list
+    ) }}
+  {% else %}
+    <p style="text-align: center; color: #6B7280; font-family: 'IBM Plex Sans', sans-serif;">No values found for this tag.</p>
+  {% endif %}
+  {% endif %}
 </div>
+
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
-  function enableEditMode() {
-    document.getElementById('enable-btn').style.display = 'none';
-    document.getElementById('cancel-btn').style.display = 'inline-block';
+  // Auto-dismiss alert after 5 seconds
+  const alertElement = document.getElementById('alert');
+  if (alertElement) {
+    setTimeout(() => {
+      alertElement.style.transition = 'opacity 0.3s';
+      alertElement.style.opacity = '0';
+      setTimeout(() => alertElement.remove(), 300);
+    }, 5000);
+  }
 
-    var controls = document.querySelectorAll('.value-actions');
-    controls.forEach(function (el) {
-      el.classList.remove('d-none');
+  function closeAlert() {
+    const alertElement = document.getElementById('alert');
+    if (alertElement) {
+      alertElement.style.transition = 'opacity 0.3s';
+      alertElement.style.opacity = '0';
+      setTimeout(() => alertElement.remove(), 300);
+    }
+  }
+
+  // Clean URL after displaying alert
+  if (window.location.search.includes('m=')) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tagId = urlParams.get('tag_id');
+    const cleanUrl = window.location.pathname + (tagId ? '?tag_id=' + tagId : '');
+    window.history.replaceState({}, document.title, cleanUrl);
+  }
+
+  function loadTagValues(tagId) {
+    const url = '{{ base_path }}/tag_values{{ ext }}' + (tagId ? '?tag_id=' + tagId : '');
+    window.location.href = url;
+  }
+
+  function handleAddValue(form) {
+    const btn = document.getElementById('add-btn');
+    btn.disabled = true;
+    btn.textContent = 'ADDING...';
+    return true;
+  }
+
+  function cancelEdit() {
+    const editRows = document.querySelectorAll('.edit-row');
+    editRows.forEach(row => row.remove());
+  }
+
+  // Handle button clicks with event delegation
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle edit button clicks
+    document.addEventListener('click', function(e) {
+      const editBtn = e.target.closest('button[data-action="edit"]');
+      if (editBtn) {
+        const row = editBtn.closest('tr');
+        const valueId = row.querySelector('[data-tag-id]').dataset.tagId;
+        const valueText = row.querySelector('[data-tag-value]').dataset.tagValue;
+        
+        // Close any existing edit rows
+        const existingEditRows = document.querySelectorAll('.edit-row');
+        existingEditRows.forEach(row => row.remove());
+        
+        // Get current values from the row
+        const cells = row.querySelectorAll('td');
+        let currentDesc = cells[2].textContent.trim();
+        if (currentDesc === 'No description') currentDesc = '';
+        
+        // Create edit row
+        const editRow = document.createElement('tr');
+        editRow.className = 'edit-row';
+        
+        const colspan = cells.length;
+        const editCell = document.createElement('td');
+        editCell.colSpan = colspan;
+        
+        editCell.innerHTML = `
+          <form method="POST" action="{{ base_path }}/tag_values{{ ext }}" id="edit-form-${valueId}">
+            <input type="hidden" name="action" value="update">
+            <input type="hidden" name="tag_entry_id" value="${valueId}">
+            <input type="hidden" name="tag_id" value="{{ selected_tag_id }}">
+            <div class="edit-form-grid">
+              <div class="edit-form-field">
+                <label>Tag Value</label>
+                <input type="text" name="tag_value" value="${valueText.replace(/"/g, '&quot;')}" required>
+              </div>
+              <div class="edit-form-field">
+                <label>Description</label>
+                <input type="text" name="description" value="${currentDesc.replace(/"/g, '&quot;')}">
+              </div>
+              <div class="edit-form-actions">
+                <button type="submit" class="btn-update">Update</button>
+                <button type="button" class="btn-cancel" onclick="cancelEdit()">Cancel</button>
+              </div>
+            </div>
+          </form>
+        `;
+        
+        editRow.appendChild(editCell);
+        row.parentNode.insertBefore(editRow, row.nextSibling);
+        
+        // Focus on the first input
+        editCell.querySelector('input[name="tag_value"]').focus();
+      }
+      
+      // Handle delete button clicks
+      const deleteBtn = e.target.closest('button[data-action="delete"]');
+      if (deleteBtn) {
+        const row = deleteBtn.closest('tr');
+        const valueId = row.querySelector('[data-tag-id]').dataset.tagId;
+        const valueName = row.querySelector('[data-tag-value]').dataset.tagValue;
+        
+        if (confirm(`Are you sure you want to delete the value "${valueName}"?`)) {
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = '{{ base_path }}/tag_values{{ ext }}';
+          
+          const actionInput = document.createElement('input');
+          actionInput.type = 'hidden';
+          actionInput.name = 'action';
+          actionInput.value = 'delete';
+          
+          const valueInput = document.createElement('input');
+          valueInput.type = 'hidden';
+          valueInput.name = 'tag_entry_id';
+          valueInput.value = valueId;
+          
+          const tagInput = document.createElement('input');
+          tagInput.type = 'hidden';
+          tagInput.name = 'tag_id';
+          tagInput.value = '{{ selected_tag_id }}';
+          
+          const tagValueInput = document.createElement('input');
+          tagValueInput.type = 'hidden';
+          tagValueInput.name = 'tag_value';
+          tagValueInput.value = valueName;
+          
+          form.appendChild(actionInput);
+          form.appendChild(valueInput);
+          form.appendChild(tagInput);
+          form.appendChild(tagValueInput);
+          document.body.appendChild(form);
+          form.submit();
+        }
+      }
     });
-
-    document.querySelectorAll('[id^="row-edit-"], [id^="row-delete-"]').forEach(function (el) {
-      el.classList.add('d-none');
-    });
-  }
-
-  function cancelEditMode() {
-    document.getElementById('enable-btn').style.display = 'inline-block';
-    document.getElementById('cancel-btn').style.display = 'none';
-
-    var controls = document.querySelectorAll('.value-actions');
-    controls.forEach(function (el) {
-      el.classList.add('d-none');
-    });
-
-    document.querySelectorAll('[id^="row-edit-"], [id^="row-delete-"]').forEach(function (el) {
-      el.classList.add('d-none');
-    });
-  }
-
-  function showEdit(entryId) {
-    var editRow = document.getElementById('row-edit-' + entryId);
-    var delRow = document.getElementById('row-delete-' + entryId);
-    if (delRow) delRow.classList.add('d-none');
-    if (editRow) editRow.classList.remove('d-none');
-  }
-
-  function showDelete(entryId) {
-    var editRow = document.getElementById('row-edit-' + entryId);
-    var delRow = document.getElementById('row-delete-' + entryId);
-    if (editRow) editRow.classList.add('d-none');
-    if (delRow) delRow.classList.remove('d-none');
-  }
-
-  function hideEditDelete(entryId) {
-    var editRow = document.getElementById('row-edit-' + entryId);
-    var delRow = document.getElementById('row-delete-' + entryId);
-    if (editRow) editRow.classList.add('d-none');
-    if (delRow) delRow.classList.add('d-none');
-  }
+  });
 </script>
 {% endblock %}
