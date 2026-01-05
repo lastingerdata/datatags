@@ -73,11 +73,11 @@ def get_base_path() -> str:
     """
     Returns the base path for CGI scripts based on environment.
     - local: /cgi-bin/ufl_tag_manager (includes cgi-bin prefix for local development)
-    - prod/test: /ufl_tag_manager (no cgi-bin prefix in production or test)
+    - prod: /ufl_tag_manager (no cgi-bin prefix in production)
     """
     env = get_environment()
-    if env in ("prod", "test"):
-        return "/ufl_tag_manager"
+    if env == "prod":
+        return "/cgi-bin/ufl_tag_manager"
     else:
         return "/cgi-bin/ufl_tag_manager"
  
