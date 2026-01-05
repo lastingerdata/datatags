@@ -1,0 +1,113 @@
+{# 
+  BUTTON COMPONENT MACRO
+  ======================
+  A reusable button component with multiple variants and sizes.
+  
+  USAGE:
+  ------
+  1. Import the macro in your template:
+     {% from 'components/button/button.html' import button %}
+  
+  2. Use the button macro:
+     {{ button('Click Me', href='/some-page', variant='primary', size='large') }}
+  
+  PARAMETERS:
+  -----------
+  @param label (required) - The text displayed on the button
+  @param href (optional, default="#") - The URL the button links to
+  @param variant (optional, default="primary") - The button style variant
+  @param size (optional, default="medium") - The button size
+  
+  AVAILABLE VARIANTS:
+  -------------------
+  - "primary": Blue button (#0021A5) - Use for main call-to-action buttons
+  - "secondary": Gray button (#6C757D) - Use for secondary actions
+  - "outline": Transparent with blue border - Use for tertiary actions
+  
+  AVAILABLE SIZES:
+  ----------------
+  - "small": 8px/16px padding, 14px font - Compact buttons
+  - "medium": 12px/24px padding, 16px font - Standard buttons (default)
+  - "large": 16px/32px padding, 18px font, bold - Prominent buttons
+  
+  EXAMPLES:
+  ---------
+  {{ button('Submit Form', href='/submit', variant='primary', size='large') }}
+  {{ button('Cancel', href='/back', variant='secondary') }}
+  {{ button('Learn More', href='/docs', variant='outline', size='small') }}
+  {{ button('Default Button') }}  <!-- Uses all defaults -->
+#}
+{% macro button(label, href="#", variant="primary", size="medium") %}
+<a href="{{ href }}" class="btn btn-{{ variant }} btn-{{ size }}">{{ label }}</a>
+{% endmacro %}
+
+<style>
+  .btn {
+    display: inline-block;
+    text-decoration: none;
+    border-radius: 6px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    max-width: 1400px;
+    opacity: 1;
+  }
+  
+  /* Primary variant */
+  .btn-primary {
+    background: #0021A5 !important;
+    background-color: #0021A5 !important;
+    color: #fff !important;
+    border-color: #0021A5 !important;
+  }
+  
+  .btn-primary:hover {
+    background: #001580 !important;
+    background-color: #001580 !important;
+    color: #fff !important;
+    border-color: #001580 !important;
+  }
+  
+  /* Secondary variant */
+  .btn-secondary {
+    background: #6C757D !important;
+    color: #fff !important;
+  }
+  
+  .btn-secondary:hover {
+    background: #5a6268 !important;
+    color: #fff !important;
+  }
+  
+  /* Outline variant */
+  .btn-outline {
+    background: transparent;
+    color: #0021A5;
+    border: 2px solid #2563eb;
+  }
+  
+  .btn-outline:hover {
+    background: #0021A5;
+    color: #fff;
+  }
+  
+  /* Sizes */
+  .btn-small {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+  
+  .btn-medium {
+    padding: 12px 24px;
+    font-size: 16px;
+  }
+  
+  .btn-large {
+    padding: 16px 32px;
+    font-size: 18px;
+    font-weight: 600;
+  }
+</style>

@@ -1,21 +1,127 @@
 {% extends 'tags_base.html' %}
+{% from 'components/button/button.html' import button %}
 {% block title %}Tag Manager | Lastinger Center{% endblock %}
 
 {% block content %}
 <style>
-  .dashboard-container { max-width: 800px; margin: 60px auto; padding: 30px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,.05); border-radius: 10px; }
-  ul { list-style: none; padding: 0; }
-  li { margin: 15px 0; }
-  a.btn-link { display: inline-block; padding: 6px 10px; background: #2563eb; color: #fff; text-decoration: none; border-radius: 6px; transition: background .3s ease; font-weight: 500; }
-  a.btn-link:hover { background: #1d4ed8; color: #fff; }
+  body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  .hero-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 10px 0 60px;
+    background: #FFFFFF;
+  }
+  
+  .hero-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 100px;
+    width: 100%;
+    max-width: 100%;
+    padding: 0 60px;
+    margin-bottom: 50px;
+  }
+  
+  .hero-content {
+    flex: 1;
+  }
+  
+  .hero-content h1 {
+    font-size: 64px;
+    font-weight: 700;
+    font-family: 'Poppins', sans-serif;
+    color: #002657;
+    margin-bottom: 28px;
+    line-height: 1.1;
+  }
+  
+  .hero-content p {
+    font-size: 20px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: #4A4A4A;
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+  
+  .hero-buttons {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    max-width: 900px;
+  }
+  
+  .hero-image {
+    flex: 0 0 auto;
+    width: 240px !important;
+    min-width: 240px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .hero-image img {
+    width: 240px !important;
+    height: 320px !important;
+    max-width: 240px !important;
+    max-height: 320px !important;
+    object-fit: contain;
+    opacity: 1;
+  }
+  
+  @media (max-width: 1024px) {
+    .hero-section {
+      padding: 60px 80px;
+      gap: 60px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .hero-section {
+      flex-direction: column;
+      text-align: center;
+      padding: 40px 20px;
+    }
+    
+    .hero-content h1 {
+      font-size: 36px;
+    }
+    
+    .hero-buttons {
+      justify-content: center;
+    }
+  }
 </style>
-<div class="dashboard-container">
-  <h2 class="text-center mb-4">Tag Manager Dashboard1</h2>
-  <ul>
-    <li><a class="btn-link" href="{{ base_path }}/tags{{ ext }}">Manage Tag Categories</a></li>
-    <li><a class="btn-link" href="{{ base_path }}/tag_values{{ ext }}">Manage Tag Values</a></li>
-    <li><a class="btn-link" href="{{ base_path }}/section_tags{{ ext }}">Manage Section Tag Mappings</a></li>
-    <li><a class="btn-link" href="{{ base_path }}/section_tags_inserts{{ ext }}">Bulk insert into Section Tags</a></li>
-  </ul>
+
+<div class="hero-section">
+  <div class="hero-top">
+    <div class="hero-content">
+      <h1>Tag Management Dashboard</h1>
+      <p>The Tag Management System is a web-based tool developed to streamline the tagging process for academic course sections. Designed for efficiency and scalability, the system allows users to manage tagging categories, values, and mappings.</p>
+      <p>Whether organizing courses by program type or term, the system ensures that tagging remains consistent, accurate, and easily searchable.</p>
+    </div>
+    
+    <div class="hero-image">
+      <img src="/ufl_tag_manager/assets/home_hero.png" alt="Tag Management Illustration" />
+    </div>
+  </div>
+  
+  <div class="hero-buttons">
+    {{ button('Manage Tag Categories', base_path + '/tags' + ext, 'primary', 'large') }}
+    {{ button('Manage Tag Values', base_path + '/tag_values' + ext, 'primary', 'large') }}
+    {{ button('Manage Section Tag Mappings', base_path + '/section_tags' + ext, 'primary', 'large') }}
+    {{ button('Bulk Insert into Section Tags', base_path + '/section_tags_inserts' + ext, 'primary', 'large') }}
+  </div>
 </div>
 {% endblock %}

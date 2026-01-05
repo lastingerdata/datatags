@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-import os, cgitb
+import os, sys, cgitb
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 cgitb.enable()
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, ROOT)
 TEMPLATES = os.path.join(ROOT, "templates")
+
+from env_config import get_base_path
 
 env = Environment(
     loader=FileSystemLoader(TEMPLATES),
@@ -14,8 +17,8 @@ env = Environment(
 
 def main():
     html = env.get_template("tags_index.html").render(
-        base_path="/ufl_tag_manager",
-        ext=".py ",   
+        base_path=get_base_path(),
+        ext=".py",   
         user=os.environ.get("REMOTE_USER", "unknown"),
     )
     print("Content-Type: text/html; charset=utf-8")

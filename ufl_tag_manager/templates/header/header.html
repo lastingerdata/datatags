@@ -6,8 +6,8 @@
   <div class="container-fluid">
     <div class="row align-items-center">
       <div class="col-md-3">
-        <div class="uf-logo">
-          <img src="{{ base_path }}/assets/uf_logo.png" 
+        <a href="{{ base_path }}/tags_index{{ ext }}" class="uf-logo">
+          <img src="/ufl_tag_manager/assets/uf_logo.png" 
                alt="UF Lastinger Center" 
                class="uf-logo-img"
                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
@@ -22,28 +22,31 @@
               </div>
             </div>
           </div>
-        </div>
+        </a>
       </div>
       <div class="col-md-6">
       </div>
       <div class="col-md-3">
         <div class="header-nav">
-          <a href="{{ base_path }}/tags_index{{ ext }}" class="nav-item">Add Tags</a>
-          <a href="{{ base_path }}/section_tags{{ ext }}" class="nav-item">View & Remove Tags</a>
-          <a target="_blank" rel="noopener" href="{{ base_path }}/assets/Tagging%20website%20Documentation.pdf" class="nav-item">User Guide</a>
+          <div class="nav-dropdown">
+            <a href="{{ base_path }}/tags_index{{ ext }}" class="nav-item">
+              Tag Management
+              <svg class="dropdown-icon" width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <div class="dropdown-content">
+              <a href="{{ base_path }}/tags{{ ext }}" class="dropdown-item {% if page_name == 'tags' %}active{% endif %}">Manage Tag Categories</a>
+              <a href="{{ base_path }}/tag_values{{ ext }}" class="dropdown-item {% if page_name == 'tag_values' %}active{% endif %}">Manage Tag Values</a>
+              <a href="{{ base_path }}/section_tags{{ ext }}" class="dropdown-item {% if page_name == 'section_tags' %}active{% endif %}">Manage Section Tag Mappings</a>
+              <a href="{{ base_path }}/section_tags_inserts{{ ext }}" class="dropdown-item {% if page_name == 'section_tags_inserts' %}active{% endif %}">Bulk Insert into Section Tags</a>
+            </div>
+          </div>
+          <a href="{{ base_path }}/logs{{ ext }}" class="nav-item">Logs</a>
+          <a href="{{ base_path }}/rules{{ ext }}" class="nav-item">Rules</a>
+          <a target="_blank" rel="noopener" href="/ufl_tag_manager/assets/Tagging%20website%20Documentation.pdf" class="nav-item">User Guide</a>
         </div>
       </div>
     </div>
   </div>
 </header>
-
-<!-- Sub navigation -->
-<nav class="sub-nav">
-  <div class="container-fluid">
-    <div class="nav-links">
-      <a href="{{ base_path }}/tags_index{{ ext }}" class="sub-nav-link">Tag Management</a>
-      <a href="{{ base_path }}/logs{{ ext }}" class="sub-nav-link">Logs</a>
-      <a href="{{ base_path }}/rules{{ ext }}" class="sub-nav-link">Rules</a>
-    </div>
-  </div>
-</nav>

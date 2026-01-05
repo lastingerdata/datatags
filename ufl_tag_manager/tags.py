@@ -1,5 +1,4 @@
-#!/h/cnswww-test.datatags.lastinger/test.datatags.lastinger.ufl.edu/htdocs/ufl_tag_manager/venv/bin/python3
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 import os
 import sys
@@ -11,7 +10,7 @@ import urllib.parse
 cgitb.enable()
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import api_url, get_api_key, safe_request
+from env_config import api_url, get_api_key, safe_request, get_base_path
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES = os.path.join(ROOT, "templates")
@@ -21,7 +20,7 @@ env = Environment(
     autoescape=select_autoescape(["html", "xml"])
 )
 
-BASE_PATH = "/ufl_tag_manager"
+BASE_PATH = get_base_path()
 EXT = ".py"
 
 
@@ -36,12 +35,20 @@ def print_headers(content_type="text/html; charset=utf-8", status=None, extra=No
 
 
 def redirect_with_messages(messages):
-    qs = urllib.parse.urlencode([("m", f"{c}:{t}") for c, t in messages])
+    import time
+    pairs = [("m", f"{c}:{t}") for c, t in messages]
+    # Add timestamp to prevent caching
+    pairs.append(("_t", str(int(time.time() * 1000))))
+    qs = urllib.parse.urlencode(pairs)
+    redirect_url = f"{BASE_PATH}/tags{EXT}" + (f"?{qs}" if qs else "")
     extra = {
-        "Cache-Control": "no-store",
-        "Location": f"{BASE_PATH}/tags{EXT}" + (f"?{qs}" if qs else "")
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+        "Location": redirect_url
     }
     print_headers(status="303 See Other", extra=extra)
+    # Print a simple redirect page body for browsers that don't auto-follow
+    print(f'<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url={redirect_url}"></head><body>Redirecting...</body></html>')
 
 
 def parse_messages_from_qs():
@@ -226,10 +233,15 @@ def main():
             ext=EXT,
             tags=tags,
             messages=messages,
-            user=user
+            user=user,
+            page_name='tags'
         )
 
-        print_headers()
+        print_headers(extra={
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        })
         sys.stdout.write(html)
 
     except Exception:
@@ -244,46 +256,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
-# #!/usr/bin/env python3.9
-# import cgi
-# import cgitb; cgitb.enable()
-# import requests
-# import os
-# import html
-# from env_config import api_url, api_base, get_api_key, safe_request
-
-# print("Content-Type: text/html\n")
-
-# method = os.environ.get('REQUEST_METHOD', 'GET').upper()
-# API_KEY = get_api_key()
-# PDF_URL = "/ufl_tag_manager/assets/Tagging%20website%20Documentation.pdf"
-
-# try:
-#     headers={"ApiKey": API_KEY}
-#     if method == 'POST':
-#         form = cgi.FieldStorage()
-#         post_data = {key:form.getvalue(key) for key in form.keys()}
-#         post_data["ApiKey"] = API_KEY
-#         post_data["user"] = os.environ.get("REMOTE_USER", "unknown")
-#         r = requests.post(api_url("/tags"), headers=headers, data=post_data, verify=False)
-#     else:
-#         query_string = os.environ.get("QUERY_STRING", "")
-#         url = api_url("/tags") + ("?" + query_string if query_string else "")
-#         r = safe_request(url, headers=headers, verify=False)
-
-#     if isinstance(r, dict) :
-#         print(f"<h1>{r['error']}</h1>")
-#     else:
-#         html_out = r.text
-#         html = r.text
-#         html = html.replace('href="/tags_index"', 'href="/ufl_tag_manager/home"')
-#         html = html.replace('action="/delete_tag"', 'action="/ufl_tag_manager/delete_tag"')
-#         html = html.replace('action="/tags"', 'action="/ufl_tag_manager/tags"')
-#         html = html.replace('/static/docs/Tagging%20website%20Documentation.pdf', PDF_URL)\
-#                     .replace('href="#"', f'href="{PDF_URL}" target="_blank" rel="noopener"')\
-#                     .replace('>About</a>', f' target="_blank" rel="noopener" href="{PDF_URL}">About</a>')
-#         print(html)
-
-# except Exception as e:
-#     print(f"<h1>Error: {e}</h1>")

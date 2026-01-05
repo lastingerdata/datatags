@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table Component Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: #FFFFFF;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-family: 'Poppins', sans-serif;
+            color: #002657;
+            margin-bottom: 32px;
+            font-size: 32px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Table Component Demo - Course Listing</h1>
+        
+        {% from 'components/table/table.html' import table %}
+        
+        {{ table(
+            columns=[
+                {'key': 'genius_section_id', 'label': 'Genius Section ID', 'width': '8%'},
+                {'key': 'd2l_org_unit_id', 'label': 'D2L Org Unit ID', 'width': '8%'},
+                {'key': 'section_name', 'label': 'Section Name', 'width': '15%'},
+                {'key': 'course_start_date', 'label': 'Course Start Date', 'width': '10%'},
+                {'key': 'course_end_date', 'label': 'Course End Date', 'width': '10%'},
+                {'key': 'course_name', 'label': 'Course Name', 'width': '17%'},
+                {'key': 'department_name', 'label': 'Department Name', 'width': '15%'},
+                {'key': 'term', 'label': 'Term', 'width': '5%'},
+                {'key': 'tag_status', 'label': 'Tag Status', 'format': 'tag'}
+            ],
+            data=course_data,
+            checkbox=True,
+            striped=True,
+            hover=True
+        ) }}
+    </div>
+</body>
+</html>
