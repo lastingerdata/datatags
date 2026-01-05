@@ -76,7 +76,7 @@ def get_base_path() -> str:
     - prod: /ufl_tag_manager (no cgi-bin prefix in production)
     """
     env = get_environment()
-    if env == "prod":
+    if env in("prod","test"):
         return "/cgi-bin/ufl_tag_manager"
     else:
         return "/cgi-bin/ufl_tag_manager"
