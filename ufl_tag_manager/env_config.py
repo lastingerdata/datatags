@@ -77,7 +77,7 @@ def get_base_path() -> str:
     """
     env = get_environment()
     if env in("prod","test"):
-        return "/cgi-bin/ufl_tag_manager"
+        return "/ufl_tag_manager"
     else:
         return "/cgi-bin/ufl_tag_manager"
  
