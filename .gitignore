@@ -1,2 +1,7 @@
 *pyc
 env.txt
+
+# Python cache
+**/__pycache__/
+*.pyc
+middleware/
