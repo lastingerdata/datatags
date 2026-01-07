@@ -1,17 +1,20 @@
-#!/h/cnswww-test.datatags.lastinger/test.datatags.lastinger.ufl.edu/htdocs/ufl_tag_manager/venv/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import os
 import json
+import cgitb
 import traceback
 import urllib.parse
 from html import escape
 from urllib.parse import quote, quote_plus
 
-from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import safe_request
+cgitb.enable()
 
-BASE_PATH = "/ufl_tag_manager"
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+from env_config import safe_request, get_base_path
+
+BASE_PATH = get_base_path()
 EXT = ".py"
 
 REPORT_LOGS_URL = "https://compute.lastinger.center.ufl.edu/report_logs"
@@ -157,7 +160,8 @@ def main():
                 detail_key=detail,
                 content=content,
                 rows=[],
-                messages=[]
+                messages=[],
+                page_name='logs'
             ))
             return
 
@@ -179,7 +183,8 @@ def main():
             view=view,
             report_name=report_filter or "",
             rows=rows,
-            messages=[]
+            messages=[],
+            page_name='logs'
         ))
 
     except Exception:
