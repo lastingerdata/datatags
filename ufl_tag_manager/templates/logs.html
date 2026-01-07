@@ -12,11 +12,15 @@
   }
 
   .logs-page {
-    padding: 20px 40px 0;
+    padding: 20px 40px 60px;
     width: 90vw;
     max-width: 90vw;
     margin: 0 auto;
-    padding-bottom: 60px;
+    overflow-x: visible;
+  }
+
+  .table-wrapper {
+    overflow-x: visible !important;
   }
 
   .page-header {
@@ -264,24 +268,24 @@
       {% if view == "summary" %}
         {{ table(
           columns=[
-            {'key': 'report_name', 'label': 'Report Name', 'width': '18%'},
-            {'key': 'description', 'label': 'Description', 'width': '30%'},
-            {'key': 'start_time', 'label': 'Start Time', 'width': '15%'},
-            {'key': 'end_time', 'label': 'End Time', 'width': '15%'},
-            {'key': 'result', 'label': 'Result', 'width': '10%'}
+            {'key': 'report_name', 'label': 'Report Name', 'width': '8%'},
+            {'key': 'description', 'label': 'Description', 'width': '16%'},
+            {'key': 'start_time', 'label': 'Start Time', 'width': '11%'},
+            {'key': 'end_time', 'label': 'End Time', 'width': '11%'},
+            {'key': 'result', 'label': 'Result', 'width': '8%'}
           ],
           data=processed_rows,
           actions=[
             {
               'type': 'link',
               'key': 'details_url',
-              'label': 'View Details',
+              'label': 'Details',
               'class': 'view-link'
             },
             {
               'type': 'link',
               'key': 'history_url',
-              'label': 'View History',
+              'label': 'History',
               'class': 'view-link'
             }
           ],
@@ -291,18 +295,18 @@
       {% else %}
         {{ table(
           columns=[
-            {'key': 'report_name', 'label': 'Report Name', 'width': '18%'},
-            {'key': 'description', 'label': 'Description', 'width': '30%'},
-            {'key': 'start_time', 'label': 'Start Time', 'width': '15%'},
-            {'key': 'end_time', 'label': 'End Time', 'width': '15%'},
-            {'key': 'result', 'label': 'Result', 'width': '10%'}
+            {'key': 'report_name', 'label': 'Report Name', 'width': '8%'},
+            {'key': 'description', 'label': 'Description', 'width': '16%'},
+            {'key': 'start_time', 'label': 'Start Time', 'width': '11%'},
+            {'key': 'end_time', 'label': 'End Time', 'width': '11%'},
+            {'key': 'result', 'label': 'Result', 'width': '8%'}
           ],
           data=processed_rows,
           actions=[
             {
               'type': 'link',
               'key': 'details_url',
-              'label': 'View Details',
+              'label': 'Details',
               'class': 'view-link'
             }
           ],
