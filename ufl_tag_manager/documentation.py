@@ -2,7 +2,7 @@
 import os, cgitb
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from ufl_tag_manager.env_config import get_base_path
+from env_config import get_base_path
 
 cgitb.enable()
 
@@ -16,10 +16,10 @@ env = Environment(
 
 def main():
     html = env.get_template("documentation.html").render(
-    base_path=get_base_path(),
-    extra=".py",
-    user=os.environ.get("REMOTE_USER", "unknown"),
-)
+        base_path=get_base_path(),
+        ext=".py",
+        user=os.environ.get("REMOTE_USER", "unknown"),
+    )
     print("Content-Type: text/html; charset=utf-8")
     print()
     print(html)
