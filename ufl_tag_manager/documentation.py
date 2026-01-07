@@ -1,18 +1,26 @@
 #!/usr/bin/env python3
-import sys
-from pathlib import Path
+import os, cgitb
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-BASE = Path(__file__).resolve().parent
-PDF  = BASE / "assets/Tagging website Documentation.pdf"
+cgitb.enable()
 
-try:
-    data = PDF.read_bytes()
-    print("Content-Type: application/pdf")
-    print('Content-Disposition: inline; filename="Tagging website Documentation.pdf"')
-    print(f"Content-Length: {len(data)}")
+ROOT = os.path.dirname(os.path.abspath(__file__))
+TEMPLATES = os.path.join(ROOT, "templates")
+
+env = Environment(
+    loader=FileSystemLoader(TEMPLATES),
+    autoescape=select_autoescape(["html","xml"]),
+)
+
+def main():
+    html = env.get_template("documentation.html").render(
+        base_path="/cgi-bin/ufl_tag_manager",
+        ext=".py",
+        user=os.environ.get("REMOTE_USER", "unknown"),
+    )
+    print("Content-Type: text/html; charset=utf-8")
     print()
-    sys.stdout.buffer.write(data)
-except Exception as e:
-    print("Content-Type: text/plain; charset=utf-8")
-    print()
-    print(f"Cannot read PDF: {e}\nTried: {PDF}\nExists? {PDF.exists()}")
+    print(html)
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,585 @@
+{% extends 'tags_base.html' %} {% block title %}User Guide | Lastinger Center{%
+endblock %} {% block content %}
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  .doc-container {
+    max-width: 1400px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+
+  .doc-header {
+    border-left: 5px solid #fa4616;
+    padding-left: 20px;
+    margin-bottom: 40px;
+  }
+
+  .doc-header h1 {
+    color: #002657;
+    font-size: 48px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    font-family: "Poppins", sans-serif;
+  }
+
+  .doc-header p {
+    color: #374151;
+    font-size: 1.25rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .doc-layout {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 50px;
+    margin-top: 40px;
+  }
+
+  .intro-section {
+    background: transparent;
+    padding: 0;
+  }
+
+  .intro-section h2 {
+    color: rgba(0, 38, 87, 1);
+    font-family: "Poppins", sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    font-style: normal;
+    line-height: 100%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+    margin-top: 0;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #fa4616;
+    text-align: left;
+  }
+
+  .intro-section p {
+    color: #000;
+    line-height: 1.9;
+    margin-bottom: 20px;
+    font-size: 1rem;
+    text-align: left;
+  }
+
+  .full-width-section {
+    grid-column: 1 / -1;
+    background: transparent;
+    padding: 0;
+    max-width: 100%;
+  }
+
+  .full-width-section h2 {
+    color: rgba(0, 38, 87, 1);
+    font-family: "Poppins", sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    font-style: normal;
+    line-height: 100%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+    margin-top: 50px;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #fa4616;
+    text-align: left;
+  }
+
+  .full-width-section h3 {
+    color: rgba(0, 38, 87, 1);
+    font-family: "Poppins", sans-serif;
+    font-size: 30px;
+    font-weight: 400;
+    font-style: normal;
+    line-height: 100%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: left;
+  }
+
+  .full-width-section p {
+    color: #000;
+    line-height: 1.9;
+    margin-bottom: 20px;
+    font-size: 1rem;
+    text-align: left;
+  }
+
+  .full-width-section ul,
+  .full-width-section ol {
+    color: #000;
+    line-height: 1.9;
+    margin-left: 0;
+    padding-left: 20px;
+    margin-bottom: 25px;
+  }
+
+  .full-width-section ul li,
+  .full-width-section ol li {
+    margin-bottom: 12px;
+  }
+
+  .full-width-section strong {
+    color: #000;
+    font-weight: 700;
+  }
+
+  .doc-content h2 {
+    color: rgba(0, 38, 87, 1);
+    font-family: "Poppins", sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    font-style: normal;
+    line-height: 100%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+    margin-top: 50px;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #fa4616;
+    text-align: left;
+  }
+
+  .doc-content h2:first-child {
+    margin-top: 0;
+  }
+
+  .doc-content h3 {
+    color: #000;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-top: 35px;
+    margin-bottom: 20px;
+    text-align: left;
+  }
+
+  .doc-content p {
+    color: #000;
+    line-height: 1.9;
+    margin-bottom: 20px;
+    font-size: 1rem;
+    text-align: left;
+  }
+
+  .doc-content ul,
+  .doc-content ol {
+    color: #000;
+    line-height: 1.9;
+    margin-left: 25px;
+    margin-bottom: 25px;
+  }
+
+  .doc-content ul li,
+  .doc-content ol li {
+    margin-bottom: 12px;
+  }
+
+  .doc-content strong {
+    color: #000;
+    font-weight: 700;
+  }
+
+  .definition-item {
+    margin-bottom: 25px;
+  }
+
+  .definition-item strong {
+    color: #000;
+    display: inline;
+    font-weight: 700;
+  }
+
+  .definition-item p {
+    display: inline;
+    margin: 0;
+  }
+
+  .toc {
+    position: static;
+    background: rgba(0, 38, 87, 1);
+    color: white;
+    padding: 0;
+    border-radius: 0;
+    height: fit-content;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .toc h3 {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    padding: 15px 20px;
+    background: rgba(0, 38, 87, 1);
+  }
+
+  .toc ul {
+    list-style: none;
+    padding: 20px;
+    margin: 0;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-top: none;
+  }
+
+  .toc ul li {
+    margin-bottom: 10px;
+  }
+
+  .toc ul li a {
+    color: #0021a5;
+    text-decoration: none;
+    transition: color 0.2s;
+    display: block;
+    font-size: 0.9rem;
+  }
+
+  .toc ul li a:hover {
+    color: #fa4616;
+    text-decoration: underline;
+  }
+
+  @media (max-width: 992px) {
+    .doc-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .toc {
+      position: relative;
+      order: -1;
+    }
+  }
+</style>
+
+<div class="doc-container">
+  <div class="doc-header">
+    <h1>User Guide</h1>
+    <p>
+      This documentation is intended to help users understand how to access the
+      site, use its key features, and effectively apply tags.
+    </p>
+  </div>
+
+  <div class="doc-layout">
+    <div class="intro-section">
+      <h2 id="introduction">Introduction</h2>
+      <p>
+        The Tag Management System is a web-based tool developed to streamline
+        the tagging process for academic course sections. Designed for
+        efficiency and scalability, the system allows users to manage tagging
+        categories, values, and mappings. Whether organizing courses by program
+        type or term, the system ensures that tagging remains consistent,
+        accurate, and easily searchable.
+      </p>
+      <p>
+        This documentation is intended to help users understand how to access
+        the site, use its key features, and effectively apply tags.
+      </p>
+    </div>
+
+    <div class="toc">
+      <h3>Table of Contents</h3>
+      <ul>
+        <li><a href="#introduction">Introduction</a></li>
+        <li><a href="#project-objective">Project Objective</a></li>
+        <li><a href="#accessing-system">Accessing the System</a></li>
+        <li><a href="#managing-tags">Understanding & Managing Tags</a></li>
+        <li>
+          <a href="#advanced-filters"
+            >Utilizing Advanced Filters for Course Search</a
+          >
+        </li>
+        <li><a href="#bulk-tagging">Bulk Tagging & Tag Status Tracking</a></li>
+        <li><a href="#map-tags">Steps to Map Tags</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="full-width-section">
+    <h3>What are tags?</h3>
+    <p>
+      Tags are descriptive labels applied to courses or sections to categorize
+      them in a structured and meaningful way. A tag consists of a category and
+      a corresponding value. These tags help users and systems better
+      understand, filter, and analyze course information.
+    </p>
+
+    <p class="definition-item">
+      <strong>Object:</strong> An instance of an item in our data lake. Examples
+      include a grade, a course section, a user, or a specific assignment or
+      assessment.
+    </p>
+
+    <p class="definition-item">
+      <strong>Tag:</strong> A classification label such as "Program" or
+      "Assessment".
+    </p>
+
+    <p class="definition-item">
+      <strong>Tag Value:</strong> The specific value within a tag (e.g.,
+      "Literacy Matrix" or "Pre-Assessment").
+    </p>
+
+    <p class="definition-item">
+      <strong>Classification:</strong> A combination of a tag and a tag value.
+    </p>
+
+    <p>
+      Example: For a course section, use Tag: Program and Tag Value: Literacy
+      Matrix.
+    </p>
+
+    <h2 id="project-objective">Project Objective</h2>
+    <p>
+      The primary objective of this initiative is to provide a unified interface
+      for managing tag categories and their values, and to enable mapping of
+      these tags to academic sections. By centralizing these operations, the
+      system:
+    </p>
+    <ul>
+      <li>Reduces manual effort</li>
+      <li>Mitigates inconsistencies</li>
+      <li>Supports ongoing evaluation initiatives</li>
+    </ul>
+
+    <!-- Accessing the System Section -->
+    <h2 id="accessing-system">Accessing the System</h2>
+    <p>
+      Navigate to the website and log in using your username and password. Click
+      <strong>Log In</strong> to access the
+      <strong>Tag Manager Dashboard</strong>.
+    </p>
+
+    <h3>Tag Manager Dashboard</h3>
+    <p>The dashboard is the control center with these main sections:</p>
+    <ul>
+      <li>
+        <strong>Tag Categories:</strong> Define and manage tag categories.
+      </li>
+      <li><strong>Manage Tag Values:</strong> Assign values to categories.</li>
+      <li>
+        <strong>Section Tag Mappings:</strong> View and manage tag assignments
+        to sections.
+      </li>
+      <li>
+        <strong>Bulk Insert into Section Tags:</strong> Apply tags in bulk.
+      </li>
+    </ul>
+
+    <!-- Understanding & Managing Tags Section -->
+    <h2 id="managing-tags">Understanding & Managing Tags</h2>
+
+    <p>
+      Tags are fundamental to the system, enabling categorization of academic
+      data. The system uses a two-level classification structure:
+    </p>
+
+    <ul style="list-style-type: disc">
+      <li>
+        <strong>Tag Categories:</strong> Broad classification types (e.g.,
+        Program, Department).
+      </li>
+      <li>
+        <strong>Tag Values:</strong> Specific instances within a category (e.g.,
+        Math Matrix, Literacy Matrix).
+      </li>
+    </ul>
+
+    <h3>Creating and Managing Tag Categories and Values</h3>
+
+    <p>To manage tags:</p>
+
+    <ol>
+      <li>Navigate to the <strong>Tag Manager Homepage</strong>.</li>
+      <li>
+        <strong>Manage Tag Categories:</strong>
+        <ul style="list-style-type: disc; margin-top: 10px">
+          <li>Click on Tag Categories.</li>
+          <li>
+            To add a new category, enter its Name (e.g., "Program") and an
+            optional Description, then click Add.
+          </li>
+          <li>
+            Existing categories are listed and can be deleted individually (if
+            unused).
+          </li>
+        </ul>
+      </li>
+      <li>
+        <strong>Manage Tag Values:</strong>
+        <ul style="list-style-type: disc; margin-top: 10px">
+          <li>Click on <strong>Tag Values</strong>.</li>
+          <li>Select a tag category from the dropdown.</li>
+          <li>
+            Enter the <strong>Value Name</strong> (e.g., "Math Matrix") and an
+            optional Description.
+          </li>
+          <li>Click <strong>Add</strong> to save the new tag value.</li>
+          <li>Existing tag values can be updated or deleted.</li>
+        </ul>
+      </li>
+    </ol>
+
+    <h3>Deleting Tags</h3>
+
+    <ol>
+      <li>
+        Activate <strong>Delete Mode</strong>, then click
+        <strong>Delete</strong> next to the desired tag.
+      </li>
+      <li>
+        The system will
+        <strong>prevent deletion of tags that are currently associated</strong>
+        with course sections.
+      </li>
+      <li>A confirmation prompt will appear before permanent deletion.</li>
+    </ol>
+
+    <!-- Advanced Filters Section -->
+    <h2 id="advanced-filters">Utilizing Advanced Filters for Course Search</h2>
+
+    <p>
+      The system provides several <strong>advanced filters</strong> to refine
+      course search results during bulk tagging.
+    </p>
+
+    <h3>Course Name Matching Options</h3>
+    <ul style="list-style-type: disc">
+      <li><strong>Exact Match:</strong> Matches exact course name.</li>
+      <li>
+        <strong>Starts With:</strong> Matches courses starting with your input.
+      </li>
+      <li>
+        <strong>Ends With:</strong> Matches courses ending with your input.
+      </li>
+      <li>
+        <strong>Contains:</strong> Matches courses that contain the input.
+      </li>
+      <li><strong>Doesn't Match:</strong> Excludes exact matches.</li>
+    </ul>
+
+    <h3>Other Filters</h3>
+    <ul style="list-style-type: disc">
+      <li>
+        <strong>Start Date:</strong> Enter a date in YYYY-MM-DD format to filter
+        courses starting on or after that date.
+      </li>
+      <li>
+        <strong>Department:</strong> Filter by department name or ID (e.g.,
+        "Nursing" or "Dept101").
+      </li>
+      <li>
+        <strong>Term:</strong> Filter by term code or name (e.g., "Fall 2024").
+      </li>
+      <li>
+        <strong>Tagging Status:</strong>
+        <ul style="list-style-type: disc; margin-top: 10px">
+          <li>Only tagged courses</li>
+          <li>Only untagged courses</li>
+        </ul>
+      </li>
+    </ul>
+
+    <h3>Sorting Options</h3>
+    <ul style="list-style-type: disc">
+      <li>
+        <strong>Single Click Sort:</strong> Click a column header (e.g., "Course
+        Name") to sort ascending.
+      </li>
+      <li><strong>Reverse Sort:</strong> Click again to reverse sort.</li>
+      <li>
+        <strong>Reset Sort:</strong> Click the
+        <strong>Reset Sort</strong> button to restore default order.
+      </li>
+    </ul>
+
+    <p>
+      Search results appear in a sortable table where users can select multiple
+      rows and apply tags in bulk.
+    </p>
+
+    <!-- Bulk Tagging Section -->
+    <h2 id="bulk-tagging">Bulk Tagging & Tag Status Tracking</h2>
+
+    <p>
+      The Bulk Tagging interface simplifies applying tags to multiple course
+      sections simultaneously ideal for large-scale updates.
+    </p>
+
+    <h3>How to Bulk Tag Courses</h3>
+    <ul style="list-style-type: disc">
+      <li>
+        Navigate to <strong>Bulk Tagging</strong> via the
+        <strong>Section Tags</strong> menu.
+      </li>
+      <li>Select the <strong>Tag Value</strong> using the dropdown.</li>
+      <li>
+        Apply <strong>Advanced Filters</strong> (e.g., course name, department,
+        term).
+      </li>
+      <li>
+        Review the <strong>Mapped?</strong> column:
+        <ul style="list-style-type: disc; margin-top: 10px">
+          <li>[tag icon] = Course already has the selected tag</li>
+          <li>— = Course is untagged with the selected value</li>
+        </ul>
+      </li>
+    </ul>
+
+    <p>
+      Check the boxes for desired sections, then click Apply Tag to complete
+      bulk tagging.
+    </p>
+
+    <h3>Status Indicators</h3>
+    <ul style="list-style-type: disc">
+      <li>Courses with existing tags are visually marked.</li>
+      <li>
+        The system shows a <strong>warning</strong> if tags are reapplied.
+      </li>
+      <li>
+        <strong>Real-time feedback</strong> is shown for success or failure of
+        each tagging attempt.
+      </li>
+    </ul>
+
+    <!-- Steps to Map Tags Section -->
+    <h2 id="map-tags">Steps to Map Tags</h2>
+
+    <ul style="list-style-type: disc">
+      <li>Use filters to search for course sections.</li>
+      <li>Select the appropriate Tag Value (e.g., Program: Math Matrix).</li>
+      <li>Apply the tag using the bulk tagging interface.</li>
+      <li>Confirm tagging on the Section Tag Mappings page.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  // Smooth scrolling for TOC links
+  document.querySelectorAll(".toc a").forEach((anchor) => {
+    anchor.addEventListener("click", function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute("href"));
+      if (target) {
+        target.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    });
+  });
+</script>
+
+{% endblock %}
