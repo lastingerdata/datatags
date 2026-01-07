@@ -3,169 +3,344 @@
 {% block content %}
 
 <style>
-  .wrap { max-width: 1300px; margin: 0 auto; }
-  .msg { margin: 8px 0; }
-  .msg.success { color:#0a8a0a; }
-  .msg.danger { color:#c62828; }
-  a { text-decoration:none; }
-
-  table { width:100%; border-collapse:collapse; background:#fff; table-layout:fixed; }
-  th, td {
-    padding:10px;
-    border-bottom:1px solid #eee;
-    text-align:left;
-    font-size:14px;
-    vertical-align:top;
-    word-break:break-word;
-  }
-  th {
-    background:#f3f4f6;
-    position:sticky;
-    top:0;
-    z-index:1;
-    font-weight:600;
+  .container.mt-4 {
+    max-width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
   }
 
-  th.rule-name, td.rule-name { width: 26%; }
-  th.column-col, td.column-col { width: 14%; }
-  th.description, td.description { width: 30%; }
-  th.endpoint, td.endpoint { width: 15%; }
-  th.segment, td.segment { width: 15%; }
-  th.section-tag, td.section-tag { width: 14%; }
-  th.tag-name, td.tag-name { width: 10%; }
-  th.tag-value, td.tag-value { width: 15%; }
-  th.order, td.order { width: 10%; }
-  th.code, td.code { width: 8%; }
-
-  td.rule-name code {
-    display:block;
-    line-height:1.4;
-    background:#f1f5f9;
-    padding:4px 6px;
-    border-radius:4px;
-    font-size:12px;
+  .rules-page {
+    padding: 20px 40px 0;
+    width: 90vw;
+    max-width: 90vw;
+    margin: 0 auto;
   }
 
-  .detail-card{
-    background:#fff;
-    border:1px solid #eee;
-    border-radius:10px;
-    padding:18px;
-    margin-top:14px;
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 48px;
   }
-  .detail-card .label{
-    font-weight:700;
-    margin-top:10px;
+
+  .page-header-divider {
+    width: 4px;
+    height: 60px;
+    background: #FA4616;
   }
-  pre.codebox{
-    margin-top: 10px;
-    background:#0b1020;
-    color:#e5e7eb;
-    padding:16px;
-    border-radius:6px;
-    overflow-x:auto;
-    font-size:13px;
-    line-height:1.5;
+
+  .page-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: #002657;
+    margin: 0;
+  }
+
+  .alert {
+    position: relative;
+    padding: 16px 24px;
+    padding-right: 48px;
+    border-radius: 4px;
+    margin-bottom: 24px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    animation: slideIn 0.3s ease-out;
+  }
+
+  .alert.success {
+    background-color: #D1FAE5;
+    color: #065F46;
+    border: 1px solid #A7F3D0;
+  }
+
+  .alert.danger {
+    background-color: #FEE2E2;
+    color: #991B1B;
+    border: 1px solid #FECACA;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .alert.fade-out {
+    animation: fadeOut 0.3s ease-out forwards;
+  }
+
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+  }
+
+  .alert-close {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    color: inherit;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+
+  .alert-close:hover {
+    opacity: 1;
+  }
+
+  .btn-back {
+    display: inline-block;
+    margin-top: 32px;
+    padding: 10px 24px;
+    background: #0021A5;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .btn-back:hover {
+    background: #001580;
+    color: white;
+  }
+
+  .detail-card {
+    background: #fff;
+    border: 1px solid #E5E5E5;
+    border-radius: 8px;
+    padding: 24px;
+    margin-top: 24px;
+  }
+
+  .detail-card .label {
+    font-weight: 600;
+    color: #002657;
+    margin-top: 16px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+  }
+
+  .detail-card .label:first-child {
+    margin-top: 0;
+  }
+
+  .detail-card .value {
+    margin-top: 4px;
+    color: #4A4A4A;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+  }
+
+  pre.codebox {
+    margin-top: 24px;
+    background: #0b1020;
+    color: #e5e7eb;
+    padding: 16px;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.5;
+    font-family: 'Courier New', monospace;
+  }
+
+  .view-code-link {
+    color: #0021A5;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+
+  .view-code-link:hover {
+    background-color: #F3F4F6;
+    color: #001580;
+  }
+
+  @media (max-width: 768px) {
+    .rules-page {
+      padding: 24px 20px;
+    }
   }
 </style>
 
-<div class="wrap">
+<div class="rules-page">
 
   {% if view == "detail" %}
 
-    <p><a href="{{ base_path }}/rules{{ ext }}">&larr; Back to all rules</a></p>
+    <p><a href="{{ base_path }}/rules{{ ext }}" class="view-code-link">&larr; Back to all rules</a></p>
 
     {% if r %}
-      <h2>Rule: <code>{{ r.rule_name }}</code></h2>
+      <div class="page-header">
+        <div class="page-header-divider"></div>
+        <h1 class="page-title">Rule: {{ r.rule_name }}</h1>
+      </div>
 
       <div class="detail-card">
         <div class="label">Endpoint</div>
-        <div>{{ r.endpoint or "" }}</div>
+        <div class="value">{{ r.endpoint or "-" }}</div>
 
         <div class="label">Segment</div>
-        <div>{{ r.segment or "" }}</div>
+        <div class="value">{{ r.segment or "-" }}</div>
 
         <div class="label">Section Tag</div>
-        <div>{{ r.section_tag or "" }}</div>
+        <div class="value">{{ r.section_tag or "-" }}</div>
 
         <div class="label">Tag Name</div>
-        <div>{{ r.tag_name or "" }}</div>
+        <div class="value">{{ r.tag_name or "-" }}</div>
 
         <div class="label">Tag Value Text</div>
-        <div>{{ r.tag_value_text or "" }}</div>
+        <div class="value">{{ r.tag_value_text or "-" }}</div>
 
         <div class="label">Order</div>
-        <div>{{ r.order or "" }}</div>
+        <div class="value">{{ r.order or "-" }}</div>
 
         <div class="label">Column</div>
-        <div>{{ r.column or "" }}</div>
+        <div class="value">{{ r.column or "-" }}</div>
 
         <div class="label">Description</div>
-        <div>{{ r.description or "" }}</div>
+        <div class="value">{{ r.description or "-" }}</div>
       </div>
 
-      <h3 style="margin-top:20px;">Method / Code</h3>
+      <h3 style="margin-top:32px;font-family:'Poppins',sans-serif;color:#002657;">Method / Code</h3>
       <pre class="codebox">{{ r.method_source }}</pre>
 
     {% else %}
-      <div class="msg danger">No rule details to display.</div>
+      <div class="alert danger" data-alert>
+        <button class="alert-close" data-close-alert>&times;</button>
+        No rule details to display.
+      </div>
     {% endif %}
 
   {% else %}
 
-    <h2 style="color:#2c6cc7;text-align:center;margin-bottom:30px;">Rules</h2>
+    <div class="page-header">
+      <div class="page-header-divider"></div>
+      <h1 class="page-title">Rules</h1>
+    </div>
 
     {% if messages %}
       {% for cat, msg in messages %}
-        <div class="msg {{ cat }}">{{ msg }}</div>
+        <div class="alert {{ cat }}" data-alert>
+          <button class="alert-close" data-close-alert>&times;</button>
+          {{ msg }}
+        </div>
       {% endfor %}
     {% endif %}
 
-    {% if rows|length == 0 %}
-      <div class="msg danger">No rules found.</div>
+    {% from 'components/table/table.html' import table %}
+    
+    {% if rows and rows|length > 0 %}
+      {% set processed_rows = [] %}
+      {% for r in rows %}
+        {% set _ = processed_rows.append({
+          'rule_name': r.rule_name,
+          'endpoint': r.endpoint or '-',
+          'segment': r.segment or '-',
+          'section_tag': r.section_tag or '-',
+          'tag_name': r.tag_name or '-',
+          'tag_value_text': r.tag_value_text or '-',
+          'column': r.column or '-',
+          'order': r.order or '-',
+          'description': r.description or '-',
+          'view_url': base_path + '/rules' + ext + '?detail=' + (r.rule_name|urlencode)
+        }) %}
+      {% endfor %}
+      
+      {{ table(
+        columns=[
+          {'key': 'rule_name', 'label': 'Rule Name', 'width': '15%'},
+          {'key': 'endpoint', 'label': 'Endpoint', 'width': '12%'},
+          {'key': 'segment', 'label': 'Segment', 'width': '10%'},
+          {'key': 'section_tag', 'label': 'Section Tag', 'width': '10%'},
+          {'key': 'tag_name', 'label': 'Tag Name', 'width': '10%'},
+          {'key': 'tag_value_text', 'label': 'Tag Value', 'width': '10%'},
+          {'key': 'column', 'label': 'Column', 'width': '8%'},
+          {'key': 'order', 'label': 'Order', 'width': '7%'},
+          {'key': 'description', 'label': 'Description', 'width': '18%'}
+        ],
+        data=processed_rows,
+        actions=[
+          {
+            'type': 'link',
+            'key': 'view_url',
+            'label': 'View Code',
+            'class': 'view-code-link'
+          }
+        ],
+        empty_message="No rules found.",
+        title="Application Rules"
+      ) }}
     {% else %}
-      <table>
-        <thead>
-          <tr>
-            <th class="rule-name">Rule Name</th>
-            <th class="endpoint">Endpoint</th>
-            <th class="segment">Segment</th>
-            <th class="section-tag">Section Tag</th>
-            <th class="tag-name">Tag Name</th>
-            <th class="tag-value">Tag Value</th>
-            <th class="column-col">Column</th>
-            <th class="order">Order</th>
-            <th class="description">Description</th>
-            <th class="code">Code</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for r in rows %}
-            <tr>
-              <td class="rule-name"><code>{{ r.rule_name }}</code></td>
-              <td class="endpoint">{{ r.endpoint or "-" }}</td>
-              <td class="segment">{{ r.segment or "-" }}</td>
-              <td class="section-tag">{{ r.section_tag or "-" }}</td>
-              <td class="tag-name">{{ r.tag_name or "-" }}</td>
-              <td class="tag-value">{{ r.tag_value_text or "-" }}</td>
-              <td class="column-col">{{ r.column or "-" }}</td>
-              <td class="order">{{ r.order or "-" }}</td>
-              <td class="description">{{ r.description or "-" }}</td>
-              <td class="code">
-                <a href="{{ base_path }}/rules{{ ext }}?detail={{ r.rule_name|urlencode }}">View</a>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+      <div class="alert danger" data-alert>
+        <button class="alert-close" data-close-alert>&times;</button>
+        No rules found.
+      </div>
     {% endif %}
-
-    <p style="margin-top:16px;">
-      <a href="{{ base_path }}/tags_index{{ ext }}">Back to Tag Home</a>
-    </p>
 
   {% endif %}
 
 </div>
 
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Clean URL by removing query string parameters after alerts are shown
+    if (window.location.search.includes('m=')) {
+      const cleanUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
+
+    // Auto-dismiss alerts after 5 seconds
+    const alerts = document.querySelectorAll('[data-alert]');
+    alerts.forEach(function(alert) {
+      setTimeout(function() {
+        dismissAlert(alert);
+      }, 5000);
+    });
+
+    // Handle close button clicks
+    const closeButtons = document.querySelectorAll('[data-close-alert]');
+    closeButtons.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        const alert = this.closest('[data-alert]');
+        dismissAlert(alert);
+      });
+    });
+
+    function dismissAlert(alert) {
+      if (!alert) return;
+      alert.classList.add('fade-out');
+      setTimeout(function() {
+        alert.remove();
+      }, 300);
+    }
+  });
+</script>
 {% endblock %}

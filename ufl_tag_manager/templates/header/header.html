@@ -42,8 +42,8 @@
               <a href="{{ base_path }}/section_tags_inserts{{ ext }}" class="dropdown-item {% if page_name == 'section_tags_inserts' %}active{% endif %}">Bulk Insert into Section Tags</a>
             </div>
           </div>
-          <a href="{{ base_path }}/logs{{ ext }}" class="nav-item">Logs</a>
-          <a href="{{ base_path }}/rules{{ ext }}" class="nav-item">Rules</a>
+          <a href="{{ base_path }}/logs{{ ext }}" class="nav-item {% if page_name == 'logs' %}active{% endif %}">Logs</a>
+          <a href="{{ base_path }}/rules{{ ext }}" class="nav-item {% if page_name == 'rules' %}active{% endif %}">Rules</a>
           <a href="{{ base_path }}/documentation{{ ext }}" class="nav-item">User Guide</a>
         </div>
       </div>
