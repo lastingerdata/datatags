@@ -23,6 +23,7 @@ env = Environment(
 BASE_PATH = get_base_path()
 EXT = ".py"
 
+API_KEY = "596fa395d7a9072c06207b119ec415164487d50a37f904d08542305466a80fce"
 
 def print_headers(content_type="text/html; charset=utf-8", status=None, extra=None):
     if status:
@@ -79,7 +80,7 @@ def fetch_tags_json():
     """
     headers = {
         "Accept": "application/json",
-        "ApiKey": get_api_key()
+        "ApiKey": API_KEY
     }
 
     resp = safe_request(api_url("/tags?format=json"), headers=headers, verify=False)
@@ -114,7 +115,7 @@ def add_tag(name, desc, user):
    
     headers = {
         "Accept": "application/json",
-        "ApiKey": get_api_key()
+        "ApiKey": API_KEY
     }
 
     payload = {
@@ -141,7 +142,7 @@ def add_tag(name, desc, user):
 
 def delete_tag(tag_id, user):
     
-    headers = {"Accept": "text/html,application/json", "ApiKey": get_api_key(), "X-API-Key": get_api_key()}
+    headers = {"Accept": "text/html,application/json", "ApiKey": API_KEY, "X-API-Key": API_KEY}
 
     payload = {
         "tag_id": tag_id, "user": user
