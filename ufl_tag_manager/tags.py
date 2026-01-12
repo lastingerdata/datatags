@@ -23,7 +23,7 @@ env = Environment(
 BASE_PATH = get_base_path()
 EXT = ".py"
 
-API_KEY = "596fa395d7a9072c06207b119ec415164487d50a37f904d08542305466a80fce"
+API_KEY = "kdjfghssdujhrjasdfkjasl;kdqwiueqiotru.,sdvmb,mxnvbiuwerfueghb"
 
 def print_headers(content_type="text/html; charset=utf-8", status=None, extra=None):
     if status:
@@ -78,6 +78,8 @@ def fetch_tags_json():
     Mirrors Flask /tags?format=json:
       returns list or {"data": list}
     """
+    import re
+    
     headers = {
         "Accept": "application/json",
         "ApiKey": API_KEY
@@ -89,26 +91,56 @@ def fetch_tags_json():
         raise RuntimeError(resp.get("error", "API Error"))
 
     status = getattr(resp, "status_code", None)
-    ctype = (resp.headers.get("Content-Type") or "").lower()
 
     if status and not (200 <= status < 300):
         body = _read_text(resp)
         raise RuntimeError(f"Backend {status}: {body}")
 
-    if "application/json" not in ctype:
-        body = _read_text(resp)
-        raise RuntimeError(
-            f"Backend did not return JSON (Content-Type: {ctype}). Body: {body}"
-        )
+    # Try to parse as JSON first
+    try:
+        data = resp.json()
+        if isinstance(data, dict) and "data" in data:
+            data = data["data"]
 
-    data = resp.json()
-    if isinstance(data, dict) and "data" in data:
-        data = data["data"]
-
-    if not isinstance(data, list):
-        raise RuntimeError("Unexpected JSON structure for tags")
-
-    return data
+        if isinstance(data, list):
+            return data
+    except Exception:
+        pass  # Fall back to HTML parsing
+    
+    # Fallback: Parse HTML response if JSON parsing failed
+    html = resp.text
+    tags = []
+    
+    # Extract tag data from HTML using regex
+    tag_blocks = re.findall(
+        r'<div id="row-(\d+)".*?<span class="tag-name"[^>]*>\s*(.*?)\s*</span>.*?<span id="desc-\1"[^>]*>\s*(.*?)\s*</span>',
+        html,
+        re.DOTALL
+    )
+    
+    if tag_blocks:
+        for tag_id, tag_name, desc_block in tag_blocks:
+            # Extract description from the desc block
+            desc_match = re.search(r'\(Description:\s*(.*?)\s*\)', desc_block)
+            description = desc_match.group(1) if desc_match else ""
+            
+            # Clean up HTML entities
+            tag_name = tag_name.strip()
+            description = description.replace('&#39;', "'").replace('&#34;', '"').replace('&lt;', '<').replace('&gt;', '>')
+            
+            tags.append({
+                "tag_id": int(tag_id),
+                "tag_name": tag_name,
+                "description": description
+            })
+        
+        return tags
+    
+    # Neither JSON nor HTML parsing worked
+    body = _read_text(resp)
+    raise RuntimeError(
+        f"Backend returned unexpected response format. Body: {body}"
+    )
 
 
 def add_tag(name, desc, user):
