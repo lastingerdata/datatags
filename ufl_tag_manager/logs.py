@@ -27,8 +27,8 @@ env = Environment(
     loader=FileSystemLoader(TEMPLATES),
     autoescape=select_autoescape(["html", "xml"])
 )
-
 env.filters["urlencode"] = lambda s: quote_plus(str(s))
+
 
 def parse_json_lenient(resp):
     if isinstance(resp, (dict, list)):
@@ -51,6 +51,7 @@ def parse_json_lenient(resp):
 
     return json.loads(text[min(candidates):])
 
+
 def fetch_reports():
     headers = {"Accept": "application/json", "ApiKey": API_KEY}
     resp = safe_request(REPORT_LOGS_URL, headers=headers, verify=False)
@@ -70,6 +71,7 @@ def fetch_reports():
 
     return []
 
+
 def latest_run(job_history):
     if not job_history:
         return None
@@ -79,19 +81,30 @@ def latest_run(job_history):
         reverse=True,
     )[0]
 
+
+# ✅ Run-unique detail key (NEVER use log_file/log_url)
 def make_detail_key(report_name, run):
-    if run.get("log_file"):
-        return str(run["log_file"])
-    if run.get("log_url"):
-        return str(run["log_url"])
-    ts = str(run.get("start_time") or run.get("end_time") or "")
-    return f"{report_name}|{ts}"
+    st = str(run.get("start_time") or "")
+    et = str(run.get("end_time") or "")
+    rc = str(run.get("result_code") or run.get("status") or "")
+    return f"{report_name}|{st}|{et}|{rc}"
 
+
+def parse_detail_key(key):
+    parts = (key or "").split("|")
+    if len(parts) < 4:
+        return None
+    report_name = parts[0]
+    start_time = parts[1]
+    end_time = parts[2]
+    result = "|".join(parts[3:])
+    return report_name, start_time, end_time, result
+
+
+# ✅ Always route through our details view so we never hit shared file output
 def compute_details_url(report_name, run):
-    if run.get("log_url", "").startswith("http"):
-        return run["log_url"]
-
     return f"{BASE_PATH}/logs{EXT}?detail={quote(make_detail_key(report_name, run))}"
+
 
 def build_summary_rows(reports):
     rows = []
@@ -99,36 +112,57 @@ def build_summary_rows(reports):
         last = latest_run(r.get("job_history") or [])
         if not last:
             continue
+        report_name = r.get("report_name", "Unknown")
         rows.append({
-            "report_name": r.get("report_name", "Unknown"),
+            "report_name": report_name,
             "description": r.get("description", ""),
             "start_time": last.get("start_time", ""),
             "end_time": last.get("end_time", ""),
             "result": last.get("result_code", last.get("status", "")),
-            "details_url": compute_details_url(r.get("report_name"), last),
+            "details_url": compute_details_url(report_name, last),
         })
-    return sorted(rows, key=lambda x: x["report_name"].lower())
+    return sorted(rows, key=lambda x: (x.get("report_name") or "").lower())
 
 
 def build_history_rows(report):
     rows = []
-    for run in report.get("job_history") or []:
+    report_name = report.get("report_name", "Unknown") if report else "Unknown"
+    for run in (report.get("job_history") or []) if report else []:
         rows.append({
-            "report_name": report.get("report_name", "Unknown"),
+            "report_name": report_name,
             "description": report.get("description", ""),
             "start_time": run.get("start_time", ""),
             "end_time": run.get("end_time", ""),
             "result": run.get("result_code", run.get("status", "")),
-            "details_url": compute_details_url(report.get("report_name"), run),
+            "details_url": compute_details_url(report_name, run),
         })
-    return sorted(rows, key=lambda r: r["start_time"], reverse=True)
+    return sorted(
+        rows,
+        key=lambda r: str(r.get("start_time") or r.get("end_time") or ""),
+        reverse=True
+    )
 
 
+# ✅ Find exact run ONLY by report+start+end+result (no log_file fallback!)
 def find_run_by_key(reports, key):
+    parsed = parse_detail_key(key)
+    if not parsed:
+        return None, None
+
+    want_report, want_st, want_et, want_rc = parsed
+    want_rc_u = (want_rc or "").strip().upper()
+
     for r in reports:
+        if str(r.get("report_name", "")) != want_report:
+            continue
+
         for run in r.get("job_history") or []:
-            if key in (str(run.get("log_file")), str(run.get("log_url"))):
+            st = str(run.get("start_time") or "")
+            et = str(run.get("end_time") or "")
+            rc = str(run.get("result_code") or run.get("status") or "").strip().upper()
+            if st == want_st and et == want_et and rc == want_rc_u:
                 return r, run
+
     return None, None
 
 
@@ -136,9 +170,19 @@ def fetch_log_detail(key):
     reports = fetch_reports()
     rep, run = find_run_by_key(reports, key)
     if not rep or not run:
-        raise RuntimeError("Log not found")
+        raise RuntimeError("Log not found for that run (no matching job_history entry).")
 
-    for f in ["log_file_end", "log_output", "log_text"]:
+    result = (run.get("result_code") or run.get("status") or "").strip().upper()
+
+    # ✅ FAILED => show ONLY run-specific captured error (log_file_end)
+    if result in ("FAILED", "FAILURE", "ERROR"):
+        for f in ["log_file_end", "log_output", "log_text"]:
+            if run.get(f):
+                return run[f]
+        return json.dumps(run, indent=2)
+
+    # ✅ SUCCESS => show best available
+    for f in ["log_output", "log_text", "log_file_end"]:
         if run.get(f):
             return run[f]
 
