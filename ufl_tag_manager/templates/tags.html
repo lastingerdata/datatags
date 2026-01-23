@@ -106,14 +106,8 @@
   }
 
   @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   .alert.fade-out {
@@ -121,14 +115,8 @@
   }
 
   @keyframes fadeOut {
-    from {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    to {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-10px); }
   }
 
   .alert-close {
@@ -149,17 +137,7 @@
     transition: opacity 0.2s;
   }
 
-  .alert-close:hover {
-    opacity: 1;
-  }
-
-  .section-title {
-    font-family: 'Poppins', sans-serif;
-    font-size: 24px;
-    font-weight: 600;
-    color: #0021A5;
-    margin-bottom: 24px;
-  }
+  .alert-close:hover { opacity: 1; }
 
   .btn-back {
     display: inline-block;
@@ -180,13 +158,8 @@
   }
 
   @media (max-width: 768px) {
-    .tags-page {
-      padding: 24px 20px;
-    }
-
-    .form-grid {
-      grid-template-columns: 1fr;
-    }
+    .tags-page { padding: 24px 20px; }
+    .form-grid { grid-template-columns: 1fr; }
   }
 </style>
 
@@ -195,7 +168,7 @@
     <div class="page-header-divider"></div>
     <h1 class="page-title">Manage Tag Categories</h1>
   </div>
-  
+
   {% if messages %}
     {% for cat, msg in messages %}
       <div class="alert {{ 'alert-danger' if cat == 'danger' else 'alert-success' }} py-2 mb-3" data-alert>
@@ -208,27 +181,16 @@
   <div class="add-tag-form">
     <form method="POST" action="{{ base_path }}/tags{{ ext }}">
       <input type="hidden" name="action" value="add">
-      
+
       <div class="form-grid">
         <div class="form-field">
           <label for="tag_name">Tag name<span class="required">*</span></label>
-          <input
-            id="tag_name"
-            name="tag_name"
-            type="text"
-            placeholder="Tag name"
-            required
-          >
+          <input id="tag_name" name="tag_name" type="text" placeholder="Tag name" required>
         </div>
 
         <div class="form-field">
           <label for="description">Description (optional)</label>
-          <input
-            id="description"
-            name="description"
-            type="text"
-            placeholder="Short description"
-          >
+          <input id="description" name="description" type="text" placeholder="Short description">
         </div>
 
         <div class="form-field">
@@ -239,7 +201,7 @@
   </div>
 
   {% from 'components/table/table.html' import table %}
-  
+
   {% if tags and tags|length > 0 %}
     {% set processed_tags = [] %}
     {% for t in tags %}
@@ -251,7 +213,7 @@
         'tag_name_hidden': t.tag_name
       }) %}
     {% endfor %}
-    
+
     {{ table(
       columns=[
         {'key': 'tag_name', 'label': 'Tag Name', 'width': '30%'},
@@ -277,7 +239,6 @@
   <a href="{{ base_path }}/tags_index{{ ext }}" class="btn-back">
     Back to Tag Home
   </a>
-
 </div>
 {% endblock %}
 
@@ -285,36 +246,35 @@
 <script>
   // Global function - must be outside DOMContentLoaded
   function deleteTag(tagId, tagName) {
-    if (confirm('Are you sure you want to delete the tag "' + tagName + '"?')) {
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = '{{ base_path }}/tags{{ ext }}';
-      
-      const actionInput = document.createElement('input');
-      actionInput.type = 'hidden';
-      actionInput.name = 'action';
-      actionInput.value = 'delete';
-      
-      const idInput = document.createElement('input');
-      idInput.type = 'hidden';
-      idInput.name = 'tag_id';
-      idInput.value = tagId;
-      
-      const nameInput = document.createElement('input');
-      nameInput.type = 'hidden';
-      nameInput.name = 'tag_name';
-      nameInput.value = tagName;
-      
-      form.appendChild(actionInput);
-      form.appendChild(idInput);
-      form.appendChild(nameInput);
-      
-      document.body.appendChild(form);
-      form.submit();
-    }
+    if (!confirm('Are you sure you want to delete the tag "' + tagName + '"?')) return;
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ base_path }}/tags{{ ext }}';
+
+    const actionInput = document.createElement('input');
+    actionInput.type = 'hidden';
+    actionInput.name = 'action';
+    actionInput.value = 'delete';
+
+    const idInput = document.createElement('input');
+    idInput.type = 'hidden';
+    idInput.name = 'tag_id';
+    idInput.value = tagId;
+
+    const nameInput = document.createElement('input');
+    nameInput.type = 'hidden';
+    nameInput.name = 'tag_name';
+    nameInput.value = tagName;
+
+    form.appendChild(actionInput);
+    form.appendChild(idInput);
+    form.appendChild(nameInput);
+
+    document.body.appendChild(form);
+    form.submit();
   }
 
-  // Handle form submission to prevent blank page
   document.addEventListener('DOMContentLoaded', function() {
     // Clean URL by removing query string parameters after alerts are shown
     if (window.location.search.includes('m=')) {
@@ -323,46 +283,32 @@
     }
 
     const addForm = document.querySelector('.add-tag-form form');
-    const submitBtn = addForm.querySelector('.btn-add-tag');
-    
-    addForm.addEventListener('submit', function(e) {
-      // Don't prevent default - let normal form submission work
-      // Just provide visual feedback
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'ADDING...';
-      submitBtn.style.opacity = '0.6';
-      
-      // Allow the form to submit normally
-      return true;
-    });
+    const submitBtn = addForm ? addForm.querySelector('.btn-add-tag') : null;
 
-    // Handle delete button clicks
+    if (addForm && submitBtn) {
+      addForm.addEventListener('submit', function() {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'ADDING...';
+        submitBtn.style.opacity = '0.6';
+        return true;
+      });
+    }
+
+    // Handle delete button clicks (calls global deleteTag)
     document.querySelectorAll('button[data-action="delete"]').forEach(function(btn) {
       btn.addEventListener('click', function() {
         const row = this.closest('tr');
-        const tagId = row.querySelector('[data-tag-id]').dataset.tagId;
-        const tagName = row.querySelector('[data-tag-name]').dataset.tagName;
-        
-        if (confirm('Are you sure you want to delete the tag "' + tagName + '"?')) {
-          const form = document.createElement('form');
-          form.method = 'POST';
-          form.action = '';
-          
-          const actionInput = document.createElement('input');
-          actionInput.type = 'hidden';
-          actionInput.name = 'action';
-          actionInput.value = 'delete';
-          
-          const tagIdInput = document.createElement('input');
-          tagIdInput.type = 'hidden';
-          tagIdInput.name = 'tag_id';
-          tagIdInput.value = tagId;
-          
-          form.appendChild(actionInput);
-          form.appendChild(tagIdInput);
-          document.body.appendChild(form);
-          form.submit();
-        }
+        if (!row) return;
+
+        const idEl = row.querySelector('[data-tag-id]');
+        const nameEl = row.querySelector('[data-tag-name]');
+
+        const tagId = idEl ? idEl.dataset.tagId : '';
+        const tagName = nameEl ? nameEl.dataset.tagName : tagId;
+
+        if (!tagId) return;
+
+        deleteTag(tagId, tagName);
       });
     });
 
