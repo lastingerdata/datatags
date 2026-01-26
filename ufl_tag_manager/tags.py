@@ -38,7 +38,6 @@ def print_headers(content_type="text/html; charset=utf-8", status=None, extra=No
 def redirect_with_messages(messages):
     import time
     pairs = [("m", f"{c}:{t}") for c, t in messages]
-    # Add timestamp to prevent caching
     pairs.append(("_t", str(int(time.time() * 1000))))
     qs = urllib.parse.urlencode(pairs)
     redirect_url = f"{BASE_PATH}/tags{EXT}" + (f"?{qs}" if qs else "")
@@ -48,7 +47,6 @@ def redirect_with_messages(messages):
         "Location": redirect_url
     }
     print_headers(status="303 See Other", extra=extra)
-    # Print a simple redirect page body for browsers that don't auto-follow
     print(f'<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url={redirect_url}"></head><body>Redirecting...</body></html>')
 
 
@@ -96,7 +94,6 @@ def fetch_tags_json():
         body = _read_text(resp)
         raise RuntimeError(f"Backend {status}: {body}")
 
-    # Try to parse as JSON first
     try:
         data = resp.json()
         if isinstance(data, dict) and "data" in data:
@@ -105,13 +102,12 @@ def fetch_tags_json():
         if isinstance(data, list):
             return data
     except Exception:
-        pass  # Fall back to HTML parsing
+        pass  
     
-    # Fallback: Parse HTML response if JSON parsing failed
+    
     html = resp.text
     tags = []
     
-    # Extract tag data from HTML using regex
     tag_blocks = re.findall(
         r'<div id="row-(\d+)".*?<span class="tag-name"[^>]*>\s*(.*?)\s*</span>.*?<span id="desc-\1"[^>]*>\s*(.*?)\s*</span>',
         html,
@@ -120,11 +116,9 @@ def fetch_tags_json():
     
     if tag_blocks:
         for tag_id, tag_name, desc_block in tag_blocks:
-            # Extract description from the desc block
             desc_match = re.search(r'\(Description:\s*(.*?)\s*\)', desc_block)
             description = desc_match.group(1) if desc_match else ""
             
-            # Clean up HTML entities
             tag_name = tag_name.strip()
             description = description.replace('&#39;', "'").replace('&#34;', '"').replace('&lt;', '<').replace('&gt;', '>')
             
@@ -136,7 +130,6 @@ def fetch_tags_json():
         
         return tags
     
-    # Neither JSON nor HTML parsing worked
     body = _read_text(resp)
     raise RuntimeError(
         f"Backend returned unexpected response format. Body: {body}"
@@ -229,9 +222,24 @@ def main():
 
                     if not name:
                         messages.append(("danger", "Tag name required"))
+               
                     else:
+                        try:
+                            existing_tags = fetch_tags_json()
+                            exists = any(
+                                (t.get("tag_name") or "").strip().lower() == name.lower()
+                                for t in existing_tags
+                                if isinstance(t, dict)
+                            )
+                            if exists:
+                                messages.append(("danger", f"Tag '{name}' already exists"))
+                                return redirect_with_messages(messages)
+                        except Exception:
+                            pass
+
                         add_tag(name, desc, user)
                         messages.append(("success", f"Tag '{name}' added"))
+
 
                 elif action == "delete":
                     tag_id = (form.getfirst("tag_id") or "").strip()
