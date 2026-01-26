@@ -24,7 +24,6 @@ env = Environment(
     autoescape=select_autoescape(["html", "xml"])
 )
 
-
 def print_headers(content_type="text/html; charset=utf-8", status=None, extra=None):
     if status:
         print(f"Status: {status}")
@@ -32,9 +31,8 @@ def print_headers(content_type="text/html; charset=utf-8", status=None, extra=No
     if extra:
         for k, v in extra.items():
             print(f"{k}: {v}")
-    print()  # end of headers
-
-
+    print()
+    
 def redirect_with_messages(location_path, messages, extra_qs=None):
     qs = []
     for cat, msg in messages:
@@ -45,7 +43,6 @@ def redirect_with_messages(location_path, messages, extra_qs=None):
             if v is None:
                 continue
             qs.append((k, v))
-    # Add timestamp for cache busting
     qs.append(("_t", str(int(time.time() * 1000))))
     loc = f"{location_path}?{urllib.parse.urlencode(qs, doseq=True)}"
     print_headers(
@@ -57,28 +54,23 @@ def redirect_with_messages(location_path, messages, extra_qs=None):
             "Expires": "0"
         }
     )
-    # Output minimal HTML body for browsers that don't auto-redirect
     print(f'<html><head><meta http-equiv="refresh" content="0;url={loc}"></head><body>Redirecting...</body></html>')
     sys.stdout.flush()
     sys.exit(0)
 
-
 def get_qs_dict():
     raw = os.environ.get("QUERY_STRING", "")
     return dict(urllib.parse.parse_qsl(raw, keep_blank_values=True))
-
 
 def get_param(fs, name, default=""):
     if name in fs:
         return fs.getfirst(name, default)
     return get_qs_dict().get(name, default)
 
-
 def get_param_list(fs, name):
     if name in fs:
         return fs.getlist(name)
     return []
-
 
 def api_headers():
     key = get_api_key()
@@ -88,79 +80,55 @@ def api_headers():
         "X-API-Key": key,
     }
 
-
 def api_get_section_tags(params):
-    """
-    Call Flask /section_tags_inserts?format=json and return its JSON.
-    Build query string manually (safe_request does not take 'params=').
-    """
     params = dict(params or {})
     params["format"] = "json"
-
     qs = urllib.parse.urlencode(params, doseq=True)
     url = api_url("/section_tags_inserts")
     if qs:
         url = f"{url}?{qs}"
 
-    resp = safe_request(
-        url,
-        method="GET",
-        headers=api_headers(),
-        verify=False,
-    )
-
+    resp = safe_request(url, method="GET", headers=api_headers(), verify=False)
     if isinstance(resp, dict):
-       
         raise RuntimeError(resp.get("error", "Unknown error from backend"))
 
     try:
         data = resp.json()
     except Exception:
         text = getattr(resp, "text", "")
-        raise RuntimeError(
-            "Non-JSON response from /section_tags_inserts: " + text[:300]
-        )
+        raise RuntimeError("Non-JSON response from /section_tags_inserts: " + text[:300])
 
     if isinstance(data, dict) and not data.get("ok", True):
         raise RuntimeError(data.get("error", "Backend indicated failure"))
 
     return data
 
-
 def api_map_tag_to_sections(tag_entry_id, selected_pairs, user):
-    """
-    POST to Flask /section_tags_inserts with map=1 and format=json.
-    """
     payload = {
         "format": "json",
         "map": "1",
         "tag_entry_id": str(tag_entry_id),
         "user": user or "",
-        "selected_courses": selected_pairs,  
+        "selected_courses": selected_pairs,
     }
 
     url = api_url("/section_tags_inserts")
-    resp = safe_request(
-        url,
-        method="POST",
-        headers=api_headers(),
-        data=payload,
-        verify=False,
-    )
+    resp = safe_request(url, method="POST", headers=api_headers(), data=payload, verify=False)
 
     if isinstance(resp, dict):
-        return False, resp.get("error", "Unknown error from backend")
+        return False, resp.get("error", "Unknown error from backend"), None, None
 
     try:
         data = resp.json()
     except Exception:
         text = getattr(resp, "text", "")
-        return False, "Invalid JSON from backend: " + text[:200]
+        return False, "Invalid JSON from backend: " + text[:200], None, None
 
     ok = bool(data.get("ok"))
     err = data.get("error")
-    return ok, err
-
+    warning = data.get("warning")
+    tag_label = data.get("tag_label")
+    return ok, err, warning, tag_label
 
 def build_url_for(name, **kw):
     route_map = {
@@ -171,7 +139,6 @@ def build_url_for(name, **kw):
     if kw:
         return base + "?" + urllib.parse.urlencode(kw, doseq=True)
     return base
-
 
 def section_tags_inserts():
     fs = cgi.FieldStorage()
@@ -196,7 +163,7 @@ def section_tags_inserts():
             page = 1
     except ValueError:
         page = 1
-    
+
     try:
         per_page_val = int(per_page_str)
         if per_page_val not in [10, 25, 50, 100, 200]:
@@ -206,7 +173,6 @@ def section_tags_inserts():
 
     tag_entry_id = get_param(fs, "tag_entry_id", "").strip()
 
-   
     if method == "POST" and ("map" in fs or get_param(fs, "map", "") == "1"):
         selected = get_param_list(fs, "selected_courses")
         user = get_param(fs, "user", "").strip()
@@ -239,20 +205,35 @@ def section_tags_inserts():
                 keep_qs,
             )
 
-        ok, err = api_map_tag_to_sections(tag_entry_id, selected, user)
+        ok, err, warning, tag_label = api_map_tag_to_sections(tag_entry_id, selected, user)
+
         if not ok:
-            msg = err or "Failed to insert tag mapping, some sections may already be tagged with this tag."
+            msg = err or "Failed to apply tag."
             return redirect_with_messages(
                 f"{BASE_PATH}/section_tags_inserts{EXT}",
                 [("danger", msg)],
                 keep_qs,
             )
-        else:
+
+        if warning:
             return redirect_with_messages(
                 f"{BASE_PATH}/section_tags_inserts{EXT}",
-                [("success", "Tag applied to selected courses")],
+                [("warning", warning)],
                 keep_qs,
             )
+
+        if tag_label:
+            return redirect_with_messages(
+                f"{BASE_PATH}/section_tags_inserts{EXT}",
+                [("success", f'Tag "{tag_label}" is added to the selected course(s).')],
+                keep_qs,
+            )
+
+        return redirect_with_messages(
+            f"{BASE_PATH}/section_tags_inserts{EXT}",
+            [("success", "Tag applied to selected courses")],
+            keep_qs,
+        )
 
     try:
         params = dict(
@@ -337,7 +318,6 @@ def section_tags_inserts():
     }
     print_headers(extra=cache_headers)
     sys.stdout.write(html)
-
 
 if __name__ == "__main__":
     try:

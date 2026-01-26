@@ -146,7 +146,7 @@
     border: 1px solid #10B981;
   }
 
-  .alert-error {
+  .alert-danger {
     background: #FEE2E2;
     color: #991B1B;
     border: 1px solid #EF4444;
@@ -312,7 +312,7 @@
         'tag_value': value.tag_value
       }) %}
     {% endfor %}
-    
+
     {% set action_list = [
         {
           'type': 'button',
@@ -329,7 +329,7 @@
           'title': 'Delete'
         }
       ] %}
-    
+
     {{ table(
       columns=[
         {'key': 'ID', 'label': 'ID', 'width': '10%'},
@@ -394,33 +394,28 @@
     editRows.forEach(row => row.remove());
   }
 
-  // Handle button clicks with event delegation
   document.addEventListener('DOMContentLoaded', function() {
-    // Handle edit button clicks
     document.addEventListener('click', function(e) {
       const editBtn = e.target.closest('button[data-action="edit"]');
       if (editBtn) {
         const row = editBtn.closest('tr');
         const valueId = row.querySelector('[data-tag-id]').dataset.tagId;
         const valueText = row.querySelector('[data-tag-value]').dataset.tagValue;
-        
-        // Close any existing edit rows
+
         const existingEditRows = document.querySelectorAll('.edit-row');
         existingEditRows.forEach(row => row.remove());
-        
-        // Get current values from the row
+
         const cells = row.querySelectorAll('td');
         let currentDesc = cells[2].textContent.trim();
         if (currentDesc === 'No description') currentDesc = '';
-        
-        // Create edit row
+
         const editRow = document.createElement('tr');
         editRow.className = 'edit-row';
-        
+
         const colspan = cells.length;
         const editCell = document.createElement('td');
         editCell.colSpan = colspan;
-        
+
         editCell.innerHTML = `
           <form method="POST" action="{{ base_path }}/tag_values{{ ext }}" id="edit-form-${valueId}">
             <input type="hidden" name="action" value="update">
@@ -442,46 +437,44 @@
             </div>
           </form>
         `;
-        
+
         editRow.appendChild(editCell);
         row.parentNode.insertBefore(editRow, row.nextSibling);
-        
-        // Focus on the first input
+
         editCell.querySelector('input[name="tag_value"]').focus();
       }
-      
-      // Handle delete button clicks
+
       const deleteBtn = e.target.closest('button[data-action="delete"]');
       if (deleteBtn) {
         const row = deleteBtn.closest('tr');
         const valueId = row.querySelector('[data-tag-id]').dataset.tagId;
         const valueName = row.querySelector('[data-tag-value]').dataset.tagValue;
-        
+
         if (confirm(`Are you sure you want to delete the value "${valueName}"?`)) {
           const form = document.createElement('form');
           form.method = 'POST';
           form.action = '{{ base_path }}/tag_values{{ ext }}';
-          
+
           const actionInput = document.createElement('input');
           actionInput.type = 'hidden';
           actionInput.name = 'action';
           actionInput.value = 'delete';
-          
+
           const valueInput = document.createElement('input');
           valueInput.type = 'hidden';
           valueInput.name = 'tag_entry_id';
           valueInput.value = valueId;
-          
+
           const tagInput = document.createElement('input');
           tagInput.type = 'hidden';
           tagInput.name = 'tag_id';
           tagInput.value = '{{ selected_tag_id }}';
-          
+
           const tagValueInput = document.createElement('input');
           tagValueInput.type = 'hidden';
           tagValueInput.name = 'tag_value';
           tagValueInput.value = valueName;
-          
+
           form.appendChild(actionInput);
           form.appendChild(valueInput);
           form.appendChild(tagInput);
