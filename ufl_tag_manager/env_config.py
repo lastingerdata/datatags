@@ -92,6 +92,8 @@ def safe_request(url: Optional[str], method: str = "GET", **kwargs):
             return {
                 "error": "Access restricted. Please contact Sushma (su.palle@ufl.edu)."
             }
+        elif response.status_code == 409:
+            return response
  
         response.raise_for_status()
         return response

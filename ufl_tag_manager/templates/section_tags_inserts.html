@@ -759,92 +759,61 @@
 </div>
 
 <script>
- const selectAllTop = document.getElementById('select-all-top');
- function setAll(val) {
-   document.querySelectorAll('input[name="selected_courses"]').forEach(cb => {
-     cb.checked = val;
-   });
- }
- 
- function updateSelectAllState() {
-   const checkboxes = document.querySelectorAll('input[name="selected_courses"]');
-   const totalCount = checkboxes.length;
-   const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
-   
-   if (selectAllTop) {
-     if (checkedCount === 0) {
-       selectAllTop.checked = false;
-       selectAllTop.indeterminate = false;
-     } else if (checkedCount === totalCount) {
-       selectAllTop.checked = true;
-       selectAllTop.indeterminate = false;
-     } else {
-       selectAllTop.checked = false;
-       selectAllTop.indeterminate = true;
-     }
-   }
- }
- 
- if (selectAllTop) {
-   selectAllTop.addEventListener('change', e => setAll(e.target.checked));
- }
- 
- // Attach event listeners to individual checkboxes
- document.addEventListener('DOMContentLoaded', function() {
-   const checkboxes = document.querySelectorAll('input[name="selected_courses"]');
-   checkboxes.forEach(checkbox => {
-     checkbox.addEventListener('change', updateSelectAllState);
-   });
- });
- 
- function changeRowsPerPage(perPage) {
-   const url = new URL(window.location.href);
-   console.log('Before:', url.toString());
-   console.log('Setting per_page to:', perPage);
-   url.searchParams.set('per_page', perPage);
-   url.searchParams.set('page', '1'); // Reset to first page
-   console.log('After:', url.toString());
-   window.location.href = url.toString();
- }
- 
- const sortHistory = [];
- function getCellText(row, idx) {
-   const td = row.children[idx];
-   return (td ? (td.innerText || td.textContent) : '').trim();
- }
- function sortTable(colIdx) {
-   const table = document.getElementById('tag-mapping-table');
-   const tbody = table.tBodies[0];
-   const rows = Array.from(tbody.rows).map((tr, i) => ({ tr, i }));
-   let direction = 'asc';
-   const prev = sortHistory[0];
-   if (prev && prev.col === colIdx && prev.dir === 'asc') direction = 'desc';
-   sortHistory.length = 0;
-   sortHistory.push({ col: colIdx, dir: direction });
-   rows.sort((A, B) => {
-     const a = getCellText(A.tr, colIdx);
-     const b = getCellText(B.tr, colIdx);
-     const na = Number(a.replace(/[^0-9.-]/g, ''));
-     const nb = Number(b.replace(/[^0-9.-]/g, ''));
-     let res;
-     if (!isNaN(na) && !isNaN(nb) && a !== '' && b !== '') {
-       res = na - nb;
-     } else {
-       const da = Date.parse(a);
-       const db = Date.parse(b);
-       if (!isNaN(da) && !isNaN(db)) {
-         res = da - db;
-       } else {
-         res = a.localeCompare(b);
-       }
-     }
-     if (res === 0) res = A.i - B.i;
-     return direction === 'asc' ? res : -res;
-   });
-   document.querySelectorAll('th[id^="th-"] span').forEach(s => s.textContent = '');
-   const th = document.getElementById('th-' + colIdx);
-   if (th) th.querySelector('span').textContent = direction === 'asc' ? ' ▲' : ' ▼';
-   rows.forEach(r => tbody.appendChild(r.tr));
- }
+
+  
+  const sortHistory = [];
+
+  function getCellText(row, idx) {
+    return (row.children[idx]?.innerText || '').trim().toLowerCase();
+  }
+
+  function sortTable(colIdx) {
+    const table = document.getElementById('tag-mapping-table');
+    const tbody = table.tBodies[0];
+    const rows = Array.from(tbody.rows);
+
+    let direction = 'asc';
+    if (sortHistory[0]?.col === colIdx && sortHistory[0]?.dir === 'asc') {
+      direction = 'desc';
+    }
+    sortHistory[0] = { col: colIdx, dir: direction };
+
+    rows.sort((a, b) => {
+      const A = getCellText(a, colIdx);
+      const B = getCellText(b, colIdx);
+
+      
+      if (colIdx === 3 || colIdx === 6 || colIdx === 8) {
+        return direction === 'asc'
+          ? A.localeCompare(B)
+          : B.localeCompare(A);
+      }
+
+      const dA = Date.parse(A);
+      const dB = Date.parse(B);
+      if (!isNaN(dA) && !isNaN(dB)) {
+        return direction === 'asc' ? dA - dB : dB - dA;
+      }
+
+      const nA = parseFloat(A.replace(/[^0-9.-]/g, ''));
+      const nB = parseFloat(B.replace(/[^0-9.-]/g, ''));
+      if (!isNaN(nA) && !isNaN(nB)) {
+        return direction === 'asc' ? nA - nB : nB - nA;
+      }
+
+      
+      return direction === 'asc'
+        ? A.localeCompare(B)
+        : B.localeCompare(A);
+    });
+
+    document.querySelectorAll('th span').forEach(s => s.textContent = '');
+    const arrow = direction === 'asc' ? ' ▲' : ' ▼';
+    table.tHead.rows[0].cells[colIdx].querySelector('span').textContent = arrow;
+
+    rows.forEach(r => tbody.appendChild(r));
+  }
+
+
 </script>
 {% endblock %}

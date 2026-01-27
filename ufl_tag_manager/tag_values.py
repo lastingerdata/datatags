@@ -8,6 +8,7 @@ import cgitb
 import traceback
 import urllib.parse
 import json
+import requests
 
 cgitb.enable()
 
@@ -245,7 +246,6 @@ def main():
                     elif not tag_value:
                         messages.append(("danger", "Tag value required"))
                     else:
-                        # PRE-CHECK duplicates here to avoid backend 500/flash redirect issues
                         try:
                             existing_values, _ = fetch_values_for_tag(tag_id_form)
                             exists = any(
