@@ -10,7 +10,7 @@ import urllib.parse
 cgitb.enable()
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import api_url, get_api_key, safe_request, get_base_path
+from env_config import api_url, get_api_key, safe_request, get_base_path, can_write
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES = os.path.join(ROOT, "templates")
@@ -209,6 +209,11 @@ def main():
             or os.environ.get("HTTP_REMOTE_USER", "")
             or "unknown"
         )
+        
+        if method == "POST" and not can_write(user):
+            return redirect_with_messages([("danger", "Read-only account: you can view tags, but you cannot add/delete.")])
+      
+
 
         if method == "POST":
             form = cgi.FieldStorage()
@@ -275,7 +280,8 @@ def main():
             tags=tags,
             messages=messages,
             user=user,
-            page_name='tags'
+            page_name='tags',
+            can_write=can_write(user)
         )
 
         print_headers(extra={

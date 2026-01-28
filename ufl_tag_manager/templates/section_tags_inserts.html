@@ -3,7 +3,6 @@
 
 {% block content %}
 <style>
-  /* Override the base template container centering */
   .container.mt-4 {
     max-width: 100% !important;
     padding-left: 0 !important;
@@ -475,8 +474,8 @@
     padding: 6px 10px;
     border: 1px solid #D1D5DB;
     border-radius: 4px;
-    font-size: 14px;
-/* 
+    font-size: 14px;}
+
   .flash-wrapper{
     margin: 12px 0 20px;
     padding-left: 20px;
@@ -498,8 +497,6 @@
     background:#FEF2F2;
     border-color:#FECACA;
     color:#991B1B;
-  } */
-
   }
 </style>
 
@@ -534,7 +531,7 @@
           <input type="text" name="search" placeholder="Field value" value="{{ search }}">
         </div>
         <div class="filter-field">
-          <label>Condition</label>
+          <label>Section Name - Condition</label>
           <select name="wild_card">
             <option value="">Field value</option>
             <option value="contains" {% if wild_card=='contains' %}selected{% endif %}>Contains</option>
@@ -549,7 +546,7 @@
           <input type="text" name="search_course" placeholder="Field value" value="{{ search_course }}">
         </div>
         <div class="filter-field">
-          <label>Condition</label>
+          <label>Course Name - Condition</label>
           <select name="wild_card_course">
             <option value="">Field value</option>
             <option value="contains" {% if wild_card_course=='contains' %}selected{% endif %}>Contains</option>
@@ -633,7 +630,7 @@
       <div style="display: flex; align-items: flex-end; gap: 16px; margin-bottom: 24px;">
         <div class="filter-field" style="flex: 0 0 300px;">
           <label>Tag</label>
-          <select name="tag_entry_id" class="tag-select-dropdown" required>
+          <select name="tag_entry_id" class="tag-select-dropdown" required {% if not can_write %}disabled{% endif %}>
             <option value="">Field value</option>
             {% for val in tag_values %}
             <option value="{{ val.tag_entry_id }}" {% if tag_entry_id == val.tag_entry_id|string %}selected{% endif %}>
@@ -641,14 +638,20 @@
             </option>
             {% endfor %}
           </select>
+          {% if not can_write %}
+            <div style="margin-top: 8px; font-size: 13px; color: #6B7280; font-style: italic;">
+              Read-only account: you can view courses, but you can’t add tags.
+            </div>
+          {% endif %}
+
         </div>
         <div style="flex: 0 0 auto;">
-          <button type="submit" class="btn-apply-tag">ADD TAG TO SELECTED</button>
+          <button type="submit" class="btn-apply-tag" {% if not can_write %}disabled{% endif %}>ADD TAG TO SELECTED</button >
         </div>
         {% if courses %}
-        <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+        <!-- <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
           <label style="font-size: 14px; color: #4A4A4A; margin: 0;">Show</label>
-          <select id="rows-per-page" onchange="changeRowsPerPage(this.value)" style="padding: 10px 12px; border: 1px solid #D1D5DB; border-radius: 4px; font-size: 14px;" disabled>
+          <select id="rows-per-page" onchange="changeRowsPerPage(this.value)" style="padding: 10px 12px; border: 1px solid #D1D5DB; border-radius: 4px; font-size: 14px;" {% if not can_write %}disabled{% endif %}>
             <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
             <option value="25" {% if per_page == 25 %}selected{% endif %}>25</option>
             <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
@@ -656,7 +659,7 @@
             <option value="200" {% if per_page == 200 %}selected{% endif %}>200</option>
           </select>
           <label style="font-size: 14px; color: #4A4A4A; margin: 0;">rows</label>
-        </div>
+        </div> -->
         {% endif %}
       </div>   {% if courses %}
 <div class="courses-table-wrapper">
@@ -664,7 +667,7 @@
 <thead>
 <tr>
 <th id="th-0" style="width: 60px; text-align: left; padding-left: 12px;">
-  <input type="checkbox" id="select-all-top">
+  <input type="checkbox" id="select-all-top" {% if not can_write %}disabled{% endif %}>
 </th>
 <th id="th-1" onclick="sortTable(1)">Genius SectionId<span></span></th>
 <th id="th-2" onclick="sortTable(2)">D2L OrgUnitId<span></span></th>
@@ -681,9 +684,13 @@
          {% for course in courses %}
 <tr>
 <td>
-<input type="checkbox" name="selected_courses"
+  <input type="checkbox" name="selected_courses"
+       value="{{ course.d2l_OrgUnitId }}_{{ course.genius_sectionId }}"
+       {% if not can_write %}disabled{% endif %}>
+
+<!-- <input type="checkbox" name="selected_courses"
                value="{{ course.d2l_OrgUnitId }}_{{ course.genius_sectionId }}"
-               {% if course.tag_name %}class="already-mapped"{% endif %}>
+               {% if course.tag_name %}class="already-mapped"{% endif %}> -->
 </td>
 <td>{{ course.genius_sectionId }}</td>
 <td>{{ course.d2l_OrgUnitId }}</td>
@@ -756,6 +763,9 @@
    {% endif %}
     </form>
   </div>
+  <a href="{{ base_path }}/tags_index{{ ext }}" class="btn-back">
+    Back to Tag Home
+  </a>
 </div>
 
 <script>
@@ -813,6 +823,29 @@
 
     rows.forEach(r => tbody.appendChild(r));
   }
+
+  document.addEventListener('DOMContentLoaded', function () {
+  const CAN_WRITE = {{ 'true' if can_write else 'false' }};
+
+  if (!CAN_WRITE) {
+    const postForm = document.querySelector('form[method="post"]');
+    if (postForm) {
+      postForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        alert("Read-only account: adding tags is not allowed.");
+      });
+    }
+  }
+
+  const selectAll = document.getElementById('select-all-top');
+  if (selectAll && CAN_WRITE) {
+    selectAll.addEventListener('change', function () {
+      document.querySelectorAll('input[name="selected_courses"]').forEach(cb => {
+        if (!cb.disabled) cb.checked = selectAll.checked;
+      });
+    });
+  }
+});
 
 
 </script>

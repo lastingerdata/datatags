@@ -2,7 +2,7 @@ import os
 import sys
 import json
 import requests
-from typing import Optional
+from typing import Optional, Set
  
 ROOT = os.path.dirname(os.path.abspath(__file__))
  
@@ -26,6 +26,34 @@ def get_environment() -> str:
         print(f"DEBUG: Failed reading env.txt ({e}); defaulting to 'local'.", file=sys.stderr)
         return "local"
  
+def _read_config() -> dict:
+    try:
+        with open(CONFIG_FILE, "r") as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"DEBUG: Failed reading config.json ({e}); returning empty config.", file=sys.stderr)
+        return {}
+
+
+def get_current_user() -> str:
+    return os.environ.get("REMOTE_USER", "unknown").strip()
+
+def get_valid_users() -> Set[str]:
+    data = _read_config()
+    return set(data.get("VALID_USERS", []))
+
+def get_read_write_users() -> Set[str]:
+    """
+    Users in this list can do POST actions (add/delete/update).
+    Everyone else can only view.
+    """
+    data = _read_config()
+    return set(data.get("READ_WRITE_USERS", []))
+
+
+def can_write(user: Optional[str] = None) -> bool:
+    user = user or get_current_user()
+    return user in get_read_write_users()
  
 def get_api_key() -> Optional[str]:
  
@@ -70,11 +98,9 @@ def api_url(path: str) -> str:
 
 
 def get_base_path() -> str:
-    """
-    Returns the base path for CGI scripts based on environment.
-    - local: /cgi-bin/ufl_tag_manager (includes cgi-bin prefix for local development)
-    - prod: /ufl_tag_manager (no cgi-bin prefix in production)
-    """
+    # Returns the base path for CGI scripts based on environment.
+    # - local: /cgi-bin/ufl_tag_manager (includes cgi-bin prefix for local development)
+    # - prod: /ufl_tag_manager (no cgi-bin prefix in production)
     env = get_environment()
     if env in("prod","test"):
         return "/ufl_tag_manager"

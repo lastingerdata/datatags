@@ -250,6 +250,24 @@
   .btn-cancel:hover {
     background: #5A6268;
   }
+
+  .btn-back {
+    display: inline-block;
+    margin-top: 32px;
+    padding: 10px 24px;
+    background: #0021A5;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .btn-back:hover {
+    background: #001580;
+    color: white;
+  }
 </style>
 
 <div class="tag-values-page">
@@ -289,15 +307,21 @@
       <div class="form-grid">
         <div class="form-field">
           <label for="tag_value">Tag Value</label>
-          <input type="text" id="tag_value" name="tag_value" required>
+          <input type="text" id="tag_value" name="tag_value" required {% if not can_write %}disabled{% endif %}>
         </div>
         <div class="form-field">
           <label for="description">Description</label>
-          <input type="text" id="description" name="description">
+          <input type="text" id="description" name="description" {% if not can_write %}disabled{% endif %}>
         </div>
-        <button type="submit" class="btn-add" id="add-btn">ADD</button>
+        <button type="submit" class="btn-add" id="add-btn" {% if not can_write %}disabled{% endif %}>ADD</button>
       </div>
     </form>
+      {% if not can_write %}
+        <p style="margin-top: 10px; color:#6B7280; font-family:'IBM Plex Sans', sans-serif;">
+          Read-only account: you can view tag values, but you can’t add/edit/delete them.
+        </p>
+      {% endif %}
+
   </div>
 
   <!-- Tag Values Table -->
@@ -313,7 +337,8 @@
       }) %}
     {% endfor %}
 
-    {% set action_list = [
+    {% set action_list = (
+      [
         {
           'type': 'button',
           'action': 'edit',
@@ -328,7 +353,8 @@
           'class': 'action-link-delete',
           'title': 'Delete'
         }
-      ] %}
+      ] if can_write else []
+    ) %}
 
     {{ table(
       columns=[
@@ -344,6 +370,9 @@
     <p style="text-align: center; color: #6B7280; font-family: 'IBM Plex Sans', sans-serif;">No values found for this tag.</p>
   {% endif %}
   {% endif %}
+  <a href="{{ base_path }}/tags_index{{ ext }}" class="btn-back">
+    Back to Tag Home
+  </a>
 </div>
 
 {% endblock %}
@@ -351,13 +380,14 @@
 {% block extra_scripts %}
 <script>
   // Auto-dismiss alert after 5 seconds
+  const CAN_WRITE = {{ 'true' if can_write else 'false' }};
   const alertElement = document.getElementById('alert');
   if (alertElement) {
     setTimeout(() => {
       alertElement.style.transition = 'opacity 0.3s';
       alertElement.style.opacity = '0';
       setTimeout(() => alertElement.remove(), 300);
-    }, 5000);
+    }, 10000);
   }
 
   function closeAlert() {
@@ -383,6 +413,10 @@
   }
 
   function handleAddValue(form) {
+    if (!CAN_WRITE) {
+      alert('Read-only account: you cannot add tag values.');
+      return false;
+    }
     const btn = document.getElementById('add-btn');
     btn.disabled = true;
     btn.textContent = 'ADDING...';
@@ -396,6 +430,15 @@
 
   document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', function(e) {
+      if (!CAN_WRITE) {
+        const editBtn = e.target.closest('button[data-action="edit"]');
+        const deleteBtn = e.target.closest('button[data-action="delete"]');
+        if (editBtn || deleteBtn) {
+          alert('Read-only account: editing/deleting is not allowed.');
+          return;
+        }
+      }
+
       const editBtn = e.target.closest('button[data-action="edit"]');
       if (editBtn) {
         const row = editBtn.closest('tr');

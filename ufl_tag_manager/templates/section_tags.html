@@ -419,11 +419,36 @@
     border: 1px solid #6EE7B7;
   }
 
+  /* .alert-warning {
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FCD34D;
+} */
+
+
   .alert-danger {
     background: #FEE2E2;
     color: #991B1B;
-    border: 1px solid #FCA5A5;
+    border: 1px solid #FCA5A5;}
+  
+  .btn-back {
+    display: inline-block;
+    margin-top: 32px;
+    padding: 10px 24px;
+    background: #0021A5;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
   }
+
+  .btn-back:hover {
+    background: #001580;
+    color: white;
+  }
+    
 </style>
 
 <div class="section-tags-page">
@@ -444,14 +469,13 @@
   <div class="filter-section">
     <h3>Filter Courses</h3>
     <form method="GET" action="{{ base_path }}/section_tags{{ ext }}">
-      <!-- Row 1: Course Name, Condition, Genius Section ID, D2L Org Unit ID -->
       <div class="filter-grid">
         <div class="filter-field">
           <label>Course Name</label>
           <input type="text" name="name" placeholder="Field value" value="{{ name or '' }}">
         </div>
         <div class="filter-field">
-          <label>Condition</label>
+          <label>Course Name -Condition</label>
           <select name="wild_card">
             <option value="">Field value</option>
             <option value="contains" {% if wild_card=='contains' %}selected{% endif %}>Contains</option>
@@ -511,28 +535,36 @@
       <h3 class="section-heading">Remove Tags</h3>
       
       <div class="action-bar">
-        <button type="submit" class="btn-delete" onclick="return confirm('Delete selected section tag mappings?');">
+        <button type="submit" class="btn-delete" onclick="return confirm('Delete selected section tag mappings?');" {% if not can_write %}disabled{% endif %}>
           REMOVE SELECTED TAGS
         </button>
         <div style="color: #6B7280; font-size: 13px; font-style: italic; margin-left: 16px;">
           Note: Removing a tag only removes the association between tables and does not affect the underlying data.
         </div>
         <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
-          <label style="font-size: 14px; color: #4A4A4A; margin: 0;">Show</label>
-          <select id="rows-per-page" onchange="changeRowsPerPage(this.value)" style="padding: 6px 10px; border: 1px solid #D1D5DB; border-radius: 4px; font-size: 14px;" disabled>
+          <!-- <label style="font-size: 14px; color: #4A4A4A; margin: 0;">Show</label>
+          <select id="rows-per-page" onchange="changeRowsPerPage(this.value)" style="padding: 6px 10px; border: 1px solid #D1D5DB; border-radius: 4px; font-size: 14px;" {% if not can_write %}disabled{% endif %}>
+ 
             <option value="55" {% if per_page == 55 %}selected{% endif %}>55</option>
             <option value="100" {% if per_page == 100 %}selected{% endif %}>100</option>
             <option value="200" {% if per_page == 200 or per_page == 0 %}selected{% endif %}>200</option>
           </select>
-          <label style="font-size: 14px; color: #4A4A4A; margin: 0;">rows</label>
+          <label style="font-size: 14px; color: #4A4A4A; margin: 0;">rows</label> -->
         </div>
       </div>
+      {% if not can_write %}
+        <div style="margin: 10px 0 0 0; color:#6B7280; font-size: 13px; font-style: italic;">
+          Read-only account: you can view section tag mappings, but you can’t remove them.
+        </div>
+      {% endif %}
+
 
       <div class="mappings-table-wrapper">
         <table id="tag-mapping-table" class="mappings-table">
           <thead>
             <tr>
-              <th data-col="0" style="cursor: default; width: 50px; text-align: center;"><input type="checkbox" id="select-all-header"></th>
+              <th data-col="0" style="cursor: default; width: 50px; text-align: center;">
+              <input type="checkbox" id="select-all-header" {% if not can_write %}disabled{% endif %}></th>
               <th data-col="1" onclick="sortTable(1)">Genius Section ID<span></span></th>
               <th data-col="2" onclick="sortTable(2)">D2L Org Unit ID<span></span></th>
               <th data-col="3" onclick="sortTable(3)">Section Name<span></span></th>
@@ -553,7 +585,7 @@
 
               <tr>
                 <td>
-                  <input type="checkbox" class="section-select-checkbox"
+                  <input type="checkbox" class="section-select-checkbox" {% if not can_write %}disabled{% endif %}
                          name="selected_sections"
                          value="{{ combo_id }}">
                 </td>
@@ -568,7 +600,7 @@
                           value="{{ combo_id }}"
                           class="btn-delete-single"
                           onclick="return confirm('Delete this section tag mapping?');"
-                          title="Remove tag">
+                          title="Remove tag"{% if not can_write %}disabled{% endif %}>
                     <img src="/ufl_tag_manager/assets/link_off.svg" alt="Remove tag" style="width: 20px; height: 20px; vertical-align: middle;">
                   </button>
                 </td>
@@ -624,9 +656,14 @@
       <div class="no-results">No section tag mappings found.</div>
     {% endif %}
   </form>
+  <a href="{{ base_path }}/tags_index{{ ext }}" class="btn-back">
+    Back to Tag Home
+  </a>
 </div>
 
 <script>
+  const CAN_WRITE = {{ 'true' if can_write else 'false' }};
+
   function setAll(fromId) {
     var master = document.getElementById(fromId);
     if (!master) return;
@@ -678,25 +715,59 @@
     sortHistory.length = 0;
     sortHistory.push({ col: colIdx, dir: direction });
     rows.sort((A, B) => {
-      const a = getCellText(A.tr, colIdx);
-      const b = getCellText(B.tr, colIdx);
-      const na = Number(a.replace(/[^0-9.-]/g, ''));
-      const nb = Number(b.replace(/[^0-9.-]/g, ''));
+      const aRaw = getCellText(A.tr, colIdx);
+      const bRaw = getCellText(B.tr, colIdx);
+
+      if (colIdx === 3) {
+        const a = aRaw.toLowerCase();
+        const b = bRaw.toLowerCase();
+
+        let res = a.localeCompare(b); 
+        if (res === 0) res = A.i - B.i;
+
+        return direction === 'asc' ? res : -res; 
+      }
+      const na = Number(aRaw.replace(/[^0-9.-]/g, ''));
+      const nb = Number(bRaw.replace(/[^0-9.-]/g, ''));
       let res;
-      if (!isNaN(na) && !isNaN(nb) && a !== '' && b !== '') {
+
+      if (!isNaN(na) && !isNaN(nb) && aRaw !== '' && bRaw !== '') {
         res = na - nb;
       } else {
-        const da = Date.parse(a);
-        const db = Date.parse(b);
+        const da = Date.parse(aRaw);
+        const db = Date.parse(bRaw);
         if (!isNaN(da) && !isNaN(db)) {
           res = da - db;
         } else {
-          res = a.localeCompare(b);
+          res = aRaw.localeCompare(bRaw);
         }
       }
       if (res === 0) res = A.i - B.i;
       return direction === 'asc' ? res : -res;
     });
+
+    // rows.sort((A, B) => {
+    //   const a = getCellText(A.tr, colIdx);
+    //   const b = getCellText(B.tr, colIdx);
+    //   const na = Number(a.replace(/[^0-9.-]/g, ''));
+    //   const nb = Number(b.replace(/[^0-9.-]/g, ''));
+    //   let res;
+    //   if (!isNaN(na) && !isNaN(nb) && a !== '' && b !== '') {
+    //     res = na - nb;
+    //   } else {
+    //     const da = Date.parse(a);
+    //     const db = Date.parse(b);
+    //     if (!isNaN(da) && !isNaN(db)) {
+    //       res = da - db;
+    //     } else {
+    //       res = a.localeCompare(b);
+    //     }
+    //   }
+    //   if (res === 0) res = A.i - B.i;
+    //   return direction === 'asc' ? res : -res;
+    // });
+
+
     document.querySelectorAll('th[data-col] span').forEach(s => s.textContent = '');
     const th = document.querySelector('th[data-col="' + colIdx + '"]');
     if (th) th.querySelector('span').textContent = direction === 'asc' ? ' ▲' : ' ▼';
@@ -753,17 +824,26 @@
   function changeRowsPerPage(perPage) {
     const url = new URL(window.location.href);
     url.searchParams.set('per_page', perPage);
-    url.searchParams.set('page', '1'); // Reset to first page
+    url.searchParams.set('page', '1'); 
     window.location.href = url.toString();
   }
 
   document.addEventListener('DOMContentLoaded', function () {
+
+  if (!CAN_WRITE) {
+    var postForm = document.querySelector('form[method="POST"][action="{{ base_path }}/section_tags{{ ext }}"]');
+    if (postForm) {
+      postForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        alert('Read-only account: removing tags is not allowed.');
+      });
+    }
+  }
     var headerCheckbox = document.getElementById('select-all-header');
     if (headerCheckbox) {
       headerCheckbox.addEventListener('change', function () { setAll('select-all-header'); });
     }
 
-    // Add change event listeners to all individual checkboxes
     var individualCheckboxes = document.querySelectorAll('.section-select-checkbox');
     individualCheckboxes.forEach(function(cb) {
       cb.addEventListener('change', updateSelectAllState);

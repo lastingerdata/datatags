@@ -185,19 +185,31 @@
       <div class="form-grid">
         <div class="form-field">
           <label for="tag_name">Tag name<span class="required">*</span></label>
-          <input id="tag_name" name="tag_name" type="text" placeholder="Tag name" required>
+          <!-- <input id="tag_name" name="tag_name" type="text" placeholder="Tag name" required> -->
+          <input id="tag_name" name="tag_name" type="text" placeholder="Tag name" required {% if not can_write %}disabled{% endif %}>
+
         </div>
 
         <div class="form-field">
           <label for="description">Description (optional)</label>
-          <input id="description" name="description" type="text" placeholder="Short description">
+          <!-- <input id="description" name="description" type="text" placeholder="Short description"> -->
+          <input id="description" name="description" type="text" placeholder="Short description" {% if not can_write %}disabled{% endif %}>
+
         </div>
 
         <div class="form-field">
-          <button type="submit" class="btn-add-tag">Add Tag</button>
+          <!-- <button type="submit" class="btn-add-tag">Add Tag</button> -->
+          <button type="submit" class="btn-add-tag" {% if not can_write %}disabled title="Read-only account"{% endif %}>
+            Add Tag
+            </button>
+
         </div>
       </div>
     </form>
+    {% if not can_write %}
+     <p class="text-muted mt-2">Read-only account: you can view tags, but you can’t add or delete them.</p>
+     {% endif %}
+
   </div>
 
   {% from 'components/table/table.html' import table %}
@@ -220,15 +232,17 @@
         {'key': 'description', 'label': 'Tag Description', 'width': '55%'}
       ],
       data=processed_tags,
-      actions=[
-        {
-          'type': 'button',
-          'action': 'delete',
-          'icon': '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>',
-          'class': 'action-link-delete',
-          'title': 'Delete'
-        }
-      ],
+      actions=(
+        [
+          {
+            'type': 'button',
+            'action': 'delete',
+            'icon': '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>',
+            'class': 'action-link-delete',
+            'title': 'Delete'
+          }
+        ] if can_write else []
+      ),
       empty_message="No tags found.",
       title="Existing Tags"
     ) }}
@@ -244,8 +258,13 @@
 
 {% block extra_scripts %}
 <script>
-  // Global function - must be outside DOMContentLoaded
+  const CAN_WRITE = {{ 'true' if can_write else 'false' }};
+
   function deleteTag(tagId, tagName) {
+    if (!CAN_WRITE) {
+      alert('Read-only account: you cannot delete tags.');
+      return;
+    }
     if (!confirm('Are you sure you want to delete the tag "' + tagName + '"?')) return;
 
     const form = document.createElement('form');
@@ -276,7 +295,6 @@
   }
 
   document.addEventListener('DOMContentLoaded', function() {
-    // Clean URL by removing query string parameters after alerts are shown
     if (window.location.search.includes('m=')) {
       const cleanUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
       window.history.replaceState({}, document.title, cleanUrl);
@@ -286,6 +304,13 @@
     const submitBtn = addForm ? addForm.querySelector('.btn-add-tag') : null;
 
     if (addForm && submitBtn) {
+      if (!CAN_WRITE) {
+        addForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          alert('Read-only account: you cannot add tags.');
+          return false;
+        });
+      }else{
       addForm.addEventListener('submit', function() {
         submitBtn.disabled = true;
         submitBtn.textContent = 'ADDING...';
@@ -293,8 +318,10 @@
         return true;
       });
     }
+  }
 
     // Handle delete button clicks (calls global deleteTag)
+    if(CAN_WRITE){
     document.querySelectorAll('button[data-action="delete"]').forEach(function(btn) {
       btn.addEventListener('click', function() {
         const row = this.closest('tr');
@@ -311,13 +338,14 @@
         deleteTag(tagId, tagName);
       });
     });
+  }
 
     // Auto-dismiss alerts after 5 seconds
     const alerts = document.querySelectorAll('[data-alert]');
     alerts.forEach(function(alert) {
       setTimeout(function() {
         dismissAlert(alert);
-      }, 5000);
+      }, 10000);
     });
 
     // Handle close button clicks

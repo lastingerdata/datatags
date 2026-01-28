@@ -13,7 +13,7 @@ import requests
 cgitb.enable()
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import api_url, get_api_key, safe_request, get_base_path
+from env_config import api_url, get_api_key, safe_request, get_base_path, can_write
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES = os.path.join(ROOT, "templates")
@@ -223,6 +223,13 @@ def main():
             or os.environ.get("HTTP_REMOTE_USER", "")
             or "unknown"
         )
+        
+        if method == "POST" and not can_write(user):
+            tag_id_q = get_qs_param("tag_id").strip() or get_qs_param("selected_tag").strip()
+            return redirect_with_messages(
+                [("danger", "Read-only account: you can view tag values, but you cannot add/edit/delete.")],
+                extra_qs={"tag_id": tag_id_q}
+            )
 
         messages = parse_messages_from_qs()
 
@@ -328,7 +335,8 @@ def main():
             edit_mode=edit_mode,
             tag=tag_meta,
             values=values,
-            page_name="tag_values"
+            page_name="tag_values",
+            can_write=can_write(user)
         )
 
         print_headers(extra={

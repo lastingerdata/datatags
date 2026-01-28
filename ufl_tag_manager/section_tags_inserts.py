@@ -11,7 +11,7 @@ from html import escape
 cgitb.enable()
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import api_url, get_api_key, safe_request, get_base_path
+from env_config import api_url, get_api_key, safe_request, get_base_path, can_write
 
 BASE_PATH = get_base_path()
 EXT = ".py"
@@ -145,6 +145,12 @@ def section_tags_inserts():
     method = os.environ.get("REQUEST_METHOD", "GET").upper()
     qs_all = urllib.parse.parse_qs(os.environ.get("QUERY_STRING", ""), keep_blank_values=True)
 
+    session_user = (
+        os.environ.get("REMOTE_USER", "")
+        or os.environ.get("HTTP_REMOTE_USER", "")
+        or "unknown"
+    )
+
     search           = get_param(fs, "search", "").strip().lower()
     wild_card        = get_param(fs, "wild_card", "").strip().lower()
     search_course    = get_param(fs, "search_course", "").strip().lower()
@@ -191,6 +197,13 @@ def section_tags_inserts():
             "page": str(page),
             "per_page": str(per_page_val),
         }
+
+        if not can_write(session_user):
+            return redirect_with_messages(
+                f"{BASE_PATH}/section_tags_inserts{EXT}",
+                [("danger", "Read-only account: you can view courses, but you cannot add tags.")],
+                keep_qs,
+            )
 
         if not tag_entry_id:
             return redirect_with_messages(
@@ -309,6 +322,9 @@ def section_tags_inserts():
         total_results=total_count,
         total_pages=total_pages,
         url_for=lambda name, **kw: build_url_for(name, **kw),
+        can_write=can_write(session_user),
+        session_user=session_user,
+        user=session_user,
     )
 
     cache_headers = {

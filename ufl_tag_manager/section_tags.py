@@ -10,7 +10,7 @@ import urllib.parse
 cgitb.enable()
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import api_url, get_api_key, safe_request, get_base_path
+from env_config import api_url, get_api_key, safe_request, get_base_path, can_write
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES = os.path.join(ROOT, "templates")
@@ -169,6 +169,12 @@ def main():
             or os.environ.get("HTTP_REMOTE_USER", "")
             or "unknown"
         )
+        if method == "POST" and not can_write(user):
+            extra_qs = _get_current_filters_from_qs()
+            redirect_with_messages(
+                [("danger", "Read-only account: you can view section tags, but you cannot remove them.")],
+                extra_qs=extra_qs
+            )
 
         if method == "POST":
             single_delete = (form.getfirst("single_delete") or "").strip()
@@ -267,6 +273,8 @@ def main():
             genius_sectionId=genius_sectionId,
             tag_name_filter=tag_name_filter,
             tag_value_filter=tag_value_filter,
+            can_write=can_write(user),
+
         )
 
         print_headers()
