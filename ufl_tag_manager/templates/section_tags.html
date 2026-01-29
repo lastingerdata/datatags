@@ -234,37 +234,15 @@
     table-layout: fixed;
   }
 
-  .mappings-table thead th:nth-child(1) {
-    width: 50px; /* Checkbox */
-  }
+  .mappings-table thead th:nth-child(1) { width: 50px; }
+  .mappings-table thead th:nth-child(2) { width: 120px; }
+  .mappings-table thead th:nth-child(3) { width: 120px; }
+  .mappings-table thead th:nth-child(4) { width: auto; }
+  .mappings-table thead th:nth-child(5) { width: 150px; }
+  .mappings-table thead th:nth-child(6) { width: 150px; }
+  .mappings-table thead th:nth-child(7) { width: 100px; }
 
-  .mappings-table thead th:nth-child(2) {
-    width: 120px; /* D2L OrgUnitId */
-  }
-
-  .mappings-table thead th:nth-child(3) {
-    width: 120px; /* Genius Section ID */
-  }
-
-  .mappings-table thead th:nth-child(4) {
-    width: auto; /* Section Name */
-  }
-
-  .mappings-table thead th:nth-child(5) {
-    width: 150px; /* Tag Name */
-  }
-
-  .mappings-table thead th:nth-child(6) {
-    width: 150px; /* Tag Value */
-  }
-
-  .mappings-table thead th:nth-child(7) {
-    width: 100px; /* Actions */
-  }
-
-  .mappings-table thead {
-    background: #002657;
-  }
+  .mappings-table thead { background: #002657; }
 
   .mappings-table thead th {
     color: #FFFFFF;
@@ -277,26 +255,16 @@
     transition: background 0.2s ease;
   }
 
-  .mappings-table thead th:hover {
-    background: #003580;
-  }
+  .mappings-table thead th:hover { background: #003580; }
 
   .mappings-table thead th span {
     margin-left: 4px;
     opacity: 0.7;
   }
 
-  .mappings-table tbody tr {
-    border-bottom: 1px solid #E5E5E5;
-  }
-
-  .mappings-table tbody tr:nth-child(even) {
-    background: #F9FAFB;
-  }
-
-  .mappings-table tbody tr:hover {
-    background: #F3F4F6;
-  }
+  .mappings-table tbody tr { border-bottom: 1px solid #E5E5E5; }
+  .mappings-table tbody tr:nth-child(even) { background: #F9FAFB; }
+  .mappings-table tbody tr:hover { background: #F3F4F6; }
 
   .mappings-table tbody td {
     padding: 14px 12px;
@@ -308,13 +276,7 @@
     text-align: center;
   }
 
-  .mappings-table tbody td input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-    margin: 0;
-  }
-
+  .mappings-table tbody td input[type="checkbox"],
   .mappings-table thead th input[type="checkbox"] {
     width: 18px;
     height: 18px;
@@ -334,9 +296,7 @@
     transition: background 0.2s ease;
   }
 
-  .btn-delete-single:hover {
-    background: #FEE2E2;
-  }
+  .btn-delete-single:hover { background: #FEE2E2; }
 
   .pagination-wrapper {
     display: flex;
@@ -348,11 +308,7 @@
     gap: 12px;
   }
 
-  .pagination-info {
-    font-size: 14px;
-    color: #6B7280;
-    order: 2;
-  }
+  .pagination-info { font-size: 14px; color: #6B7280; order: 2; }
 
   .pagination-controls {
     display: flex;
@@ -419,18 +375,12 @@
     border: 1px solid #6EE7B7;
   }
 
-  /* .alert-warning {
-  background: #FEF3C7;
-  color: #92400E;
-  border: 1px solid #FCD34D;
-} */
-
-
   .alert-danger {
     background: #FEE2E2;
     color: #991B1B;
-    border: 1px solid #FCA5A5;}
-  
+    border: 1px solid #FCA5A5;
+  }
+
   .btn-back {
     display: inline-block;
     margin-top: 32px;
@@ -448,7 +398,6 @@
     background: #001580;
     color: white;
   }
-    
 </style>
 
 <div class="section-tags-page">
@@ -469,6 +418,12 @@
   <div class="filter-section">
     <h3>Filter Courses</h3>
     <form method="GET" action="{{ base_path }}/section_tags{{ ext }}">
+      <!-- ✅ keep current sort when filtering -->
+      <input type="hidden" name="sort_col" value="{{ sort_col or '' }}">
+      <input type="hidden" name="sort_dir" value="{{ sort_dir or '' }}">
+      <!-- optional: keep current page when filtering; most people reset to 1 -->
+      <!-- <input type="hidden" name="page" value="1"> -->
+
       <div class="filter-grid">
         <div class="filter-field">
           <label>Course Name</label>
@@ -495,7 +450,6 @@
         </div>
       </div>
 
-      <!-- Row 2: Tag Category, Tag Value, Filter/Reset buttons -->
       <div class="filter-grid">
         <div class="filter-field">
           <label>Tag Category</label>
@@ -530,10 +484,12 @@
     <input type="hidden" name="tag_name_filter" value="{{ tag_name_filter or '' }}">
     <input type="hidden" name="tag_value_filter" value="{{ tag_value_filter or '' }}">
     <input type="hidden" name="page" value="{{ current_page }}">
+    <input type="hidden" name="sort_col" value="{{ sort_col or '' }}">
+    <input type="hidden" name="sort_dir" value="{{ sort_dir or '' }}">
 
     {% if mappings and mappings|length > 0 %}
       <h3 class="section-heading">Remove Tags</h3>
-      
+
       <div class="action-bar">
         <button type="submit" class="btn-delete" onclick="return confirm('Delete selected section tag mappings?');" {% if not can_write %}disabled{% endif %}>
           REMOVE SELECTED TAGS
@@ -541,38 +497,71 @@
         <div style="color: #6B7280; font-size: 13px; font-style: italic; margin-left: 16px;">
           Note: Removing a tag only removes the association between tables and does not affect the underlying data.
         </div>
-        <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
-          <!-- <label style="font-size: 14px; color: #4A4A4A; margin: 0;">Show</label>
-          <select id="rows-per-page" onchange="changeRowsPerPage(this.value)" style="padding: 6px 10px; border: 1px solid #D1D5DB; border-radius: 4px; font-size: 14px;" {% if not can_write %}disabled{% endif %}>
- 
-            <option value="55" {% if per_page == 55 %}selected{% endif %}>55</option>
-            <option value="100" {% if per_page == 100 %}selected{% endif %}>100</option>
-            <option value="200" {% if per_page == 200 or per_page == 0 %}selected{% endif %}>200</option>
-          </select>
-          <label style="font-size: 14px; color: #4A4A4A; margin: 0;">rows</label> -->
-        </div>
       </div>
+
       {% if not can_write %}
         <div style="margin: 10px 0 0 0; color:#6B7280; font-size: 13px; font-style: italic;">
           Read-only account: you can view section tag mappings, but you can’t remove them.
         </div>
       {% endif %}
 
-
       <div class="mappings-table-wrapper">
         <table id="tag-mapping-table" class="mappings-table">
           <thead>
             <tr>
               <th data-col="0" style="cursor: default; width: 50px; text-align: center;">
-              <input type="checkbox" id="select-all-header" {% if not can_write %}disabled{% endif %}></th>
-              <th data-col="1" onclick="sortTable(1)">Genius Section ID<span></span></th>
-              <th data-col="2" onclick="sortTable(2)">D2L Org Unit ID<span></span></th>
-              <th data-col="3" onclick="sortTable(3)">Section Name<span></span></th>
-              <th data-col="4" onclick="sortTable(4)">Tag Category<span></span></th>
-              <th data-col="5" onclick="sortTable(5)">Tag Value<span></span></th>
+                <input type="checkbox" id="select-all-header" {% if not can_write %}disabled{% endif %}>
+              </th>
+
+              <th data-col="1" onclick="applySort('genius_sectionId')">
+                Genius Section ID
+                <span>
+                  {% if sort_col == 'genius_sectionId' %}
+                    {{ '▲' if (sort_dir or 'asc') == 'asc' else '▼' }}
+                  {% endif %}
+                </span>
+              </th>
+
+              <th data-col="2" onclick="applySort('d2l_OrgUnitId')">
+                D2L Org Unit ID
+                <span>
+                  {% if sort_col == 'd2l_OrgUnitId' %}
+                    {{ '▲' if (sort_dir or 'asc') == 'asc' else '▼' }}
+                  {% endif %}
+                </span>
+              </th>
+
+              <th data-col="3" onclick="applySort('section_name')">
+                Section Name
+                <span>
+                  {% if sort_col == 'section_name' %}
+                    {{ '▲' if (sort_dir or 'asc') == 'asc' else '▼' }}
+                  {% endif %}
+                </span>
+              </th>
+
+              <th data-col="4" onclick="applySort('tag_name')">
+                Tag Category
+                <span>
+                  {% if sort_col == 'tag_name' %}
+                    {{ '▲' if (sort_dir or 'asc') == 'asc' else '▼' }}
+                  {% endif %}
+                </span>
+              </th>
+
+              <th data-col="5" onclick="applySort('tag_value')">
+                Tag Value
+                <span>
+                  {% if sort_col == 'tag_value' %}
+                    {{ '▲' if (sort_dir or 'asc') == 'asc' else '▼' }}
+                  {% endif %}
+                </span>
+              </th>
+
               <th data-col="6" style="cursor: default;">Remove Tag</th>
             </tr>
           </thead>
+
           <tbody>
             {% for m in mappings %}
               {% set sec_name = m.section_name or m['section_name'] %}
@@ -585,7 +574,9 @@
 
               <tr>
                 <td>
-                  <input type="checkbox" class="section-select-checkbox" {% if not can_write %}disabled{% endif %}
+                  <input type="checkbox"
+                         class="section-select-checkbox"
+                         {% if not can_write %}disabled{% endif %}
                          name="selected_sections"
                          value="{{ combo_id }}">
                 </td>
@@ -600,7 +591,8 @@
                           value="{{ combo_id }}"
                           class="btn-delete-single"
                           onclick="return confirm('Delete this section tag mapping?');"
-                          title="Remove tag"{% if not can_write %}disabled{% endif %}>
+                          title="Remove tag"
+                          {% if not can_write %}disabled{% endif %}>
                     <img src="/ufl_tag_manager/assets/link_off.svg" alt="Remove tag" style="width: 20px; height: 20px; vertical-align: middle;">
                   </button>
                 </td>
@@ -613,53 +605,75 @@
       {% if total_pages > 1 %}
         <div class="pagination-wrapper">
           <div class="pagination-controls">
-            <a href="{{ base_path }}/section_tags{{ ext }}?page={{ current_page - 1 }}&name={{ name or '' }}&wild_card={{ wild_card or '' }}&d2l_OrgUnitId={{ d2l_OrgUnitId or '' }}&genius_sectionId={{ genius_sectionId or '' }}&tag_name_filter={{ tag_name_filter or '' }}&tag_value_filter={{ tag_value_filter or '' }}" 
+            <a href="{{ base_path }}/section_tags{{ ext }}?page={{ current_page - 1 }}&name={{ name or '' }}&wild_card={{ wild_card or '' }}&d2l_OrgUnitId={{ d2l_OrgUnitId or '' }}&genius_sectionId={{ genius_sectionId or '' }}&tag_name_filter={{ tag_name_filter or '' }}&tag_value_filter={{ tag_value_filter or '' }}&sort_col={{ sort_col or '' }}&sort_dir={{ sort_dir or '' }}"
                class="pagination-btn {% if current_page == 1 %}disabled{% endif %}">Previous</a>
-            
-            {# Always show first page #}
-            <a href="{{ base_path }}/section_tags{{ ext }}?page=1&name={{ name or '' }}&wild_card={{ wild_card or '' }}&d2l_OrgUnitId={{ d2l_OrgUnitId or '' }}&genius_sectionId={{ genius_sectionId or '' }}&tag_name_filter={{ tag_name_filter or '' }}&tag_value_filter={{ tag_value_filter or '' }}" 
+
+            <a href="{{ base_path }}/section_tags{{ ext }}?page=1&name={{ name or '' }}&wild_card={{ wild_card or '' }}&d2l_OrgUnitId={{ d2l_OrgUnitId or '' }}&genius_sectionId={{ genius_sectionId or '' }}&tag_name_filter={{ tag_name_filter or '' }}&tag_value_filter={{ tag_value_filter or '' }}&sort_col={{ sort_col or '' }}&sort_dir={{ sort_dir or '' }}"
                class="pagination-btn {% if current_page == 1 %}active{% endif %}">1</a>
-            
-            {# Show ellipsis if gap between first page and start of range #}
+
             {% if current_page > 4 %}
               <span class="pagination-ellipsis">...</span>
             {% endif %}
-            
-            {# Show pages around current page #}
+
             {% for p in range(2, total_pages) %}
               {% if p >= current_page - 2 and p <= current_page + 2 %}
-                <a href="{{ base_path }}/section_tags{{ ext }}?page={{ p }}&name={{ name or '' }}&wild_card={{ wild_card or '' }}&d2l_OrgUnitId={{ d2l_OrgUnitId or '' }}&genius_sectionId={{ genius_sectionId or '' }}&tag_name_filter={{ tag_name_filter or '' }}&tag_value_filter={{ tag_value_filter or '' }}" 
+                <a href="{{ base_path }}/section_tags{{ ext }}?page={{ p }}&name={{ name or '' }}&wild_card={{ wild_card or '' }}&d2l_OrgUnitId={{ d2l_OrgUnitId or '' }}&genius_sectionId={{ genius_sectionId or '' }}&tag_name_filter={{ tag_name_filter or '' }}&tag_value_filter={{ tag_value_filter or '' }}&sort_col={{ sort_col or '' }}&sort_dir={{ sort_dir or '' }}"
                    class="pagination-btn {% if p == current_page %}active{% endif %}">{{ p }}</a>
               {% endif %}
             {% endfor %}
-            
-            {# Show ellipsis if gap between end of range and last page #}
+
             {% if current_page < total_pages - 3 %}
               <span class="pagination-ellipsis">...</span>
             {% endif %}
-            
-            {# Always show last page if there is more than 1 page #}
-            {% if total_pages > 1 %}
-              <a href="{{ base_path }}/section_tags{{ ext }}?page={{ total_pages }}&name={{ name or '' }}&wild_card={{ wild_card or '' }}&d2l_OrgUnitId={{ d2l_OrgUnitId or '' }}&genius_sectionId={{ genius_sectionId or '' }}&tag_name_filter={{ tag_name_filter or '' }}&tag_value_filter={{ tag_value_filter or '' }}" 
-                 class="pagination-btn {% if current_page == total_pages %}active{% endif %}">{{ total_pages }}</a>
-            {% endif %}
-            
-            <a href="{{ base_path }}/section_tags{{ ext }}?page={{ current_page + 1 }}&name={{ name or '' }}&wild_card={{ wild_card or '' }}&d2l_OrgUnitId={{ d2l_OrgUnitId or '' }}&genius_sectionId={{ genius_sectionId or '' }}&tag_name_filter={{ tag_name_filter or '' }}&tag_value_filter={{ tag_value_filter or '' }}" 
+
+            <a href="{{ base_path }}/section_tags{{ ext }}?page={{ total_pages }}&name={{ name or '' }}&wild_card={{ wild_card or '' }}&d2l_OrgUnitId={{ d2l_OrgUnitId or '' }}&genius_sectionId={{ genius_sectionId or '' }}&tag_name_filter={{ tag_name_filter or '' }}&tag_value_filter={{ tag_value_filter or '' }}&sort_col={{ sort_col or '' }}&sort_dir={{ sort_dir or '' }}"
+               class="pagination-btn {% if current_page == total_pages %}active{% endif %}">{{ total_pages }}</a>
+
+            <a href="{{ base_path }}/section_tags{{ ext }}?page={{ current_page + 1 }}&name={{ name or '' }}&wild_card={{ wild_card or '' }}&d2l_OrgUnitId={{ d2l_OrgUnitId or '' }}&genius_sectionId={{ genius_sectionId or '' }}&tag_name_filter={{ tag_name_filter or '' }}&tag_value_filter={{ tag_value_filter or '' }}&sort_col={{ sort_col or '' }}&sort_dir={{ sort_dir or '' }}"
                class="pagination-btn {% if current_page == total_pages %}disabled{% endif %}">Next</a>
           </div>
+
+          <!-- ✅ fixed per_page math -->
           <div class="pagination-info">
-            Showing {{ ((current_page - 1) * 200) + 1 }} to {% if current_page * 200 < total_count %}{{ current_page * 200 }}{% else %}{{ total_count }}{% endif %} of {{ total_count }} entries
+            Showing {{ ((current_page - 1) * (per_page or 0)) + 1 if total_count > 0 else 0 }}
+            to
+            {% if current_page * (per_page or 0) < total_count %}
+              {{ current_page * (per_page or 0) }}
+            {% else %}
+              {{ total_count }}
+            {% endif %}
+            of {{ total_count }} entries
           </div>
         </div>
       {% endif %}
+
     {% else %}
       <div class="no-results">No section tag mappings found.</div>
     {% endif %}
   </form>
+
   <a href="{{ base_path }}/tags_index{{ ext }}" class="btn-back">
     Back to Tag Home
   </a>
 </div>
+
+<script>
+  function applySort(colName) {
+    const url = new URL(window.location.href);
+
+    const currentCol = url.searchParams.get('sort_col') || '';
+    const currentDir = (url.searchParams.get('sort_dir') || 'asc').toLowerCase();
+
+    let nextDir = 'asc';
+    if (currentCol === colName && currentDir === 'asc') nextDir = 'desc';
+
+    url.searchParams.set('sort_col', colName);
+    url.searchParams.set('sort_dir', nextDir);
+
+    // staying on same page (no page reset)
+    window.location.href = url.toString();
+  }
+</script>
 
 <script>
   const CAN_WRITE = {{ 'true' if can_write else 'false' }};
@@ -677,15 +691,15 @@
   function updateSelectAllState() {
     var headerCheckbox = document.getElementById('select-all-header');
     if (!headerCheckbox) return;
-    
+
     var boxes = document.querySelectorAll('.section-select-checkbox');
     var checkedCount = 0;
     var totalCount = boxes.length;
-    
+
     boxes.forEach(function(cb) {
       if (cb.checked) checkedCount++;
     });
-    
+
     if (checkedCount === 0) {
       headerCheckbox.checked = false;
       headerCheckbox.indeterminate = false;
@@ -696,82 +710,6 @@
       headerCheckbox.checked = false;
       headerCheckbox.indeterminate = true;
     }
-  }
-
-  let sortHistory = [];
-
-  function getCellText(row, idx) {
-    const td = row.children[idx];
-    return (td ? (td.innerText || td.textContent) : '').trim();
-  }
-
-  function sortTable(colIdx) {
-    const table = document.getElementById('tag-mapping-table');
-    const tbody = table.tBodies[0];
-    const rows = Array.from(tbody.rows).map((tr, i) => ({ tr, i }));
-    let direction = 'asc';
-    const prev = sortHistory[0];
-    if (prev && prev.col === colIdx && prev.dir === 'asc') direction = 'desc';
-    sortHistory.length = 0;
-    sortHistory.push({ col: colIdx, dir: direction });
-    rows.sort((A, B) => {
-      const aRaw = getCellText(A.tr, colIdx);
-      const bRaw = getCellText(B.tr, colIdx);
-
-      if (colIdx === 3) {
-        const a = aRaw.toLowerCase();
-        const b = bRaw.toLowerCase();
-
-        let res = a.localeCompare(b); 
-        if (res === 0) res = A.i - B.i;
-
-        return direction === 'asc' ? res : -res; 
-      }
-      const na = Number(aRaw.replace(/[^0-9.-]/g, ''));
-      const nb = Number(bRaw.replace(/[^0-9.-]/g, ''));
-      let res;
-
-      if (!isNaN(na) && !isNaN(nb) && aRaw !== '' && bRaw !== '') {
-        res = na - nb;
-      } else {
-        const da = Date.parse(aRaw);
-        const db = Date.parse(bRaw);
-        if (!isNaN(da) && !isNaN(db)) {
-          res = da - db;
-        } else {
-          res = aRaw.localeCompare(bRaw);
-        }
-      }
-      if (res === 0) res = A.i - B.i;
-      return direction === 'asc' ? res : -res;
-    });
-
-    // rows.sort((A, B) => {
-    //   const a = getCellText(A.tr, colIdx);
-    //   const b = getCellText(B.tr, colIdx);
-    //   const na = Number(a.replace(/[^0-9.-]/g, ''));
-    //   const nb = Number(b.replace(/[^0-9.-]/g, ''));
-    //   let res;
-    //   if (!isNaN(na) && !isNaN(nb) && a !== '' && b !== '') {
-    //     res = na - nb;
-    //   } else {
-    //     const da = Date.parse(a);
-    //     const db = Date.parse(b);
-    //     if (!isNaN(da) && !isNaN(db)) {
-    //       res = da - db;
-    //     } else {
-    //       res = a.localeCompare(b);
-    //     }
-    //   }
-    //   if (res === 0) res = A.i - B.i;
-    //   return direction === 'asc' ? res : -res;
-    // });
-
-
-    document.querySelectorAll('th[data-col] span').forEach(s => s.textContent = '');
-    const th = document.querySelector('th[data-col="' + colIdx + '"]');
-    if (th) th.querySelector('span').textContent = direction === 'asc' ? ' ▲' : ' ▼';
-    rows.forEach(r => tbody.appendChild(r.tr));
   }
 
   function buildTagValueMap() {
@@ -821,24 +759,18 @@
     });
   }
 
-  function changeRowsPerPage(perPage) {
-    const url = new URL(window.location.href);
-    url.searchParams.set('per_page', perPage);
-    url.searchParams.set('page', '1'); 
-    window.location.href = url.toString();
-  }
-
   document.addEventListener('DOMContentLoaded', function () {
 
-  if (!CAN_WRITE) {
-    var postForm = document.querySelector('form[method="POST"][action="{{ base_path }}/section_tags{{ ext }}"]');
-    if (postForm) {
-      postForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        alert('Read-only account: removing tags is not allowed.');
-      });
+    if (!CAN_WRITE) {
+      var postForm = document.querySelector('form[method="POST"][action="{{ base_path }}/section_tags{{ ext }}"]');
+      if (postForm) {
+        postForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          alert('Read-only account: removing tags is not allowed.');
+        });
+      }
     }
-  }
+
     var headerCheckbox = document.getElementById('select-all-header');
     if (headerCheckbox) {
       headerCheckbox.addEventListener('change', function () { setAll('select-all-header'); });

@@ -157,6 +157,8 @@ def _get_current_filters_from_qs():
         "tag_name_filter": (qs.get("tag_name_filter", [""])[0] or "").strip(),
         "tag_value_filter": (qs.get("tag_value_filter", [""])[0] or "").strip(),
         "page": (qs.get("page", ["1"])[0] or "1").strip(),
+        "sort_col": (qs.get("sort_col", [""])[0] or "").strip(),
+        "sort_dir": (qs.get("sort_dir", ["asc"])[0] or "asc").strip(),
     }
 
 
@@ -222,6 +224,11 @@ def main():
         tag_name_filter = (qs.get("tag_name_filter", [""])[0] or "").strip()
         tag_value_filter = (qs.get("tag_value_filter", [""])[0] or "").strip()
         page = int((qs.get("page", ["1"])[0] or "1"))
+        sort_col = (qs.get("sort_col", [""])[0] or "").strip()
+        sort_dir = (qs.get("sort_dir", ["asc"])[0] or "asc").strip().lower()
+        if sort_dir not in ("asc", "desc"):
+            sort_dir = "asc"
+
 
         messages = parse_messages_from_qs()
 
@@ -234,6 +241,8 @@ def main():
                 "tag_name_filter": tag_name_filter,
                 "tag_value_filter": tag_value_filter,
                 "page": page,
+                "sort_col": sort_col,
+                "sort_dir": sort_dir,
             })
 
             mappings = data["mappings"]
@@ -274,7 +283,8 @@ def main():
             tag_name_filter=tag_name_filter,
             tag_value_filter=tag_value_filter,
             can_write=can_write(user),
-
+            sort_col=sort_col,
+            sort_dir=sort_dir,
         )
 
         print_headers()
