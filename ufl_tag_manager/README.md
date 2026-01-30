@@ -23,8 +23,9 @@ prod → uses production endpoints
 The application requires the following pip modules:
 - `ibna`
 - `requests`
--  `jinja2`
-
+- `jinja2`
+- `1snowflake.connector`
+- `pandas`
 ## File Permissions
 
 For convenience, you can fix script permissions across the project using:
