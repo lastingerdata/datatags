@@ -7,6 +7,9 @@ This repository contains the codebase for the DataTags web application hosted by
 
 The application is hosted on UFIT-managed Apache infrastructure. It uses **CGI** for Python execution and **Shibboleth** for authentication. The default entry point is home.py, redirected via index.html.
 
+Example command to pip install:
+python3 -m pip install --user jinja2
+
 Test Server:
 ssh cnswww-test.datatags.lastinger@az1-apacheint-prod02.server.ufl.edu
 
