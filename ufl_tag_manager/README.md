@@ -27,12 +27,13 @@ The application requires the following pip modules:
 - `jinja2`
 - `1snowflake.connector`
 - `pandas`
+- `mysql-connector-python`
 
 For the snowflake stuff - I had to run 
 python3 -m pip install --user --prefer-binary pyarrow
 python3 -m pip install --user  "snowflake-connector-python[pandas]" pandas numpy
 
-Also note - if you have a user installed lib (pip for example) and it requires a lib that is an EXISTING system lib...
+Also note - if you have a user installed lib (pip for example) and it requires a lib that is an EXISTING system lib such as six...
 You have to install the system lib like this - 
 python3 -m pip install --user --ignore-installed six
 
