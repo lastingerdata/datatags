@@ -45,9 +45,59 @@
           <a href="{{ base_path }}/logs{{ ext }}" class="nav-item {% if page_name == 'logs' %}active{% endif %}">Logs</a>
           <a href="{{ base_path }}/rules{{ ext }}" class="nav-item {% if page_name == 'rules' %}active{% endif %}">Rules</a>
           <a href="{{ base_path }}/documentation{{ ext }}" class="nav-item">User Guide</a>
-          <a href="" class="nav-item">Rebuild Demo Table</a>
+          <a href="" class="nav-item" id="snowflake-link" onclick="runSnowflake(event)">Rebuild Demo Table</a>
         </div>
       </div>
     </div>
   </div>
+
+
+
+    <style>
+        /* Optional: Make the link look disabled when working */
+        .disabled-link {
+            pointer-events: none;
+            color: gray;
+            text-decoration: none;
+            cursor: wait;
+        }
+    </style>
+
+    <script>
+        async function runSnowflake(event) {
+            event.preventDefault();
+            const linkElement = document.getElementById('snowflake-link');
+            const originalText = linkElement.innerText;
+
+            linkElement.innerText = "Working...";
+            linkElement.classList.add("disabled-link");
+
+            try {
+                const response = await fetch('/ufl_tag_manager/run_snowflake.py', {
+                    method: 'GET', 
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                linkElement.innerText = "Success: " + data.message;
+                
+                setTimeout(() => {
+                    linkElement.innerText = originalText;
+                    linkElement.classList.remove("disabled-link");
+                }, 2000);
+
+            } catch (error) {
+                console.error('Error:', error);
+                linkElement.innerText = "Error: Check Console";
+                linkElement.classList.remove("disabled-link");
+            }
+        }
+    </script>
+  
 </header>
