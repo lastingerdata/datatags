@@ -1,0 +1,241 @@
+{% extends 'tags_base.html' %}
+{% block title %}Web Logs{% endblock %}
+{% block content %}
+<style>
+  .container.mt-4 {
+    max-width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  .logs-page {
+    padding: 20px 40px 60px;
+    width: 90vw;
+    max-width: 90vw;
+    margin: 0 auto;
+    overflow-x: visible;
+  }
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+  .page-header-divider {
+    width: 4px;
+    height: 60px;
+    background: #FA4616;
+  }
+  .page-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: #002657;
+    margin: 0;
+  }
+  .top-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+  .meta {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    color: #374151;
+  }
+  .rows-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    color: #111827;
+  }
+  .rows-control select {
+    padding: 6px 10px;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 13px;
+  }
+  .alert {
+    position: relative;
+    padding: 16px 24px;
+    padding-right: 48px;
+    border-radius: 4px;
+    margin-bottom: 24px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    animation: slideIn 0.3s ease-out;
+  }
+  .alert.success {
+    background-color: #D1FAE5;
+    color: #065F46;
+    border: 1px solid #A7F3D0;
+  }
+  .alert.danger {
+    background-color: #FEE2E2;
+    color: #991B1B;
+    border: 1px solid #FECACA;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .alert.fade-out {
+    animation: fadeOut 0.3s ease-out forwards;
+  }
+  @keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-10px); }
+  }
+  .alert-close {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    color: inherit;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+  .alert-close:hover { opacity: 1; }
+  .web-logs-table-wrap {
+    overflow-x: auto;
+  }
+  table.web-logs-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+  }
+  table.web-logs-table thead th {
+  text-align: left;
+  background: #002657; /* UF dark blue */
+  color: #ffffff;
+  padding: 14px 16px;
+  border-bottom: none;
+  white-space: nowrap;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 600;
+}
+  table.web-logs-table tbody td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #E5E7EB;
+    vertical-align: top;
+  }
+  .log-messages {
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 13px;
+    line-height: 1.4;
+    margin: 0;
+  }
+  @media (max-width: 768px) {
+    .logs-page { padding: 24px 20px; }
+    .page-title { font-size: 34px; }
+  }
+</style>
+<div class="logs-page">
+  <div class="page-header">
+    <div class="page-header-divider"></div>
+    <h1 class="page-title">Web Logs</h1>
+  </div>
+  <div class="top-controls">
+    <div class="meta">
+      Showing <b>{{ showing }}</b> of <b>{{ total }}</b>
+    </div>
+    <div class="rows-control">
+      <label for="limitSelect">Show rows</label>
+      <select id="limitSelect">
+        <option value="50"  {% if current_limit == '50' %}selected{% endif %}>50</option>
+        <option value="100" {% if current_limit == '100' %}selected{% endif %}>100</option>
+        <option value="250" {% if current_limit == '250' %}selected{% endif %}>250</option>
+        <option value="500" {% if current_limit == '500' %}selected{% endif %}>500</option>
+        <option value="all" {% if current_limit == 'all' %}selected{% endif %}>All</option>
+      </select>
+    </div>
+  </div>
+  {% if messages %}
+    {% for cat, msg in messages %}
+      <div class="alert {{ cat }}" data-alert>
+        <button class="alert-close" data-close-alert>&times;</button>
+        {{ msg }}
+      </div>
+    {% endfor %}
+  {% endif %}
+  {% if rows and rows|length > 0 %}
+    <div class="web-logs-table-wrap">
+      <table class="web-logs-table">
+        <thead>
+          <tr>
+            <th style="width:28%;">Session</th>
+            <th style="width:14%;">Start Time</th>
+            <th style="width:58%;">Messages</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in rows %}
+            <tr>
+              <td>{{ r.session }}</td>
+              <td>{{ r.start_time }}</td>
+              <td>
+                <pre class="log-messages">{% for m in r.messages %}{{ m }}{% if not loop.last %}&#10;{% endif %}{% endfor %}</pre>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="alert danger" data-alert>
+      <button class="alert-close" data-close-alert>&times;</button>
+      No web logs found.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() 
+  {
+    const alerts = document.querySelectorAll('[data-alert]');
+    alerts.forEach(function(alert) {
+      setTimeout(function() { dismissAlert(alert); }, 5000);
+    });
+    const closeButtons = document.querySelectorAll('[data-close-alert]');
+    closeButtons.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        const alert = this.closest('[data-alert]');
+        dismissAlert(alert);
+      });
+    });
+    function dismissAlert(alert) {
+      if (!alert) return;
+      alert.classList.add('fade-out');
+      setTimeout(function() { alert.remove(); }, 300);
+    }
+    const sel = document.getElementById('limitSelect');
+    if (sel) {
+      sel.addEventListener('change', function() {
+        const v = this.value;
+        const url = new URL(window.location.href);
+        url.searchParams.set('limit', v);
+        window.location.href = url.toString();
+      });
+    }
+  });
+</script>
+{% endblock %}
