@@ -12,13 +12,13 @@ from urllib.parse import quote, quote_plus
 cgitb.enable()
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import safe_request, get_base_path
+from env_config import safe_request, get_base_path,get_api_key
 
 BASE_PATH = get_base_path()
 EXT = ".py"
 
 REPORT_LOGS_URL = "https://compute.lastinger.center.ufl.edu/report_logs"
-API_KEY = "596fa395d7a9072c06207b119ec415164487d50a37f904d08542305466a80fce"
+API_KEY = get_api_key(1)
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES = os.path.join(ROOT, "templates")
@@ -53,7 +53,7 @@ def parse_json_lenient(resp):
 
 
 def fetch_reports():
-    headers = {"Accept": "application/json", "ApiKey": API_KEY}
+    headers = {"Accept": "application/json", "ApiKey": get_api_key(1)}
     resp = safe_request(REPORT_LOGS_URL, headers=headers, verify=False)
     data = parse_json_lenient(resp)
 
@@ -82,7 +82,6 @@ def latest_run(job_history):
     )[0]
 
 
-# ✅ Run-unique detail key (NEVER use log_file/log_url)
 def make_detail_key(report_name, run):
     st = str(run.get("start_time") or "")
     et = str(run.get("end_time") or "")
@@ -101,7 +100,6 @@ def parse_detail_key(key):
     return report_name, start_time, end_time, result
 
 
-# ✅ Always route through our details view so we never hit shared file output
 def compute_details_url(report_name, run):
     return f"{BASE_PATH}/logs{EXT}?detail={quote(make_detail_key(report_name, run))}"
 
@@ -143,7 +141,6 @@ def build_history_rows(report):
     )
 
 
-# ✅ Find exact run ONLY by report+start+end+result (no log_file fallback!)
 def find_run_by_key(reports, key):
     parsed = parse_detail_key(key)
     if not parsed:
@@ -174,14 +171,12 @@ def fetch_log_detail(key):
 
     result = (run.get("result_code") or run.get("status") or "").strip().upper()
 
-    # ✅ FAILED => show ONLY run-specific captured error (log_file_end)
     if result in ("FAILED", "FAILURE", "ERROR"):
         for f in ["log_file_end", "log_output", "log_text"]:
             if run.get(f):
                 return run[f]
         return json.dumps(run, indent=2)
 
-    # ✅ SUCCESS => show best available
     for f in ["log_output", "log_text", "log_file_end"]:
         if run.get(f):
             return run[f]

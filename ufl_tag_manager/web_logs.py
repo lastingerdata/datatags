@@ -2,25 +2,23 @@
 # -*- coding: utf-8 -*-
 
 import os
+import json
 import cgitb
 import traceback
+import urllib.parse
 from html import escape
 from time import time
-import urllib.parse
-import json
 import heapq
 
-import requests
-from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import get_base_path
-
 cgitb.enable()
+
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+from env_config import safe_request, get_base_path, get_api_key
 
 BASE_PATH = get_base_path()
 EXT = ".py"
 
 WEB_LOGS_URL = "https://compute.lastinger.center.ufl.edu/web_logs"
-WEB_LOGS_API_KEY = "596fa395d7a9072c06207b119ec415164487d50a37f904d08542305466a80fce"
 
 CACHE_TTL_SECONDS = 300
 DEFAULT_LIMIT = 50
@@ -35,6 +33,29 @@ env = Environment(
     loader=FileSystemLoader(TEMPLATES),
     autoescape=select_autoescape(["html", "xml"])
 )
+
+
+def parse_json_lenient(resp):
+    if isinstance(resp, (dict, list)):
+        return resp
+    try:
+        return resp.json()
+    except Exception:
+        pass
+
+    text = (getattr(resp, "text", "") or "").lstrip()
+    if text.lower().startswith("pretty-print"):
+        text = text.split("\n", 1)[1] if "\n" in text else ""
+
+    start_obj = text.find("{")
+    start_arr = text.find("[")
+    starts = [i for i in (start_obj, start_arr) if i != -1]
+    if not starts:
+        snippet = text[:200].replace("<", "&lt;").replace(">", "&gt;")
+        raise RuntimeError(f"web_logs endpoint did not return JSON. Snippet: {snippet}")
+
+    return json.loads(text[min(starts):])
+
 
 def _read_file_cache():
     try:
@@ -52,6 +73,7 @@ def _read_file_cache():
     except Exception:
         return None
 
+
 def _write_file_cache(ts, entries, meta):
     try:
         tmp = CACHE_FILE + ".tmp"
@@ -60,6 +82,7 @@ def _write_file_cache(ts, entries, meta):
         os.replace(tmp, CACHE_FILE)
     except Exception:
         pass
+
 
 def _acquire_lock(max_wait_seconds=1.5):
     start = time()
@@ -75,6 +98,7 @@ def _acquire_lock(max_wait_seconds=1.5):
         except Exception:
             return False
 
+
 def _release_lock():
     try:
         if os.path.exists(LOCK_FILE):
@@ -82,28 +106,30 @@ def _release_lock():
     except Exception:
         pass
 
+
+def _make_headers():
+    headers = {"Accept": "application/json"}
+    api_key = get_api_key(1)
+    if api_key:
+        headers["ApiKey"] = api_key
+    return headers
+
+
 def fetch_web_logs_or_error():
-    headers = {"Accept": "application/json", "ApiKey": WEB_LOGS_API_KEY}
+    headers = _make_headers()
+
+    resp = safe_request(WEB_LOGS_URL, headers=headers, verify=False)
+
+    if isinstance(resp, dict) and resp.get("error"):
+        return [], {"ok": False, "status": None, "error": str(resp.get("error"))}
+
+    status = getattr(resp, "status_code", None)
 
     try:
-        with requests.Session() as s:
-            resp = s.get(
-                WEB_LOGS_URL,
-                headers=headers,
-                timeout=(5, 25),
-                verify=False,
-                proxies={}
-            )
+        data = parse_json_lenient(resp)
     except Exception as e:
-        return [], {"ok": False, "status": None, "error": f"Request error: {e}"}
-
-    status = resp.status_code
-    text = resp.text or ""
-
-    try:
-        data = resp.json()
-    except Exception as e:
-        return [], {"ok": False, "status": status, "error": f"JSON parse error: {e} | body: {text[:300]}"}
+        txt = (getattr(resp, "text", "") or "")[:300]
+        return [], {"ok": False, "status": status, "error": f"{e} | body: {txt}"}
 
     if isinstance(data, dict) and data.get("error"):
         return [], {"ok": False, "status": status, "error": str(data.get("error"))}
@@ -118,8 +144,10 @@ def fetch_web_logs_or_error():
 
     return [], {"ok": False, "status": status, "error": "Unexpected response format"}
 
+
 def get_cached_or_fetch():
     now = time()
+
     cached = _read_file_cache()
     if cached:
         age = now - float(cached.get("ts") or 0)
@@ -141,6 +169,7 @@ def get_cached_or_fetch():
         if got_lock:
             _release_lock()
 
+
 def get_limit_from_qs():
     qs = urllib.parse.parse_qs(os.environ.get("QUERY_STRING", ""))
     raw = (qs.get("limit", [str(DEFAULT_LIMIT)])[0] or "").strip().lower()
@@ -155,6 +184,7 @@ def get_limit_from_qs():
         return n, str(n)
     except Exception:
         return DEFAULT_LIMIT, str(DEFAULT_LIMIT)
+
 
 def filter_messages(msgs):
     if not isinstance(msgs, list):
@@ -174,6 +204,7 @@ def filter_messages(msgs):
         out.append(m)
     return out
 
+
 def build_rows(entries):
     rows = []
     for e in entries:
@@ -184,8 +215,10 @@ def build_rows(entries):
         })
     return rows
 
+
 def _start_time_key(e):
     return str(e.get("start_time") or "")
+
 
 def main():
     try:
@@ -208,12 +241,10 @@ def main():
                 chosen = heapq.nlargest(show_n, entries, key=_start_time_key)
                 chosen = sorted(chosen, key=_start_time_key, reverse=True)
 
-        showing = len(chosen)
         rows = build_rows(chosen)
 
         print("Content-Type: text/html; charset=utf-8")
         print()
-
         print(env.get_template("web_logs.html").render(
             base_path=BASE_PATH,
             ext=EXT,
@@ -223,7 +254,7 @@ def main():
             cache_hit=cache_hit,
             cache_ttl=CACHE_TTL_SECONDS,
             total=total,
-            showing=showing,
+            showing=len(rows),
             current_limit=limit_label
         ))
 
@@ -234,6 +265,7 @@ def main():
         print("<pre>")
         print(escape(traceback.format_exc()))
         print("</pre>")
+
 
 if __name__ == "__main__":
     main()

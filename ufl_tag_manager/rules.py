@@ -12,13 +12,13 @@ from urllib.parse import quote_plus
 cgitb.enable()
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import safe_request, get_base_path
+from env_config import safe_request, get_base_path,get_api_key
 
 BASE_PATH = get_base_path()
 EXT = ".py"
 
 RULES_URL = "https://compute.lastinger.center.ufl.edu/rules"
-API_KEY = "596fa395d7a9072c06207b119ec415164487d50a37f904d08542305466a80fce"
+API_KEY = get_api_key(1)            
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES = os.path.join(ROOT, "templates")
@@ -52,7 +52,7 @@ def parse_json_lenient(resp):
     return json.loads(text[min(candidates):])
 
 def fetch_rules_raw():
-    headers = {"Accept": "application/json", "ApiKey": API_KEY}
+    headers = {"Accept": "application/json", "ApiKey": get_api_key(1)}
     resp = safe_request(RULES_URL, headers=headers, verify=False)
     return parse_json_lenient(resp)
 
@@ -75,7 +75,6 @@ def tag_value_to_text(v):
 def normalize_rules(raw):
     out = []
 
-    # unwrap wrappers if any
     if isinstance(raw, dict) and isinstance(raw.get("rules"), list):
         raw = raw["rules"]
     if isinstance(raw, dict) and isinstance(raw.get("data"), list):

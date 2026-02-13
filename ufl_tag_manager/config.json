@@ -1,5 +1,8 @@
 {
-    "API_KEY": "kdjfghssdujhrjasdfkjasl;kdqwiueqiotru.,sdvmb,mxnvbiuwerfueghb",
+    "API_KEYS": [
+    "kdjfghssdujhrjasdfkjasl;kdqwiueqiotru.,sdvmb,mxnvbiuwerfueghb",
+    "596fa395d7a9072c06207b119ec415164487d50a37f904d08542305466a80fce"
+ ],
     "API_TIMEOUT": 60,
     "VALID_USERS": ["su.palle@ufl.edu", "npotlapadu@ufl.edu", "jhouder@ufl.edu", "acomiskey@ufl.edu", "alyssapearson@ufl.edu", "ashish.anand@ufl.edu", "sharmapratham@ufl.edu", "prekshajagtap@ufl.edu", "v.valladares@ufl.edu", "jazzmendez1992@ufl.edu", "dcshrum@ufl.edu", "dmcfarland@ufl.edu", "glipartito@ufl.edu", "jnbunn@ufl.edu"],
     "READ_WRITE_USERS": ["su.palle@ufl.edu", "npotlapadu@ufl.edu", "jhouder@ufl.edu", "acomiskey@ufl.edu", "alyssapearson@ufl.edu", "ashish.anand@ufl.edu", "sharmapratham@ufl.edu", "prekshajagtap@ufl.edu", "v.valladares@ufl.edu", "jazzmendez1992@ufl.edu", "dcshrum@ufl.edu", "dmcfarland@ufl.edu", "glipartito@ufl.edu", "jnbunn@ufl.edu"]
