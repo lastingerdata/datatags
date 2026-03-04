@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-import os
-import sys
-import cgi
-import cgitb
-import traceback
+import os, sys, cgi, cgitb, traceback
 import urllib.parse
 
 cgitb.enable()
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import api_url, get_api_key, safe_request, get_base_path, can_write
+from env_config import get_base_path, can_write
+import libs.db_ops as db_ops
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES = os.path.join(ROOT, "templates")
@@ -23,7 +21,6 @@ env = Environment(
 BASE_PATH = get_base_path()
 EXT = ".py"
 
-API_KEY = "kdjfghssdujhrjasdfkjasl;kdqwiueqiotru.,sdvmb,mxnvbiuwerfueghb"
 
 def print_headers(content_type="text/html; charset=utf-8", status=None, extra=None):
     if status:
@@ -48,6 +45,7 @@ def redirect_with_messages(messages):
     }
     print_headers(status="303 See Other", extra=extra)
     print(f'<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url={redirect_url}"></head><body>Redirecting...</body></html>')
+    sys.exit(0)
 
 
 def parse_messages_from_qs():
@@ -60,145 +58,23 @@ def parse_messages_from_qs():
         if ":" in v:
             c, t = v.split(":", 1)
             messages.append((c, t))
-
     return messages
 
 
-def _read_text(resp, limit=500):
-    try:
-        return (getattr(resp, "text", "") or "")[:limit]
-    except Exception:
-        return ""
-
-
 def fetch_tags_json():
-    """
-    Mirrors Flask /tags?format=json:
-      returns list or {"data": list}
-    """
-    import re
-    
-    headers = {
-        "Accept": "application/json",
-        "ApiKey": API_KEY
-    }
-
-    resp = safe_request(api_url("/tags?format=json"), headers=headers, verify=False)
-
-    if isinstance(resp, dict):
-        raise RuntimeError(resp.get("error", "API Error"))
-
-    status = getattr(resp, "status_code", None)
-
-    if status and not (200 <= status < 300):
-        body = _read_text(resp)
-        raise RuntimeError(f"Backend {status}: {body}")
-
-    try:
-        data = resp.json()
-        if isinstance(data, dict) and "data" in data:
-            data = data["data"]
-
-        if isinstance(data, list):
-            return data
-    except Exception:
-        pass  
-    
-    
-    html = resp.text
-    tags = []
-    
-    tag_blocks = re.findall(
-        r'<div id="row-(\d+)".*?<span class="tag-name"[^>]*>\s*(.*?)\s*</span>.*?<span id="desc-\1"[^>]*>\s*(.*?)\s*</span>',
-        html,
-        re.DOTALL
-    )
-    
-    if tag_blocks:
-        for tag_id, tag_name, desc_block in tag_blocks:
-            desc_match = re.search(r'\(Description:\s*(.*?)\s*\)', desc_block)
-            description = desc_match.group(1) if desc_match else ""
-            
-            tag_name = tag_name.strip()
-            description = description.replace('&#39;', "'").replace('&#34;', '"').replace('&lt;', '<').replace('&gt;', '>')
-            
-            tags.append({
-                "tag_id": int(tag_id),
-                "tag_name": tag_name,
-                "description": description
-            })
-        
-        return tags
-    
-    body = _read_text(resp)
-    raise RuntimeError(
-        f"Backend returned unexpected response format. Body: {body}"
-    )
+    return db_ops.get_non_segmentation_tags()
 
 
 def add_tag(name, desc, user):
-   
-    headers = {
-        "Accept": "application/json",
-        "ApiKey": API_KEY
-    }
-
-    payload = {
-        "tag_name": name,
-        "description": desc,
-        "user": user
-    }
-
-    resp = safe_request(
-        api_url("/tags"),
-        method="POST",
-        headers=headers,
-        data=payload,
-        verify=False
-    )
-
-    if isinstance(resp, dict) and resp.get("error"):
-        raise RuntimeError(resp["error"])
-
-    sc = getattr(resp, "status_code", 200)
-    if not (200 <= sc < 400):
-        raise RuntimeError(f"Add failed ({sc}): {_read_text(resp)}")
+    db_ops.add_tag(name, desc)
+    db_ops.log_action(user, "ADD_TAG", f"tag_name={name}")
 
 
 def delete_tag(tag_id, user):
-    
-    headers = {"Accept": "text/html,application/json", "ApiKey": API_KEY, "X-API-Key": API_KEY}
-
-    payload = {
-        "tag_id": tag_id, "user": user
-    }
-
-    resp = safe_request(
-        api_url("/delete_tag"),
-        method="POST",
-        headers=headers,
-        data=payload,
-        verify=False
-    )
-
-    if isinstance(resp, dict) and resp.get("error"):
-        raise RuntimeError(resp["error"])
-
-    sc = getattr(resp, "status_code", 0)
-    if not (200 <= sc < 400):
-        raise RuntimeError(f"Delete HTTP failed ({sc}): {_read_text(resp)}")
-
-    final_url = getattr(resp, "url", "") or ""
-    location = resp.headers.get("Location", "") or ""
-    body = _read_text(resp)
-
-    marker = f"{api_url('/tags')}"
-    combined = " ".join([final_url, location, body])
-
-   
-    if "deleted=0" in combined or "Cannot delete tag (likely has associated values)" in combined:
+    ok = db_ops.delete_tag(int(tag_id))
+    if not ok:
         raise RuntimeError("Cannot delete tag (likely has associated values)")
-    
+    db_ops.log_action(user, "DELETE_TAG", f"tag_id={tag_id}")
 
 
 def main():
@@ -208,12 +84,10 @@ def main():
             os.environ.get("REMOTE_USER", "")
             or os.environ.get("HTTP_REMOTE_USER", "")
             or "unknown"
-        )
-        
+        ).strip()
+
         if method == "POST" and not can_write(user):
             return redirect_with_messages([("danger", "Read-only account: you can view tags, but you cannot add/delete.")])
-      
-
 
         if method == "POST":
             form = cgi.FieldStorage()
@@ -227,13 +101,12 @@ def main():
 
                     if not name:
                         messages.append(("danger", "Tag name required"))
-               
                     else:
                         try:
                             existing_tags = fetch_tags_json()
                             exists = any(
                                 (t.get("tag_name") or "").strip().lower() == name.lower()
-                                for t in existing_tags
+                                for t in (existing_tags or [])
                                 if isinstance(t, dict)
                             )
                             if exists:
@@ -244,7 +117,6 @@ def main():
 
                         add_tag(name, desc, user)
                         messages.append(("success", f"Tag '{name}' added"))
-
 
                 elif action == "delete":
                     tag_id = (form.getfirst("tag_id") or "").strip()
@@ -265,7 +137,6 @@ def main():
 
             return redirect_with_messages(messages)
 
-      
         messages = parse_messages_from_qs()
 
         try:
@@ -280,8 +151,8 @@ def main():
             tags=tags,
             messages=messages,
             user=user,
-            page_name='tags',
-            can_write=can_write(user)
+            page_name="tags",
+            can_write=can_write(user),
         )
 
         print_headers(extra={
@@ -292,7 +163,11 @@ def main():
         sys.stdout.write(html)
 
     except Exception:
-        print_headers()
+        try:
+            print_headers()
+        except Exception:
+            pass
+
         esc = (
             traceback.format_exc()
             .replace("&", "&amp;")
@@ -300,6 +175,7 @@ def main():
             .replace(">", "&gt;")
         )
         sys.stdout.write(f"<h1>tags.py crashed</h1><pre>{esc}</pre>")
+
 
 if __name__ == "__main__":
     main()

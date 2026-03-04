@@ -1,27 +1,22 @@
 import os
-import sys
 import json
+from typing import Optional, Set, Dict, Any, List
+
 import requests
-from typing import Optional, Set, List
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-
 ENV_FILE = os.path.join(ROOT, "env.txt")
 CONFIG_FILE = os.path.join(ROOT, "config.json")
-
-TEST_API_BASE = "https://sushma.lastinger.center.ufl.edu"
-PROD_API_BASE = "https://compute.lastinger.center.ufl.edu"
-
 
 def get_environment() -> str:
     try:
         with open(ENV_FILE, "r") as f:
             env_val = f.readline().strip().lower()
-            if not env_val:
-                raise ValueError("env.txt is empty")
-            return env_val
+            if env_val in ("prod", "test", "local"):
+                return env_val
     except Exception:
-        return "local"
+        pass
+    return "local"
 
 
 def _read_config() -> dict:
@@ -47,55 +42,8 @@ def get_read_write_users() -> Set[str]:
 
 
 def can_write(user: Optional[str] = None) -> bool:
-    user = user or get_current_user()
+    user = (user or get_current_user()).strip()
     return user in get_read_write_users()
-
-
-def get_api_keys() -> List[str]:
-    data = _read_config()
-    keys = data.get("API_KEYS")
-    if isinstance(keys, list) and keys:
-        return [str(k) for k in keys if k]
-    single = data.get("API_KEY")
-    if isinstance(single, str) and single.strip():
-        return [single.strip()]
-    return []
-
-
-def get_api_key(index: int = 0) -> Optional[str]:
-    env = get_environment()
-    keys = get_api_keys()
-    if not keys:
-        return None
-    if index < 0 or index >= len(keys):
-        return None
-    key = keys[index]
-    if env == "local":
-        return key
-    user = get_current_user()
-    if user in get_valid_users():
-        return key
-    return None
-
-
-def get_api_timeout(default: int = 10) -> int:
-    data = _read_config()
-    try:
-        return int(data.get("API_TIMEOUT", default))
-    except Exception:
-        return default
-
-
-def api_base() -> str:
-    env = get_environment()
-    if env == "prod":
-        return PROD_API_BASE
-    return TEST_API_BASE
-
-
-def api_url(path: str) -> str:
-    base = api_base().rstrip("/")
-    return f"{base}/{path.lstrip('/')}"
 
 
 def get_base_path() -> str:
@@ -104,19 +52,141 @@ def get_base_path() -> str:
         return "/ufl_tag_manager"
     return "/cgi-bin/ufl_tag_manager"
 
+def _resolve_path(rel_or_abs_path: str) -> str:
+    p = (rel_or_abs_path or "").strip()
+    if not p:
+        return ""
+    if os.path.isabs(p):
+        return p
+    return os.path.abspath(os.path.join(ROOT, p))
 
-def safe_request(url: Optional[str], method: str = "GET", **kwargs):
-    url = url or api_url("")
-    timeout = kwargs.pop("timeout", get_api_timeout(10))
+
+def get_snowflake_config() -> Dict[str, Any]:
+    data = _read_config()
+    sf = (data.get("SNOWFLAKE") or {})
+    env = get_environment()
+    database = sf.get("DATABASE_PROD") if env == "prod" else sf.get("DATABASE_TEST")
+
+    return {
+        "account": (sf.get("ACCOUNT") or "").strip(),
+        "user": (sf.get("USER") or "").strip(),
+        "warehouse": (sf.get("WAREHOUSE") or "").strip(),
+        "role": (sf.get("ROLE") or "").strip(),
+        "database": (database or "").strip(),
+        "schema": (sf.get("SCHEMA") or "").strip(),
+        "auth": (sf.get("AUTH") or "").strip().upper(), 
+        "private_key_path": (sf.get("PRIVATE_KEY_PATH") or "").strip(),
+        "private_key_path_abs": _resolve_path(sf.get("PRIVATE_KEY_PATH") or ""),
+        "private_key_passphrase": (sf.get("PRIVATE_KEY_PASSPHRASE") or ""),
+        "password": (sf.get("PASSWORD") or "").strip(),
+    }
+
+def get_api_config() -> Dict[str, Any]:
+    data = _read_config()
+    api = (data.get("API") or {})
+
+    base_url = (api.get("BASE_URL") or "").strip().rstrip("/")
+
+    timeout = api.get("TIMEOUT", data.get("API_TIMEOUT", 60))
     try:
-        response = requests.request(method, url, timeout=timeout, **kwargs)
-        if response.status_code in (401, 403):
-            return {"error": "Access restricted. Please contact Sushma (su.palle@ufl.edu)."}
-        if response.status_code == 409:
-            return response
-        response.raise_for_status()
-        return response
-    except requests.exceptions.ConnectionError:
-        return {"error": "Unable to connect to test API. Contact Sushma (su.palle@ufl.edu)."}
-    except requests.RequestException as e:
-        return {"error": f"Request error: {e}"}
+        timeout = int(timeout)
+    except Exception:
+        timeout = 60
+
+    verify_ssl = api.get("VERIFY_SSL", False)
+    verify_ssl = bool(verify_ssl)
+
+    return {
+        "base_url": base_url,
+        "timeout": timeout,
+        "verify_ssl": verify_ssl,
+    }
+
+
+def api_url(path: str) -> str:
+    cfg = get_api_config()
+    base = cfg["base_url"]
+    p = (path or "").strip()
+    if not p.startswith("/"):
+        p = "/" + p
+    return base + p
+
+
+def get_api_keys() -> List[str]:
+    data = _read_config()
+    keys = data.get("API_KEYS") or []
+    out = []
+    for k in keys:
+        if isinstance(k, str) and k.strip():
+            out.append(k.strip())
+    return out
+
+
+def get_api_key(index: Optional[int] = None) -> str:
+    keys = get_api_keys()
+    if not keys:
+        return ""
+    if index is None:
+        return keys[0]
+    try:
+        return keys[int(index)]
+    except Exception:
+        return keys[0]
+
+
+def safe_request(
+    url: str,
+    method: str = "GET",
+    headers: Optional[Dict[str, str]] = None,
+    params: Optional[Dict[str, Any]] = None,
+    data: Any = None,
+    json_body: Any = None,
+    verify: Optional[bool] = None,
+    timeout: Optional[int] = None,
+):
+    cfg = get_api_config()
+    if verify is None:
+        verify = cfg["verify_ssl"]
+    if timeout is None:
+        timeout = cfg["timeout"]
+
+    try:
+        resp = requests.request(
+            method=method,
+            url=url,
+            headers=headers or {},
+            params=params,
+            data=data,
+            json=json_body,
+            timeout=timeout,
+            verify=verify,
+        )
+        return resp
+    except Exception as e:
+        return {"error": f"{type(e).__name__}: {e}"}
+
+def get_mysql_config() -> Dict[str, Any]:
+    data = _read_config()
+    mysql = data.get("MYSQL", {})
+    env = get_environment().upper()
+
+    cfg = mysql.get(env, {})
+
+    host = (cfg.get("HOST") or "").strip()
+    user = (cfg.get("USER") or "").strip()
+    password = cfg.get("PASSWORD") or ""
+    database = (cfg.get("DATABASE") or "").strip()
+    port = cfg.get("PORT", 3306)
+
+    try:
+        port = int(port)
+    except Exception:
+        port = 3306
+
+    return {
+        "host": host,
+        "user": user,
+        "password": password,
+        "database": database,
+        "port": port,
+    }

@@ -2,8 +2,36 @@
     "API_KEYS": [
     "kdjfghssdujhrjasdfkjasl;kdqwiueqiotru.,sdvmb,mxnvbiuwerfueghb",
     "596fa395d7a9072c06207b119ec415164487d50a37f904d08542305466a80fce"
- ],
+  ],
     "API_TIMEOUT": 60,
+    "API": {
+    "BASE_URL": "https://compute.lastinger.center.ufl.edu",
+    "TIMEOUT": 60,
+    "VERIFY_SSL": false
+  },
+    
     "VALID_USERS": ["su.palle@ufl.edu", "npotlapadu@ufl.edu", "jhouder@ufl.edu", "acomiskey@ufl.edu", "alyssapearson@ufl.edu", "ashish.anand@ufl.edu", "sharmapratham@ufl.edu", "prekshajagtap@ufl.edu", "v.valladares@ufl.edu", "jazzmendez1992@ufl.edu", "dcshrum@ufl.edu", "dmcfarland@ufl.edu", "glipartito@ufl.edu", "jnbunn@ufl.edu"],
-    "READ_WRITE_USERS": ["su.palle@ufl.edu", "npotlapadu@ufl.edu", "jhouder@ufl.edu", "acomiskey@ufl.edu", "alyssapearson@ufl.edu", "ashish.anand@ufl.edu", "sharmapratham@ufl.edu", "prekshajagtap@ufl.edu", "v.valladares@ufl.edu", "jazzmendez1992@ufl.edu", "dcshrum@ufl.edu", "dmcfarland@ufl.edu", "glipartito@ufl.edu", "jnbunn@ufl.edu"]
- }
+    "READ_WRITE_USERS": ["su.palle@ufl.edu", "npotlapadu@ufl.edu", "jhouder@ufl.edu", "acomiskey@ufl.edu", "alyssapearson@ufl.edu", "ashish.anand@ufl.edu", "sharmapratham@ufl.edu", "prekshajagtap@ufl.edu", "v.valladares@ufl.edu", "jazzmendez1992@ufl.edu", "dcshrum@ufl.edu", "dmcfarland@ufl.edu", "glipartito@ufl.edu", "jnbunn@ufl.edu"],
+
+
+  {
+  "MYSQL": {
+    "TEST": {
+      "HOST": "ict-test-hosting02.mysql.osg.ufl.edu",
+      "USER": "tstdatatgslstngr",
+      "PASSWORD": "yNAT/Ig4a3jGTf~kcOwV",
+      "DATABASE": "tstdatatgslstngr",
+      "PORT": 3362
+    },
+    "PROD": {
+      "HOST": "ict-prod-hosting04.mysql.osg.ufl.edu",
+      "USER": "datatgslstngr",
+      "PASSWORD": "V;ySNVR5C4E9U0i9e78-",
+      "DATABASE": "datatgslstngr",
+      "PORT": 3366
+    }
+  }
+}
+
+
+}

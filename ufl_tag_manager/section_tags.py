@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import os
-import sys
-import cgi
-import cgitb
-import traceback
+
+
+import os, sys, cgi, cgitb, traceback
 import urllib.parse
 
 cgitb.enable()
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import api_url, get_api_key, safe_request, get_base_path, can_write
+from env_config import get_base_path, can_write
+import db_ops
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES = os.path.join(ROOT, "templates")
@@ -32,13 +31,6 @@ def print_headers(content_type="text/html; charset=utf-8", status=None, extra=No
         for k, v in extra.items():
             print(f"{k}: {v}")
     print()
-
-
-def _read_text(resp, limit=800):
-    try:
-        return (getattr(resp, "text", "") or "")[:limit]
-    except Exception:
-        return ""
 
 
 def parse_messages_from_qs():
@@ -70,83 +62,6 @@ def redirect_with_messages(messages, extra_qs=None):
     sys.exit(0)
 
 
-def fetch_section_tags_json(qs_dict):
-    qs_pairs = []
-    for k, v in qs_dict.items():
-        if v not in (None, ""):
-            qs_pairs.append((k, v))
-    qs_pairs.append(("format", "json"))
-    qs = urllib.parse.urlencode(qs_pairs)
-
-    headers = {
-        "Accept": "application/json",
-        "ApiKey": get_api_key(),
-        "X-API-Key": get_api_key(),
-    }
-
-    resp = safe_request(
-        api_url("/section_tags") + ("?" + qs if qs else ""),
-        headers=headers,
-        verify=False,
-    )
-
-    if isinstance(resp, dict):
-        raise RuntimeError(resp.get("error", "API Error"))
-
-    sc = getattr(resp, "status_code", 0)
-    if not (200 <= sc < 300):
-        raise RuntimeError(f"Backend {sc}: {_read_text(resp)}")
-
-    ctype = (resp.headers.get("Content-Type") or "").lower()
-    if "application/json" not in ctype:
-        raise RuntimeError(
-            f"/section_tags?format=json did not return JSON "
-            f"(Content-Type: {ctype}). Body: {_read_text(resp)}"
-        )
-
-    data = resp.json()
-    if not isinstance(data, dict):
-        raise RuntimeError("Unexpected JSON structure from /section_tags?format=json")
-
-    data.setdefault("mappings", [])
-    data.setdefault("tag_values", [])
-    data.setdefault("unique_tag_names", [])
-    data.setdefault("total_count", len(data["mappings"]))
-    data.setdefault("total_pages", 1)
-    data.setdefault("current_page", 1)
-    data.setdefault("per_page", data["total_count"])
-    return data
-
-
-def call_delete_section_tag(d2l_id, section_id, tag_entry_id, user):
-    headers = {
-        "Accept": "text/html,application/json",
-        "ApiKey": get_api_key(),
-        "X-API-Key": get_api_key(),
-    }
-    payload = {
-        "d2l_OrgUnitId": d2l_id,
-        "genius_sectionId": section_id,
-        "tag_entry_id": tag_entry_id,
-        "user": user or "unknown",
-    }
-
-    resp = safe_request(
-        api_url("/delete_section_tag"),
-        method="POST",
-        headers=headers,
-        data=payload,
-        verify=False,
-    )
-
-    if isinstance(resp, dict) and resp.get("error"):
-        raise RuntimeError(resp["error"])
-
-    sc = getattr(resp, "status_code", 0)
-    if not (200 <= sc < 400):
-        raise RuntimeError(f"Delete failed ({sc}): {_read_text(resp)}")
-
-
 def _get_current_filters_from_qs():
     qs = urllib.parse.parse_qs(os.environ.get("QUERY_STRING", ""), keep_blank_values=True)
     return {
@@ -170,7 +85,8 @@ def main():
             os.environ.get("REMOTE_USER", "")
             or os.environ.get("HTTP_REMOTE_USER", "")
             or "unknown"
-        )
+        ).strip()
+
         if method == "POST" and not can_write(user):
             extra_qs = _get_current_filters_from_qs()
             redirect_with_messages(
@@ -200,16 +116,23 @@ def main():
                     if not tag_entry_id:
                         continue
                     try:
-                        call_delete_section_tag(d2l_id, section_id, tag_entry_id, user)
+                        if d2l_id in ("None", "", None):
+                            d2l_id_db = None
+                        else:
+                            d2l_id_db = d2l_id
+
+                        db_ops.delete_section_tag(d2l_id_db, section_id, tag_entry_id)
+                        db_ops.log_action(
+                            user,
+                            "DELETE_SECTION_TAG",
+                            f"d2l_OrgUnitId={d2l_id_db}, genius_sectionId={section_id}, tag_entry_id={tag_entry_id}"
+                        )
                         removed += 1
                     except Exception as e:
                         messages.append(("danger", f"Failed to remove tag: {e}"))
 
                 if removed > 0:
-                    if removed == 1:
-                        messages.insert(0, ("success", "Removed selected tag"))
-                    else:
-                        messages.insert(0, ("success", "Removed selected tags"))
+                    messages.insert(0, ("success", "Removed selected tag" if removed == 1 else "Removed selected tags"))
             else:
                 messages.append(("warning", "No tags selected"))
 
@@ -223,35 +146,40 @@ def main():
         genius_sectionId = (qs.get("genius_sectionId", [""])[0] or "").strip()
         tag_name_filter = (qs.get("tag_name_filter", [""])[0] or "").strip()
         tag_value_filter = (qs.get("tag_value_filter", [""])[0] or "").strip()
-        page = int((qs.get("page", ["1"])[0] or "1"))
         sort_col = (qs.get("sort_col", [""])[0] or "").strip()
         sort_dir = (qs.get("sort_dir", ["asc"])[0] or "asc").strip().lower()
         if sort_dir not in ("asc", "desc"):
             sort_dir = "asc"
 
-
         messages = parse_messages_from_qs()
 
         try:
-            data = fetch_section_tags_json({
-                "name": name,
-                "wild_card": wild_card,
-                "d2l_OrgUnitId": d2l_OrgUnitId,
-                "genius_sectionId": genius_sectionId,
-                "tag_name_filter": tag_name_filter,
-                "tag_value_filter": tag_value_filter,
-                "page": page,
-                "sort_col": sort_col,
-                "sort_dir": sort_dir,
-            })
+            mappings = db_ops.get_section_tag_mappings(
+                name=name or None,
+                d2l_OrgUnitId=d2l_OrgUnitId or None,
+                genius_sectionId=genius_sectionId or None,
+                tag_name=tag_name_filter or None,
+                tag_value=tag_value_filter or None,
+                wild_card=wild_card or None,
+                sort_col=sort_col or "",
+                sort_dir=sort_dir or "asc",
+            ) or []
 
-            mappings = data["mappings"]
-            tag_values = data["tag_values"]
-            unique_tag_names = data["unique_tag_names"]
-            total_count = data["total_count"]
-            total_pages = data["total_pages"]
-            current_page = data["current_page"]
-            per_page = data["per_page"]
+            all_vals = db_ops.get_all_tag_values() or []
+            tag_values = all_vals
+
+            unique_tag_names = sorted(
+                {
+                    (x.get("tag_name") or "").strip()
+                    for x in all_vals
+                    if isinstance(x, dict) and (x.get("tag_name") or "").strip()
+                }
+            )
+
+            total_count = len(mappings)
+            total_pages = 1
+            current_page = 1
+            per_page = total_count
 
         except Exception as e:
             mappings = []
