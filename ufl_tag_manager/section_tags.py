@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
-import os, sys, cgi, cgitb, traceback
+import os
+import sys
+import cgi
+import cgitb
+import traceback
 import urllib.parse
 
 cgitb.enable()
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from env_config import get_base_path, can_write
-import db_ops
+from libs import db_ops
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES = os.path.join(ROOT, "templates")
@@ -71,7 +74,6 @@ def _get_current_filters_from_qs():
         "genius_sectionId": (qs.get("genius_sectionId", [""])[0] or "").strip(),
         "tag_name_filter": (qs.get("tag_name_filter", [""])[0] or "").strip(),
         "tag_value_filter": (qs.get("tag_value_filter", [""])[0] or "").strip(),
-        "page": (qs.get("page", ["1"])[0] or "1").strip(),
         "sort_col": (qs.get("sort_col", [""])[0] or "").strip(),
         "sort_dir": (qs.get("sort_dir", ["asc"])[0] or "asc").strip(),
     }
@@ -88,10 +90,9 @@ def main():
         ).strip()
 
         if method == "POST" and not can_write(user):
-            extra_qs = _get_current_filters_from_qs()
             redirect_with_messages(
                 [("danger", "Read-only account: you can view section tags, but you cannot remove them.")],
-                extra_qs=extra_qs
+                extra_qs=_get_current_filters_from_qs(),
             )
 
         if method == "POST":
@@ -113,31 +114,19 @@ def main():
                     if len(parts) != 3:
                         continue
                     d2l_id, section_id, tag_entry_id = parts
-                    if not tag_entry_id:
-                        continue
                     try:
-                        if d2l_id in ("None", "", None):
-                            d2l_id_db = None
-                        else:
-                            d2l_id_db = d2l_id
-
+                        d2l_id_db = None if d2l_id in ("None", "", None) else d2l_id
                         db_ops.delete_section_tag(d2l_id_db, section_id, tag_entry_id)
-                        db_ops.log_action(
-                            user,
-                            "DELETE_SECTION_TAG",
-                            f"d2l_OrgUnitId={d2l_id_db}, genius_sectionId={section_id}, tag_entry_id={tag_entry_id}"
-                        )
+                        db_ops.log_action(user, "DELETE_SECTION_TAG", f"d2l_OrgUnitId={d2l_id_db}, genius_sectionId={section_id}, tag_entry_id={tag_entry_id}")
                         removed += 1
                     except Exception as e:
                         messages.append(("danger", f"Failed to remove tag: {e}"))
 
-                if removed > 0:
-                    messages.insert(0, ("success", "Removed selected tag" if removed == 1 else "Removed selected tags"))
+                messages.insert(0, ("success", "Removed selected tag" if removed == 1 else "Removed selected tags") if removed else ("warning", "No tags removed"))
             else:
                 messages.append(("warning", "No tags selected"))
 
-            extra_qs = _get_current_filters_from_qs()
-            redirect_with_messages(messages, extra_qs=extra_qs)
+            redirect_with_messages(messages, extra_qs=_get_current_filters_from_qs())
 
         qs = urllib.parse.parse_qs(os.environ.get("QUERY_STRING", ""), keep_blank_values=True)
         name = (qs.get("name", [""])[0] or "").strip()
@@ -166,29 +155,12 @@ def main():
             ) or []
 
             all_vals = db_ops.get_all_tag_values() or []
-            tag_values = all_vals
-
-            unique_tag_names = sorted(
-                {
-                    (x.get("tag_name") or "").strip()
-                    for x in all_vals
-                    if isinstance(x, dict) and (x.get("tag_name") or "").strip()
-                }
-            )
-
-            total_count = len(mappings)
-            total_pages = 1
-            current_page = 1
-            per_page = total_count
+            unique_tag_names = sorted({(x.get("tag_name") or "").strip() for x in all_vals if isinstance(x, dict) and (x.get("tag_name") or "").strip()})
 
         except Exception as e:
             mappings = []
-            tag_values = []
+            all_vals = []
             unique_tag_names = []
-            total_count = 0
-            total_pages = 1
-            current_page = 1
-            per_page = 0
             messages.append(("danger", f"Failed to load section tags: {e}"))
 
         html = env.get_template("section_tags.html").render(
@@ -197,12 +169,12 @@ def main():
             messages=messages,
             user=user,
             mappings=mappings,
-            tag_values=tag_values,
+            tag_values=all_vals,
             unique_tag_names=unique_tag_names,
-            total_count=total_count,
-            total_pages=total_pages,
-            current_page=current_page,
-            per_page=per_page,
+            total_count=len(mappings),
+            total_pages=1,
+            current_page=1,
+            per_page=len(mappings),
             name=name,
             page_name="section_tags",
             wild_card=wild_card,
@@ -223,7 +195,6 @@ def main():
             print_headers()
         except Exception:
             pass
-
         esc = (
             traceback.format_exc()
             .replace("&", "&amp;")

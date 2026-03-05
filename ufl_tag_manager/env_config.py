@@ -167,10 +167,10 @@ def safe_request(
 
 def get_mysql_config() -> Dict[str, Any]:
     data = _read_config()
-    mysql = data.get("MYSQL", {})
-    env = get_environment().upper()
+    mysql = data.get("MYSQL", {}) or {}
+    env = get_environment().upper()  # TEST / PROD / LOCAL
 
-    cfg = mysql.get(env, {})
+    cfg = mysql.get(env, {}) or {}
 
     host = (cfg.get("HOST") or "").strip()
     user = (cfg.get("USER") or "").strip()
@@ -181,7 +181,7 @@ def get_mysql_config() -> Dict[str, Any]:
     try:
         port = int(port)
     except Exception:
-        port = 3306
+        port = 3362
 
     return {
         "host": host,

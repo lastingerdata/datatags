@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import os, sys, cgi, cgitb, time
+import os
+import sys
+import cgi
+import cgitb
 import urllib.parse
+import time
 from html import escape
 
 cgitb.enable()
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from env_config import get_base_path, can_write
-import db_ops
+from libs import db_ops
 
 BASE_PATH = get_base_path()
 EXT = ".py"
@@ -77,17 +81,13 @@ def get_param_list(fs, name):
 
 
 def build_url_for(name, **kw):
-    route_map = {
-        "tags_index": f"{BASE_PATH}/tags_index{EXT}",
-        "section_bulk_inserts": f"{BASE_PATH}/section_bulk_inserts{EXT}",
-    }
-    base = route_map.get(name, f"{BASE_PATH}/{name}{EXT}")
+    base = f"{BASE_PATH}/{name}{EXT}"
     if kw:
         return base + "?" + urllib.parse.urlencode(kw, doseq=True)
     return base
 
 
-def section_bulk_inserts():
+def section_tags_inserts():
     fs = cgi.FieldStorage()
     method = os.environ.get("REQUEST_METHOD", "GET").upper()
     qs_all = urllib.parse.parse_qs(os.environ.get("QUERY_STRING", ""), keep_blank_values=True)
@@ -146,21 +146,21 @@ def section_bulk_inserts():
 
         if not can_write(session_user):
             return redirect_with_messages(
-                f"{BASE_PATH}/section_bulk_inserts{EXT}",
+                f"{BASE_PATH}/section_tags_inserts{EXT}",
                 [("danger", "Read-only account: you can view courses, but you cannot add tags.")],
                 keep_qs,
             )
 
         if not tag_entry_id:
             return redirect_with_messages(
-                f"{BASE_PATH}/section_bulk_inserts{EXT}",
+                f"{BASE_PATH}/section_tags_inserts{EXT}",
                 [("danger", "Please select a tag to apply.")],
                 keep_qs,
             )
 
         if not selected:
             return redirect_with_messages(
-                f"{BASE_PATH}/section_bulk_inserts{EXT}",
+                f"{BASE_PATH}/section_tags_inserts{EXT}",
                 [("danger", "Please select at least one course.")],
                 keep_qs,
             )
@@ -169,34 +169,28 @@ def section_bulk_inserts():
             ok = db_ops.map_tag_to_sections(tag_entry_id, selected)
             if not ok:
                 return redirect_with_messages(
-                    f"{BASE_PATH}/section_bulk_inserts{EXT}",
+                    f"{BASE_PATH}/section_tags_inserts{EXT}",
                     [("danger", "Failed to apply tag (maybe already mapped).")],
                     keep_qs,
                 )
 
-            db_ops.log_action(
-                session_user,
-                "BULK_MAP_SECTION_TAGS",
-                f"tag_entry_id={tag_entry_id}, count={len(selected)}",
-            )
+            db_ops.log_action(session_user, "BULK_MAP_SECTION_TAGS", f"tag_entry_id={tag_entry_id}, count={len(selected)}")
 
             return redirect_with_messages(
-                f"{BASE_PATH}/section_bulk_inserts{EXT}",
+                f"{BASE_PATH}/section_tags_inserts{EXT}",
                 [("success", "Tag applied to selected courses.")],
                 keep_qs,
             )
-
         except Exception as e:
             return redirect_with_messages(
-                f"{BASE_PATH}/section_bulk_inserts{EXT}",
+                f"{BASE_PATH}/section_tags_inserts{EXT}",
                 [("danger", f"Failed to apply tag: {e}")],
                 keep_qs,
             )
 
     try:
         tag_values = db_ops.get_all_tag_values() or []
-
-        results, total_count = db_ops.get_filtered_course_sections1(
+        courses, total_count = db_ops.get_filtered_course_sections1(
             search=search or None,
             search_course=search_course or None,
             start_date=start_date or None,
@@ -209,10 +203,7 @@ def section_bulk_inserts():
             page=str(page),
             per_page=str(per_page_val),
         )
-
-        courses = results or []
         total_pages = max(1, (int(total_count) + int(per_page_val) - 1) // int(per_page_val))
-
     except Exception as e:
         tag_values = []
         courses = []
@@ -233,8 +224,7 @@ def section_bulk_inserts():
 
     template = env.get_template("section_tags_inserts.html")
     html = template.render(
-        get_flashed_messages=lambda with_categories=False:
-            flashed if with_categories else [m for _, m in flashed],
+        get_flashed_messages=lambda with_categories=False: flashed if with_categories else [m for _, m in flashed],
         base_path=BASE_PATH,
         ext=EXT,
         tag_values=tag_values,
@@ -248,7 +238,7 @@ def section_bulk_inserts():
         end_date=end_date,
         department=department,
         term=term,
-        page_name="section_bulk_inserts",
+        page_name="section_tags_inserts",
         tagged_status=tagged_status,
         page=page,
         per_page=per_page_val,
@@ -271,7 +261,7 @@ def section_bulk_inserts():
 
 if __name__ == "__main__":
     try:
-        section_bulk_inserts()
+        section_tags_inserts()
     except Exception as e:
         print_headers()
         sys.stdout.write(f"<h3>Unhandled error</h3><pre>{escape(str(e))}</pre>")
