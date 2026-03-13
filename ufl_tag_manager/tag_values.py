@@ -11,7 +11,7 @@ import urllib.parse
 cgitb.enable()
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import get_base_path, can_write, get_current_user
+from env_config import get_base_path, can_write, get_current_user, can_edit_tags
 from libs import db_ops
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -97,7 +97,7 @@ def main():
 
         # POST actions
         if method == "POST":
-            if not rw:
+            if not can_edit_tags(user):
                 redirect_with_messages(
                     [("danger", "Read-only account: you can view tag values, but you can’t add/edit/delete them.")],
                     tag_id=selected_tag_id,
@@ -137,7 +137,6 @@ def main():
 
                 elif action == "update":
                     tag_entry_id = _safe_int(form.getfirst("tag_entry_id"))
-                    # IMPORTANT: these names must match your HTML/JS
                     updated_value = (form.getfirst("updated_value") or "").strip()
                     updated_description = (form.getfirst("updated_description") or "").strip()
 
@@ -174,8 +173,6 @@ def main():
             tags = []
             messages.append(("danger", f"Failed to load tags: {e}"))
 
-        # ✅ THE FIX FOR ISSUE #3:
-        # do NOT load values unless a valid tag_id is present
         values = []
         if tag_id_int is not None:
             try:
@@ -193,7 +190,7 @@ def main():
             messages=messages,
             user=user,
             page_name="tag_values",
-            can_write=rw,
+            can_write=can_edit_tags(user),
         )
 
         print_headers(extra={

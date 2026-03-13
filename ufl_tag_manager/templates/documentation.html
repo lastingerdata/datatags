@@ -302,6 +302,9 @@ endblock %} {% block content %}
         </li>
         <li><a href="#bulk-tagging">Bulk Tagging & Tag Status Tracking</a></li>
         <li><a href="#map-tags">Steps to Map Tags</a></li>
+        <li><a href="#logs">Logs</a></li>
+        <li><a href="#rules">Rules</a></li>
+        <li><a href="#web-logs">Web Logs</a></li>
       </ul>
     </div>
   </div>
@@ -563,6 +566,94 @@ endblock %} {% block content %}
       <li>Apply the tag using the bulk tagging interface.</li>
       <li>Confirm tagging on the Section Tag Mappings page.</li>
     </ul>
+
+    
+    <!-- Logs Section -->
+    <h2 id="logs">Logs</h2>
+
+    <p>
+    The Logs feature returns JSON reports corresponding to backend jobs that run in production.
+    These jobs write output to a mounted Docker reports volume, and the system aggregates these
+    reports into a single JSON list.
+    </p>
+
+    <h3>Log Structure</h3>
+
+    <p>Each report contains the following fields:</p>
+
+    <ul style="list-style-type: disc">
+    <li><strong>Report Name:</strong> Name of the job or report.</li>
+    <li><strong>Description:</strong> Description of the job.</li>
+    <li><strong>Start Time:</strong> Execution start time.</li>
+    <li><strong>End Time:</strong> Execution end time.</li>
+    <li><strong>Job Details:</strong> Includes the log file path and the final log message entry.</li>
+    <li><strong>Job History:</strong> List of the latest 360 runs.</li>
+    </ul>
+
+    <p>Each job history entry includes:</p>
+
+    <ul style="list-style-type: disc">
+    <li><strong>Result:</strong> SUCCESS or FAILURE.</li>
+    <li><strong>Start Time:</strong> Execution start time.</li>
+    <li><strong>End Time:</strong> Execution end time.</li>
+    </ul>
+  
+    <!-- Rules Section -->
+    <h2 id="rules">Rules</h2>
+
+    <p>
+    Rules are structured procedures that iterate over data from a defined endpoint.
+    They apply specific actions to improve data cleanliness and ensure consistent tagging.
+    Rules help maintain standardized classifications across sections.
+    </p>
+
+    <p>
+    Rules iterate over data returned by an endpoint and apply logic in the defined execution order.
+    They support validation and data quality improvement.
+    </p>
+
+    <h3>Rule Components</h3>
+
+    <p>Each rule contains the following fields:</p>
+
+    <ul style="list-style-type: disc">
+    <li><strong>Rule Name:</strong> Unique identifier of the rule.<br>
+    Example: <em>enrollments_Emergent_Micro_Credential_program_part_rule</em></li>
+
+    <li><strong>Section Tag:</strong> The tag group the rule applies to.<br>
+    Example: <em>section_tag</em></li>
+
+    <li><strong>Tag Name & Tag Value:</strong> The classification being evaluated or applied.</li>
+
+    <li><strong>Order:</strong> Numerical value that determines execution sequence. Rules run in ascending order.</li>
+
+    <li><strong>Method:</strong> References the Python logic stored in <strong>api_rules_logic.py</strong>.</li>
+
+    <li><strong>Description:</strong> Explains what the rule does.</li>
+    </ul>
+
+    <!-- Web Logs Section -->
+    <h2 id="web-logs">Web Logs</h2>
+
+    <p>
+    Web Logs return the most recent 500 web requests in chronological order.
+    They provide request-level visibility for debugging and monitoring.
+    </p>
+
+    <p>
+    Web Logs are useful for diagnosing request failures and validating system behavior.
+    </p>
+
+    <h3>Web Log Fields</h3>
+
+    <p>Each entry includes:</p>
+
+    <ul style="list-style-type: disc">
+    <li><strong>Session:</strong> Unique session ID.</li>
+    <li><strong>Start Time:</strong> Time the request started.</li>
+    <li><strong>Messages:</strong> Execution details of the request.</li>
+    </ul>
+
   </div>
 </div>
 

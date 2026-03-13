@@ -42,44 +42,22 @@ def get_read_write_users() -> Set[str]:
 
 
 def can_write(user: Optional[str] = None) -> bool:
-    user = (user or get_current_user()).strip()
+    user = (user or get_current_user())
     return user in get_read_write_users()
 
+def get_tag_admin_users() -> Set[str]:
+    data = _read_config()
+    return set(data.get("TAG_ADMIN_USERS", []))
+
+def can_edit_tags(user: Optional[str] = None) -> bool:
+    user = (user or get_current_user())
+    return user in get_tag_admin_users()
 
 def get_base_path() -> str:
     env = get_environment()
     if env in ("prod", "test"):
         return "/ufl_tag_manager"
     return "/cgi-bin/ufl_tag_manager"
-
-def _resolve_path(rel_or_abs_path: str) -> str:
-    p = (rel_or_abs_path or "").strip()
-    if not p:
-        return ""
-    if os.path.isabs(p):
-        return p
-    return os.path.abspath(os.path.join(ROOT, p))
-
-
-def get_snowflake_config() -> Dict[str, Any]:
-    data = _read_config()
-    sf = (data.get("SNOWFLAKE") or {})
-    env = get_environment()
-    database = sf.get("DATABASE_PROD") if env == "prod" else sf.get("DATABASE_TEST")
-
-    return {
-        "account": (sf.get("ACCOUNT") or "").strip(),
-        "user": (sf.get("USER") or "").strip(),
-        "warehouse": (sf.get("WAREHOUSE") or "").strip(),
-        "role": (sf.get("ROLE") or "").strip(),
-        "database": (database or "").strip(),
-        "schema": (sf.get("SCHEMA") or "").strip(),
-        "auth": (sf.get("AUTH") or "").strip().upper(), 
-        "private_key_path": (sf.get("PRIVATE_KEY_PATH") or "").strip(),
-        "private_key_path_abs": _resolve_path(sf.get("PRIVATE_KEY_PATH") or ""),
-        "private_key_passphrase": (sf.get("PRIVATE_KEY_PASSPHRASE") or ""),
-        "password": (sf.get("PASSWORD") or "").strip(),
-    }
 
 def get_api_config() -> Dict[str, Any]:
     data = _read_config()
@@ -181,7 +159,7 @@ def get_mysql_config() -> Dict[str, Any]:
     try:
         port = int(port)
     except Exception:
-        port = 3362
+        port = 3306
 
     return {
         "host": host,

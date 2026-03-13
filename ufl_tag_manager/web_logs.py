@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 import os
 import json
 import cgitb
@@ -9,31 +8,22 @@ import urllib.parse
 from html import escape
 from time import time
 import heapq
-
 cgitb.enable()
-
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from env_config import safe_request, get_base_path, get_api_key
-
 BASE_PATH = get_base_path()
 EXT = ".py"
-
 WEB_LOGS_URL = "https://compute.lastinger.center.ufl.edu/web_logs"
-
 CACHE_TTL_SECONDS = 300
 DEFAULT_LIMIT = 50
-
 CACHE_FILE = "/tmp/ufl_web_logs_cache.json"
 LOCK_FILE = "/tmp/ufl_web_logs_cache.lock"
-
 ROOT = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES = os.path.join(ROOT, "templates")
-
 env = Environment(
     loader=FileSystemLoader(TEMPLATES),
     autoescape=select_autoescape(["html", "xml"])
 )
-
 
 def parse_json_lenient(resp):
     if isinstance(resp, (dict, list)):
@@ -42,20 +32,16 @@ def parse_json_lenient(resp):
         return resp.json()
     except Exception:
         pass
-
     text = (getattr(resp, "text", "") or "").lstrip()
     if text.lower().startswith("pretty-print"):
         text = text.split("\n", 1)[1] if "\n" in text else ""
-
     start_obj = text.find("{")
     start_arr = text.find("[")
     starts = [i for i in (start_obj, start_arr) if i != -1]
     if not starts:
         snippet = text[:200].replace("<", "&lt;").replace(">", "&gt;")
         raise RuntimeError(f"web_logs endpoint did not return JSON. Snippet: {snippet}")
-
     return json.loads(text[min(starts):])
-
 
 def _read_file_cache():
     try:
@@ -73,7 +59,6 @@ def _read_file_cache():
     except Exception:
         return None
 
-
 def _write_file_cache(ts, entries, meta):
     try:
         tmp = CACHE_FILE + ".tmp"
@@ -82,7 +67,6 @@ def _write_file_cache(ts, entries, meta):
         os.replace(tmp, CACHE_FILE)
     except Exception:
         pass
-
 
 def _acquire_lock(max_wait_seconds=1.5):
     start = time()
@@ -98,14 +82,12 @@ def _acquire_lock(max_wait_seconds=1.5):
         except Exception:
             return False
 
-
 def _release_lock():
     try:
         if os.path.exists(LOCK_FILE):
             os.remove(LOCK_FILE)
     except Exception:
         pass
-
 
 def _make_headers():
     headers = {"Accept": "application/json"}
@@ -114,46 +96,34 @@ def _make_headers():
         headers["ApiKey"] = api_key
     return headers
 
-
 def fetch_web_logs_or_error():
     headers = _make_headers()
-
     resp = safe_request(WEB_LOGS_URL, headers=headers, verify=False)
-
     if isinstance(resp, dict) and resp.get("error"):
         return [], {"ok": False, "status": None, "error": str(resp.get("error"))}
-
     status = getattr(resp, "status_code", None)
-
     try:
         data = parse_json_lenient(resp)
     except Exception as e:
         txt = (getattr(resp, "text", "") or "")[:300]
         return [], {"ok": False, "status": status, "error": f"{e} | body: {txt}"}
-
     if isinstance(data, dict) and data.get("error"):
         return [], {"ok": False, "status": status, "error": str(data.get("error"))}
-
     if isinstance(data, list):
         logs = [x for x in data if isinstance(x, dict)]
         return logs, {"ok": True, "status": status, "count": len(logs)}
-
     if isinstance(data, dict) and isinstance(data.get("logs"), list):
         logs = [x for x in data["logs"] if isinstance(x, dict)]
         return logs, {"ok": True, "status": status, "count": len(logs)}
-
     return [], {"ok": False, "status": status, "error": "Unexpected response format"}
-
 
 def get_cached_or_fetch():
     now = time()
-
     cached = _read_file_cache()
     if cached:
         age = now - float(cached.get("ts") or 0)
         if age < CACHE_TTL_SECONDS:
             return cached.get("entries") or [], cached.get("meta") or {}, True
-
     got_lock = _acquire_lock()
     try:
         cached2 = _read_file_cache()
@@ -161,7 +131,6 @@ def get_cached_or_fetch():
             age2 = now - float(cached2.get("ts") or 0)
             if age2 < CACHE_TTL_SECONDS:
                 return cached2.get("entries") or [], cached2.get("meta") or {}, True
-
         entries, meta = fetch_web_logs_or_error()
         _write_file_cache(now, entries, meta)
         return entries, meta, False
@@ -169,14 +138,11 @@ def get_cached_or_fetch():
         if got_lock:
             _release_lock()
 
-
 def get_limit_from_qs():
     qs = urllib.parse.parse_qs(os.environ.get("QUERY_STRING", ""))
     raw = (qs.get("limit", [str(DEFAULT_LIMIT)])[0] or "").strip().lower()
-
     if raw in ("all", "max"):
         return None, "all"
-
     try:
         n = int(raw)
         if n <= 0:
@@ -185,11 +151,9 @@ def get_limit_from_qs():
     except Exception:
         return DEFAULT_LIMIT, str(DEFAULT_LIMIT)
 
-
 def filter_messages(msgs):
     if not isinstance(msgs, list):
         msgs = [str(msgs)]
-
     out = []
     for m in msgs:
         if not isinstance(m, str):
@@ -204,7 +168,6 @@ def filter_messages(msgs):
         out.append(m)
     return out
 
-
 def build_rows(entries):
     rows = []
     for e in entries:
@@ -215,22 +178,17 @@ def build_rows(entries):
         })
     return rows
 
-
 def _start_time_key(e):
     return str(e.get("start_time") or "")
-
 
 def main():
     try:
         limit, limit_label = get_limit_from_qs()
         entries, meta, cache_hit = get_cached_or_fetch()
-
         messages = []
         if not meta.get("ok"):
             messages.append(("danger", f"web_logs fetch failed (status={meta.get('status')}): {meta.get('error')}"))
-
         total = len(entries)
-
         if total == 0:
             chosen = []
         else:
@@ -240,9 +198,7 @@ def main():
                 show_n = min(limit, total)
                 chosen = heapq.nlargest(show_n, entries, key=_start_time_key)
                 chosen = sorted(chosen, key=_start_time_key, reverse=True)
-
         rows = build_rows(chosen)
-
         print("Content-Type: text/html; charset=utf-8")
         print()
         print(env.get_template("web_logs.html").render(
@@ -257,7 +213,6 @@ def main():
             showing=len(rows),
             current_limit=limit_label
         ))
-
     except Exception:
         print("Content-Type: text/html; charset=utf-8")
         print()
@@ -265,7 +220,6 @@ def main():
         print("<pre>")
         print(escape(traceback.format_exc()))
         print("</pre>")
-
 
 if __name__ == "__main__":
     main()

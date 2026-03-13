@@ -11,7 +11,7 @@ import urllib.parse
 cgitb.enable()
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import get_base_path, can_write
+from env_config import get_base_path, can_write, can_edit_tags
 from libs import db_ops
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -73,7 +73,7 @@ def main():
             or "unknown"
         ).strip()
 
-        if method == "POST" and not can_write(user):
+        if method == "POST" and not can_edit_tags(user):
             return redirect_with_messages([("danger", "Read-only account: you can view tags, but you cannot add/delete.")])
 
         if method == "POST":
@@ -140,7 +140,7 @@ def main():
             messages=messages,
             user=user,
             page_name="tags",
-            can_write=can_write(user),
+            can_write=can_edit_tags(user),
         )
 
         print_headers(extra={
