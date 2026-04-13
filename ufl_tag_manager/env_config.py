@@ -168,3 +168,7 @@ def get_mysql_config() -> Dict[str, Any]:
         "database": database,
         "port": port,
     }
+
+def is_admin_only_mode() -> bool:
+    data = _read_config()
+    return bool(data.get("ADMIN_ONLY_MODE", False))

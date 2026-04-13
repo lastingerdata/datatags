@@ -1,0 +1,453 @@
+{% set prefill = prefill if prefill is defined else {} %}
+{% extends 'tags_base.html' %}
+{% block title %}Dataset Requests{% endblock %}
+
+{% block content %}
+<style>
+  /* ── Reset container ── */
+  .container.mt-4 { max-width:100% !important; padding:0 !important; margin:0 !important; }
+
+  /* ── Page layout ── */
+  .ds-page  { padding: 20px 40px 60px; width: 90vw; max-width: 90vw; margin: 0 auto; }
+  .ds-head  { display: flex; align-items: center; gap: 24px; margin-bottom: 28px; }
+  .ds-bar   { width: 4px; height: 60px; background: #FA4616; flex-shrink: 0; }
+  .ds-title { font-family: 'Poppins', sans-serif; font-size: 48px; font-weight: 700; color: #002657; margin: 0; }
+
+  /* ── Card ── */
+  .ds-card  { background: #fff; border: 1px solid #E5E7EB; border-radius: 8px; padding: 22px; margin-bottom: 24px; }
+
+  /* ── Form grid ── */
+  .ds-grid     { display: grid; grid-template-columns: repeat(2, minmax(280px, 1fr)); gap: 18px 20px; }
+  .ds-full     { grid-column: 1 / -1; }
+  .ds-label    { display: block; margin-bottom: 6px; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 600; color: #111827; }
+  .ds-hint     { display: block; margin-top: 4px; font-size: 11px; color: #9CA3AF; font-family: 'IBM Plex Sans', sans-serif; }
+
+  /* ── Inputs ── */
+  .ds-input, .ds-select, .ds-textarea, .ds-readonly {
+    width: 100%; box-sizing: border-box; padding: 10px 12px;
+    border: 1px solid #D1D5DB; border-radius: 6px;
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; color: #111827; background: #fff;
+  }
+  .ds-textarea { min-height: 100px; resize: vertical; }
+  .ds-readonly { background: #F9FAFB; color: #374151; }
+
+  /* ── Header rows ── */
+  .hdr-row     { display: grid; grid-template-columns: minmax(240px,1fr) minmax(300px,2fr) auto; gap: 10px; margin-bottom: 10px; align-items: start; }
+  .hdr-row.tag { grid-template-columns: minmax(240px,1fr) minmax(200px,1fr) minmax(200px,1fr) auto; }
+  .hdr-desc    { margin-top: 4px; color: #6B7280; font-size: 12px; }
+  .hdr-help    { border: 1px solid #E5E7EB; border-radius: 6px; padding: 12px; background: #F9FAFB; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; }
+  .hdr-help ul { margin: 8px 0 0 18px; padding: 0; }
+  .req-chip    { display: inline-block; margin-left: 6px; padding: 2px 6px; background: #FEE2E2; color: #991B1B; border-radius: 999px; font-size: 11px; font-weight: 700; }
+
+  /* ── Nightly refresh ── */
+  .nightly     { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: #F0F4FF; border: 1px solid #BFDBFE; border-radius: 8px; }
+  .nightly-lbl { font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 600; color: #1E40AF; white-space: nowrap; }
+  .nightly-txt { font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; color: #6B7280; flex: 1; }
+  .nightly-sel { padding: 8px 12px; border: 1px solid #BFDBFE; border-radius: 6px; font-size: 14px; font-family: 'IBM Plex Sans', sans-serif; background: #fff; color: #111827; min-width: 160px; }
+
+  /* ── Buttons ── */
+  .btn-row  { margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn-main { border: none; border-radius: 6px; padding: 10px 18px; cursor: pointer; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 600; background: #002657; color: #fff; transition: background 0.15s; }
+  .btn-main:hover { background: #001a40; }
+  .btn-sm   { border: none; border-radius: 6px; padding: 8px 12px; cursor: pointer; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 600; background: #E5E7EB; color: #111827; }
+  .btn-rm   { border: none; border-radius: 6px; padding: 10px 18px; cursor: pointer; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 600; background: #E5E7EB; color: #111827; }
+  .btn-rm:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  /* ── Alerts ── */
+  .alert     { position: relative; padding: 16px 48px 16px 24px; border-radius: 6px; margin-bottom: 24px; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; animation: slideIn 0.3s ease-out; }
+  .alert-ok  { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
+  .alert-err { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+  .alert-inf { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
+  .alert-x   { position: absolute; top: 50%; right: 12px; transform: translateY(-50%); background: none; border: none; font-size: 20px; cursor: pointer; color: inherit; opacity: 0.7; }
+  .alert-x:hover { opacity: 1; }
+  .alert.out { animation: fadeOut 0.3s ease-out forwards; }
+
+  /* ── Access denied ── */
+  .denied      { text-align: center; padding: 60px 40px; }
+  .denied-icon { font-size: 52px; margin-bottom: 16px; }
+  .denied-h    { font-family: 'Poppins', sans-serif; font-size: 26px; font-weight: 700; color: #002657; margin-bottom: 12px; }
+  .denied-p    { font-size: 14px; color: #6B7280; line-height: 1.7; margin-bottom: 8px; }
+  .denied-user { display: inline-block; margin: 12px 0 20px; padding: 6px 16px; background: #F3F4F6; border-radius: 999px; font-size: 13px; color: #374151; font-weight: 500; }
+  .denied-lnk  { display: inline-flex; align-items: center; gap: 6px; margin-top: 24px; padding: 10px 22px; background: #002657; color: #fff; border-radius: 6px; font-size: 14px; font-weight: 600; text-decoration: none; }
+  .denied-lnk:hover { background: #001a40; color: #fff; text-decoration: none; }
+
+  /* ── Animations ── */
+  @keyframes slideIn { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeOut { from { opacity:1; transform:translateY(0); } to { opacity:0; transform:translateY(-10px); } }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .ds-grid, .hdr-row, .hdr-row.tag { grid-template-columns: 1fr; }
+    .nightly { flex-direction: column; align-items: flex-start; }
+  }
+  @media (max-width: 768px) { .ds-page { padding: 24px 20px; } .ds-title { font-size: 34px; } }
+</style>
+
+<div class="ds-page">
+
+  {% if access_denied %}
+  {# ── ACCESS DENIED ── #}
+  <div class="ds-card denied">
+    <div class="denied-icon">🔒</div>
+    <h2 class="denied-h">Access Restricted</h2>
+    <p class="denied-p">This page is currently only available to administrators.</p>
+    <div class="denied-user">{{ current_user }}</div>
+    <p class="denied-p">Your account does not have the required permissions to view this page.</p>
+    <a class="denied-lnk" href="{{ base_path }}/home.py">← Back to Home</a>
+  </div>
+
+  {% else %}
+  {# ── MAIN PAGE ── #}
+
+  <div class="ds-head">
+    <div class="ds-bar"></div>
+    <h1 class="ds-title">Dataset Requests</h1>
+  </div>
+
+  {# Alerts #}
+  {% if swagger_error %}
+    <div class="alert alert-err" data-alert>
+      <button class="alert-x" data-close>&times;</button>
+      Failed to load endpoint list: {{ swagger_error }}
+    </div>
+  {% endif %}
+  {% if message %}
+    <div class="alert alert-ok" data-alert>
+      <button class="alert-x" data-close>&times;</button>
+      {{ message }}
+    </div>
+  {% endif %}
+  {% if error %}
+    <div class="alert alert-err" data-alert>
+      <button class="alert-x" data-close>&times;</button>
+      {{ error }}
+    </div>
+  {% endif %}
+  {% if warn_refresh %}
+    <div class="alert alert-inf" data-alert>
+      <button class="alert-x" data-close>&times;</button>
+      This dataset already exists. Use Refresh to recreate it.
+    </div>
+  {% endif %}
+
+  {# Form #}
+  <div class="ds-card">
+    <form method="POST">
+      <div class="ds-grid">
+
+        {# Endpoint #}
+        <div>
+          <label class="ds-label" for="endpoint">Endpoint</label>
+          <select class="ds-select" id="endpoint" name="endpoint" required>
+            <option value="">-- Select endpoint --</option>
+            {% for ep in endpoint_list %}
+              <option value="{{ ep }}" {% if prefill.endpoint == ep %}selected{% endif %}>{{ ep }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        {# Table Name #}
+        <div>
+          <label class="ds-label" for="table_name">Table Name</label>
+          <input class="ds-input" type="text" id="table_name" name="table_name"
+            value="{{ prefill.table_name | default('') }}" placeholder="Enter table name" required>
+        </div>
+
+        {# Schema #}
+        <div>
+          <label class="ds-label">Schema</label>
+          {% if is_admin %}
+            <input class="ds-input" type="text" id="schema_name" name="schema_name"
+              value="{{ prefill.schema_name | default(schema_name) }}"
+              placeholder="Enter schema name" required>
+            <span class="ds-hint">Admin — enter any valid Snowflake schema. Defaults to your schema ({{ derived_schema }}).</span>
+          {% else %}
+            <div class="ds-readonly">{{ schema_name }}</div>
+            <span class="ds-hint">Automatically set from your account.</span>
+          {% endif %}
+        </div>
+
+        {# Allowed headers help #}
+        <div class="ds-full">
+          <label class="ds-label">Allowed Headers for Selected Endpoint</label>
+          <div class="hdr-help" id="hdr-help">Select an endpoint to view available headers.</div>
+        </div>
+
+        {# Headers #}
+        <div class="ds-full">
+          <label class="ds-label">Headers</label>
+          <div id="hdr-container"></div>
+          <button type="button" class="btn-sm" id="add-hdr">+ Add Header</button>
+          <span class="ds-hint">Required headers are auto-added. Duplicates are not allowed.</span>
+        </div>
+
+        {# Description #}
+        <div class="ds-full">
+          <label class="ds-label" for="dataset_description">Description</label>
+          <textarea class="ds-textarea" id="dataset_description" name="dataset_description"
+            placeholder="Short description of why this dataset is being created"
+            required>{{ prefill.dataset_description | default('') }}</textarea>
+        </div>
+
+        {# Nightly refresh — admin only #}
+        {% if is_admin %}
+        <div class="ds-full">
+          <div class="nightly">
+            <span class="nightly-lbl">🔄 Nightly Refresh</span>
+            <span class="nightly-txt">If Yes, the Snowflake processor will automatically refresh this dataset every night.</span>
+            <select name="nightly_refresh" class="nightly-sel">
+              <option value="0" {% if not prefill.nightly_refresh %}selected{% endif %}>No</option>
+              <option value="1" {% if prefill.nightly_refresh %}selected{% endif %}>Yes — refresh nightly</option>
+            </select>
+          </div>
+        </div>
+        {% endif %}
+
+      </div>{# /ds-grid #}
+
+      <div class="btn-row">
+        <button type="submit" name="action" value="submit" class="btn-main">Submit Request</button>
+        {% if warn_refresh %}
+          <button type="submit" name="action" value="refresh" class="btn-main">Refresh Dataset</button>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{% if not access_denied %}
+<script>
+(function () {
+  // ── Data from Python ──
+  const EP_MAP   = {{ endpoint_map_json | safe }};
+  const PREFILL  = {{ prefill_headers_json | safe }};
+  const SEGMENTS = {{ segment_values_json | safe }};
+  const TAGS     = {{ all_tags_json | safe }};
+  const TAG_VALS = {{ all_tag_values_json | safe }};
+
+  // ── Helpers ──
+  function esc(v) {
+    return String(v || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function selectedEp() {
+    const s = document.getElementById('endpoint');
+    return s ? s.value : '';
+  }
+
+  function allParams(ep) {
+    if (!ep || !EP_MAP[ep]) return [];
+    return (EP_MAP[ep].parameters || []).filter(p => p && p.in === 'header' && p.name);
+  }
+
+  function visibleParams(ep) {
+    return allParams(ep).filter(p => p['x-show_on_website'] === true);
+  }
+
+  function isTag(name) { return (name || '').startsWith('tag'); }
+
+  function isRequired(ep, name) {
+    const p = allParams(ep).find(p => p.name === name);
+    return p ? !!p.required : false;
+  }
+
+  function usedNames() {
+    return [...document.querySelectorAll('select[name="header_name"]')]
+      .map(s => s.value).filter(Boolean);
+  }
+
+  // ── Alert handling ──
+  function dismiss(el) {
+    if (!el) return;
+    el.classList.add('out');
+    setTimeout(() => el.remove(), 300);
+  }
+
+  document.querySelectorAll('[data-alert]').forEach(el => {
+    el.querySelector('[data-close]')?.addEventListener('click', () => dismiss(el));
+    setTimeout(() => dismiss(el), 5000);
+  });
+
+  // ── Header help panel ──
+  function updateHelp(ep) {
+    const box = document.getElementById('hdr-help');
+    const params = visibleParams(ep);
+    if (!ep)           { box.innerHTML = 'Select an endpoint to view available headers.'; return; }
+    if (!params.length){ box.innerHTML = 'No header parameters found for this endpoint.'; return; }
+    box.innerHTML = '<ul>' + params.map(p =>
+      `<li><b>${esc(p.name)}</b> — type: ${esc(p.type||'string')}${p.required ? ' <span class="req-chip">Required</span>' : ''}${p.description ? `<div class="hdr-desc">${esc(p.description)}</div>` : ''}</li>`
+    ).join('') + '</ul>';
+  }
+
+  // ── Header name dropdown ──
+  function nameOptionsHtml(selected, skip) {
+    const used = usedNames();
+    return '<option value="">-- Select header --</option>' +
+      visibleParams(selectedEp()).map(p => {
+        const sel = selected === p.name ? ' selected' : '';
+        const dis = used.includes(p.name) && p.name !== skip ? ' disabled' : '';
+        return `<option value="${esc(p.name)}"${sel}${dis}>${esc(p.name)}</option>`;
+      }).join('');
+  }
+
+  function rebuildNameOptions() {
+    document.querySelectorAll('select[name="header_name"]').forEach(s => {
+      const cur = s.value;
+      s.innerHTML = nameOptionsHtml(cur, cur);
+      s.value = cur;
+    });
+  }
+
+  function syncRequired() {
+    const ep = selectedEp();
+    document.querySelectorAll('.hdr-row').forEach(row => {
+      const s   = row.querySelector('select[name="header_name"]');
+      const btn = row.querySelector('.btn-rm');
+      const req = isRequired(ep, s?.value || '');
+      row.dataset.required = req;
+      if (btn) btn.disabled = req;
+    });
+  }
+
+  // ── Value controls ──
+  function makeSegmentCtrl(val) {
+    const s = document.createElement('select');
+    s.name = 'header_value'; s.className = 'ds-select';
+    s.innerHTML = '<option value="">-- Select segment --</option>' +
+      SEGMENTS.map(v => `<option value="${esc(v)}"${v===val?' selected':''}>${esc(v)}</option>`).join('');
+    return s;
+  }
+
+  function makeAnonCtrl(val) {
+    const s = document.createElement('select');
+    s.name = 'header_value'; s.className = 'ds-select';
+    s.innerHTML = '<option value="">-- Select --</option>' +
+      `<option value="false"${val==='false'?' selected':''}>No</option>` +
+      `<option value="true"${val==='true'?' selected':''}>Yes</option>`;
+    return s;
+  }
+
+  function fillTagValues(sel, tagName, selected) {
+    const vals = (tagName && TAG_VALS[tagName]) ? TAG_VALS[tagName] : [];
+    sel.innerHTML = '<option value="">-- Select tag value --</option>' +
+      vals.map(v => `<option value="${esc(v)}"${v===selected?' selected':''}>${esc(v)}</option>`).join('');
+  }
+
+  function makeTagCtrl(tagName, tagVal) {
+    const wrap = document.createElement('div');
+    wrap.style.display = 'contents';
+
+    const nameSel = document.createElement('select');
+    nameSel.name = 'header_tag_name'; nameSel.className = 'ds-select';
+    nameSel.innerHTML = '<option value="">-- Select tag --</option>' +
+      TAGS.map(t => `<option value="${esc(t)}"${t===tagName?' selected':''}>${esc(t)}</option>`).join('');
+
+    const valSel = document.createElement('select');
+    valSel.name = 'header_tag_value'; valSel.className = 'ds-select';
+    fillTagValues(valSel, tagName, tagVal);
+
+    const hidden = document.createElement('input');
+    hidden.type = 'hidden'; hidden.name = 'header_value'; hidden.value = '';
+
+    function sync() {
+      const n = nameSel.value, v = valSel.value;
+      hidden.value = (n || v) ? JSON.stringify([Object.fromEntries([[n&&'tag_name',n],[v&&'tag_value',v]].filter(([k])=>k))]) : '';
+    }
+
+    nameSel.addEventListener('change', () => { fillTagValues(valSel, nameSel.value, ''); sync(); });
+    valSel.addEventListener('change', sync);
+    sync();
+
+    wrap.append(nameSel, valSel, hidden);
+    return wrap;
+  }
+
+  function makeValueCtrl(name, val) {
+    if (name === 'segment')   return makeSegmentCtrl(val);
+    if (name === 'anonymize') return makeAnonCtrl(val);
+    if (isTag(name))          return makeTagCtrl('', '');
+    const inp = document.createElement('input');
+    inp.type = 'text'; inp.name = 'header_value'; inp.className = 'ds-input';
+    inp.placeholder = 'Header value'; inp.value = val || '';
+    return inp;
+  }
+
+  // ── Add a header row ──
+  function addRow(name, value, required) {
+    const container = document.getElementById('hdr-container');
+    const row = document.createElement('div');
+    row.className = 'hdr-row' + (isTag(name) ? ' tag' : '');
+    row.dataset.required = !!required;
+
+    // Name select
+    const nameWrap = document.createElement('div');
+    const nameSel  = document.createElement('select');
+    nameSel.name = 'header_name'; nameSel.className = 'ds-select';
+    nameSel.innerHTML = nameOptionsHtml(name || '', name || '');
+    nameSel.value = name || '';
+    nameWrap.appendChild(nameSel);
+
+    // Value wrapper
+    const valWrap = document.createElement('div');
+    valWrap.style.display = 'contents';
+    valWrap.appendChild(makeValueCtrl(name || '', value || ''));
+
+    // Remove button
+    const rmWrap = document.createElement('div');
+    const rmBtn  = document.createElement('button');
+    rmBtn.type = 'button'; rmBtn.className = 'btn-rm';
+    rmBtn.textContent = 'Remove'; rmBtn.disabled = !!required;
+    rmWrap.appendChild(rmBtn);
+
+    // Events
+    nameSel.addEventListener('change', function () {
+      const n = this.value;
+      row.className = 'hdr-row' + (isTag(n) ? ' tag' : '');
+      while (valWrap.firstChild) valWrap.removeChild(valWrap.firstChild);
+      valWrap.appendChild(makeValueCtrl(n, ''));
+      rebuildNameOptions();
+      syncRequired();
+    });
+
+    rmBtn.addEventListener('click', () => { row.remove(); rebuildNameOptions(); syncRequired(); });
+
+    row.append(nameWrap, valWrap, rmWrap);
+    container.appendChild(row);
+  }
+
+  // ── Auto-add required headers ──
+  function addRequired() {
+    const ep   = selectedEp();
+    const used = usedNames();
+    visibleParams(ep).forEach(p => { if (p.required && !used.includes(p.name)) addRow(p.name, '', true); });
+    rebuildNameOptions();
+  }
+
+  // ── Populate from prefill ──
+  function populateHeaders() {
+    document.getElementById('hdr-container').innerHTML = '';
+    const ep = selectedEp();
+    (PREFILL || []).forEach(item => addRow(item.name || '', item.value || '', isRequired(ep, item.name || '')));
+    addRequired();
+    rebuildNameOptions();
+    syncRequired();
+  }
+
+  // ── Endpoint change ──
+  function onEpChange() { updateHelp(selectedEp()); populateHeaders(); }
+
+  // ── Init ──
+  document.addEventListener('DOMContentLoaded', () => {
+    updateHelp(selectedEp());
+    populateHeaders();
+    document.getElementById('endpoint')?.addEventListener('change', onEpChange);
+    document.getElementById('add-hdr')?.addEventListener('click', () => { addRow('', '', false); rebuildNameOptions(); });
+  });
+}());
+</script>
+{% endif %}
+{% endblock %}

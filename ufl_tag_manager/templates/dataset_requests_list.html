@@ -1,0 +1,200 @@
+{% extends 'tags_base.html' %}
+{% block title %}Submitted Dataset Requests{% endblock %}
+
+{% block content %}
+<style>
+  /* ── Reset ── */
+  .container.mt-4 { max-width:100% !important; padding:0 !important; margin:0 !important; }
+
+  /* ── Page ── */
+  .sl-page  { padding:20px 40px 60px; width:90vw; max-width:90vw; margin:0 auto; }
+  .sl-head  { display:flex; align-items:center; gap:24px; margin-bottom:24px; }
+  .sl-bar   { width:4px; height:60px; background:#FA4616; flex-shrink:0; }
+  .sl-title { font-family:'Poppins',sans-serif; font-size:48px; font-weight:700; color:#002657; margin:0; }
+  .sl-card  { background:#fff; border:1px solid #E5E7EB; border-radius:8px; padding:22px; }
+
+  /* ── Table ── */
+  .sl-scroll { overflow-x:auto; }
+  .sl-tbl    { width:100%; border-collapse:collapse; background:#fff; font-family:'IBM Plex Sans',sans-serif; font-size:14px; }
+  .sl-tbl thead th { text-align:left; background:#002657; color:#fff; padding:14px 16px; white-space:nowrap; font-weight:600; }
+  .sl-tbl tbody td { padding:12px 14px; border-bottom:1px solid #E5E7EB; vertical-align:top; font-size:13px; color:#111827; }
+  .sl-code  { white-space:pre-wrap; word-break:break-word; font-size:13px; line-height:1.4; margin:0; font-family:Consolas,monospace; }
+
+  /* ── Status badges ── */
+  .badge     { display:inline-block; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:600; }
+  .s-done    { background:#D1FAE5; color:#065F46; }
+  .s-pending { background:#FEF3C7; color:#92400E; }
+  .s-proc    { background:#DBEAFE; color:#1E40AF; }
+  .s-fail    { background:#FEE2E2; color:#991B1B; }
+
+  /* ── Buttons ── */
+  .btn-ref  { border:none; border-radius:6px; padding:6px 12px; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; font-size:12px; font-weight:600; background:#002657; color:#fff; white-space:nowrap; transition:background 0.15s; }
+  .btn-ref:hover:not(:disabled) { background:#001a40; }
+  .btn-ref:disabled { background:#E5E7EB; color:#9CA3AF; cursor:not-allowed; }
+  .btn-save { border:none; border-radius:6px; padding:5px 10px; cursor:pointer; font-size:11px; font-weight:600; font-family:'IBM Plex Sans',sans-serif; background:#002657; color:#fff; transition:background 0.15s; }
+  .btn-save:hover { background:#001a40; }
+
+  /* ── Nightly toggle ── */
+  .nl-wrap  { display:flex; flex-direction:column; gap:6px; min-width:140px; }
+  .nl-sel   { padding:5px 8px; border:1px solid #D1D5DB; border-radius:6px; font-size:12px; font-family:'IBM Plex Sans',sans-serif; background:#fff; color:#111827; cursor:pointer; }
+
+  /* ── Alerts ── */
+  .alert    { position:relative; padding:16px 48px 16px 24px; border-radius:6px; margin-bottom:24px; font-family:'IBM Plex Sans',sans-serif; font-size:14px; animation:slideIn 0.3s ease-out; }
+  .alert-ok { background:#D1FAE5; color:#065F46; border:1px solid #A7F3D0; }
+  .alert-er { background:#FEE2E2; color:#991B1B; border:1px solid #FECACA; }
+  .alert-x  { position:absolute; top:50%; right:12px; transform:translateY(-50%); background:none; border:none; font-size:20px; cursor:pointer; color:inherit; opacity:0.7; }
+  .alert-x:hover { opacity:1; }
+  .alert.out { animation:fadeOut 0.3s ease-out forwards; }
+
+  /* ── Access denied ── */
+  .denied   { text-align:center; padding:60px 40px; }
+  .denied-icon { font-size:52px; margin-bottom:16px; }
+  .denied-h { font-family:'Poppins',sans-serif; font-size:26px; font-weight:700; color:#002657; margin-bottom:12px; }
+  .denied-p { font-size:14px; color:#6B7280; line-height:1.7; margin-bottom:8px; }
+  .denied-u { display:inline-block; margin:12px 0 20px; padding:6px 16px; background:#F3F4F6; border-radius:999px; font-size:13px; color:#374151; font-weight:500; }
+  .denied-n { font-size:13px; color:#9CA3AF; line-height:1.6; padding-top:20px; border-top:1px solid #F3F4F6; margin-top:8px; }
+  .denied-a { display:inline-flex; align-items:center; gap:6px; margin-top:24px; padding:10px 22px; background:#002657; color:#fff; border-radius:6px; font-size:14px; font-weight:600; text-decoration:none; }
+  .denied-a:hover { background:#001a40; color:#fff; text-decoration:none; }
+
+  /* ── Animations & responsive ── */
+  @keyframes slideIn { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeOut { from { opacity:1; transform:translateY(0); } to { opacity:0; transform:translateY(-10px); } }
+  @media (max-width:768px) { .sl-page { padding:24px 20px; } .sl-title { font-size:34px; } }
+</style>
+
+<div class="sl-page">
+
+  {% if access_denied %}
+  {# ── ACCESS DENIED ── #}
+  <div class="sl-card denied">
+    <div class="denied-icon">🔒</div>
+    <h2 class="denied-h">Access Restricted</h2>
+    <p class="denied-p">This page is currently only available to administrators.</p>
+    <div class="denied-u">{{ current_user }}</div>
+    <p class="denied-p">Your account does not have the required permissions to view this page.</p>
+    <div class="denied-n">If you believe this is a mistake, please contact your system administrator.</div>
+    <a class="denied-a" href="{{ base_path }}/home.py">← Back to Home</a>
+  </div>
+
+  {% else %}
+  {# ── MAIN PAGE ── #}
+
+  <div class="sl-head">
+    <div class="sl-bar"></div>
+    <h1 class="sl-title">Submitted Dataset Requests</h1>
+  </div>
+
+  {# Flash messages #}
+  {% if message %}
+    <div class="alert alert-ok" data-alert>
+      <button class="alert-x" data-close>&times;</button>
+      {{ message }}
+    </div>
+  {% endif %}
+  {% if error %}
+    <div class="alert alert-er" data-alert>
+      <button class="alert-x" data-close>&times;</button>
+      {{ error }}
+    </div>
+  {% endif %}
+
+  <div class="sl-card">
+    <div class="sl-scroll">
+      <table class="sl-tbl">
+        <thead>
+          <tr>
+            <th>ID</th><th>Endpoint</th><th>Table Name</th><th>Schema</th>
+            <th>Headers</th><th>Description</th><th>Requested By</th>
+            <th>Status</th><th>Created</th><th>Updated</th>
+            <th>Refresh</th>
+            {% if is_admin %}<th>Nightly Refresh</th>{% endif %}
+            <th>Error</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if requests %}
+            {% for row in requests %}
+              {% set done = row.status | lower == 'completed' %}
+              {% set s    = row.status | lower %}
+              <tr>
+                <td>{{ row.request_id }}</td>
+                <td>{{ row.endpoint }}</td>
+                <td>{{ row.table_name }}</td>
+                <td>{{ row.schema_name }}</td>
+                <td><pre class="sl-code">{{ row.headers_json or '' }}</pre></td>
+                <td>{{ row.dataset_description or '' }}</td>
+                <td>{{ row.requested_by }}</td>
+
+                {# Status badge #}
+                <td>
+                  <span class="badge {% if s=='completed' %}s-done{% elif s=='pending' %}s-pending{% elif s=='processing' %}s-proc{% elif s=='failed' %}s-fail{% endif %}">
+                    {{ row.status }}
+                  </span>
+                </td>
+
+                <td>{{ row.created_at }}</td>
+                <td>{{ row.updated_at or '—' }}</td>
+
+                {# Refresh button #}
+                <td>
+                  <form method="POST">
+                    <input type="hidden" name="action"     value="row_refresh">
+                    <input type="hidden" name="request_id" value="{{ row.request_id }}">
+                    <button type="submit" class="btn-ref"
+                      {% if not done %}disabled title="Only available when status is Completed"{% endif %}>
+                      ↻ Refresh
+                    </button>
+                  </form>
+                </td>
+
+                {# Nightly refresh — admin only #}
+                {% if is_admin %}
+                <td>
+                  <form method="POST">
+                    <input type="hidden" name="action"     value="set_nightly">
+                    <input type="hidden" name="request_id" value="{{ row.request_id }}">
+                    <div class="nl-wrap">
+                      <select name="nightly_refresh" class="nl-sel">
+                        <option value="1" {% if row.nightly_refresh %}selected{% endif %}>Yes</option>
+                        <option value="0" {% if not row.nightly_refresh %}selected{% endif %}>No</option>
+                      </select>
+                      <button type="submit" class="btn-save">Save</button>
+                    </div>
+                  </form>
+                </td>
+                {% endif %}
+
+                <td>{{ row.error_message or '' }}</td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="{{ 13 if is_admin else 12 }}">No dataset requests found.</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{% if not access_denied %}
+<script>
+(function () {
+  function dismiss(el) {
+    if (!el) return;
+    el.classList.add('out');
+    setTimeout(() => el.remove(), 300);
+  }
+  document.querySelectorAll('[data-alert]').forEach(el => {
+    el.querySelector('[data-close]')?.addEventListener('click', () => dismiss(el));
+    setTimeout(() => dismiss(el), 5000);
+  });
+}());
+</script>
+{% endif %}
+{% endblock %}
