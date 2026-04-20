@@ -20,7 +20,9 @@ env  = Environment(
 )
 
 SWAGGER_DOCS_URL = "https://compute.lastinger.center.ufl.edu/swagger_docs"
-GITHUB_BASE_URL  = "https://github.com/lastingerdata/reporting/tree/master/python/root/snowflake/libs"
+# GITHUB_BASE_URL  = "https://github.com/lastingerdata/reporting/tree/master/python/root/snowflake/libs"
+GITHUB_BASE_URL = "https://github.com/lastingerdata/reporting/blob/master/python/root/libs/cached_core_libs"
+
 
 
 def render(template_name, **kwargs):
@@ -35,6 +37,7 @@ def render_access_denied(current_user):
         page_name="dataset_description",
         access_denied=True,
         datasets=[],
+        has_git_access=False,
         ext=".py",
     )
 
@@ -119,7 +122,8 @@ def build_datasets(swagger_docs):
                 "description": " ".join((data.get("description") or "").split()),
                 "questions":   questions,
                 "columns":     columns,
-                "doc_link":    f"{GITHUB_BASE_URL}/{clean_name}_column_desc.py",
+                # "doc_link":    f"{GITHUB_BASE_URL}/{clean_name}_column_desc.py",
+                "doc_link":    f"{GITHUB_BASE_URL}/{clean_name}_dict.py",
             })
 
     # Sort alphabetically by name
@@ -133,7 +137,6 @@ def main():
     admin_only = is_admin_only_mode()
     is_admin   = current_user in get_tag_admin_users()
     is_valid   = current_user in get_valid_users()
-
     if (admin_only and not is_admin) or (not admin_only and not is_valid):
         render_access_denied(current_user)
         return
