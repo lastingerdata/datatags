@@ -32,12 +32,22 @@ def _read_config() -> dict:
 
 
 def get_current_user() -> str:
-    return os.environ.get("REMOTE_USER", "unknown").strip()
+    user = os.environ.get("REMOTE_USER", "unknown").strip()
+    # Log the login — once per user per day, silently ignores errors
+    if user and user != "unknown":
+        try:
+            from libs.login_logger import log_user_login
+            log_user_login(user)
+        except Exception:
+            pass 
+
+    return user
 
 
 def get_valid_users() -> Set[str]:
     """
-    Used only for dataset requests access control(just for testing phase).
+    Used only for dataset pages access control during testing phase.
+    Once dataset pages go public, this check will be removed from those pages.
     """
     data = _read_config()
     return set(data.get("VALID_USERS", []))
@@ -52,11 +62,10 @@ def can_write(user: Optional[str] = None) -> bool:
     """
     Controls write access to the tagging pages (section tags, bulk inserts etc).
     Any authenticated UF user (passed Shibboleth login) can write.
-    We only block unauthenticated / unknown users.
+    Shibboleth is the door — we only block unauthenticated/unknown users.
     """
     user = (user or get_current_user()).strip()
-    return user in get_read_write_users()
-    # return bool(user) and user != "unknown"
+    return bool(user) and user != "unknown"
 
 
 def get_tag_admin_users() -> Set[str]:
@@ -84,7 +93,7 @@ def get_api_config() -> Dict[str, Any]:
     data = _read_config()
     api  = data.get("API") or {}
 
-    base_url  = (api.get("BASE_URL") or "").strip().rstrip("/")
+    base_url   = (api.get("BASE_URL") or "").strip().rstrip("/")
     verify_ssl = bool(api.get("VERIFY_SSL", False))
 
     timeout = api.get("TIMEOUT", data.get("API_TIMEOUT", 60))
@@ -143,13 +152,10 @@ def safe_request(
 
     try:
         resp = requests.request(
-            method=method,
-            url=url,
+            method=method, url=url,
             headers=headers or {},
-            params=params,
-            data=data,
-            json=json_body,
-            timeout=timeout,
+            params=params, data=data,
+            json=json_body, timeout=timeout,
             verify=verify,
         )
         return resp
@@ -180,7 +186,7 @@ def get_mysql_config() -> Dict[str, Any]:
 
 def is_admin_only_mode() -> bool:
     """
-    lockdown switch for dataset pages.
+    Emergency lockdown switch for dataset pages.
     When True, only TAG_ADMIN_USERS can access dataset pages.
     Controlled by ADMIN_ONLY_MODE in config.json.
     """
