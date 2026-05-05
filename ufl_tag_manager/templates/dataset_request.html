@@ -596,8 +596,8 @@
     hint.style.cssText = 'font-size:11px;color:#9CA3AF;margin-top:6px;font-family:\'IBM Plex Sans\',sans-serif;';
     hint.id = 'tag-mode-hint';
     hint.textContent = state.tagMode === 'and'
-      ? 'AND mode: records must match all tag filters (max 2).'
-      : 'OR mode: records matching any of the selected tags will be returned.';
+      ? ''
+      : '';
     block.appendChild(hint);
 
     renderTagRows(rowsContainer);

@@ -81,26 +81,13 @@
   }
   
   @media (max-width: 1024px) {
-    .hero-section {
-      padding: 60px 80px;
-      gap: 60px;
-    }
+    .hero-section { padding: 60px 80px; gap: 60px; }
   }
   
   @media (max-width: 768px) {
-    .hero-section {
-      flex-direction: column;
-      text-align: center;
-      padding: 40px 20px;
-    }
-    
-    .hero-content h1 {
-      font-size: 36px;
-    }
-    
-    .hero-buttons {
-      justify-content: center;
-    }
+    .hero-section { flex-direction: column; text-align: center; padding: 40px 20px; }
+    .hero-content h1 { font-size: 36px; }
+    .hero-buttons { justify-content: center; }
   }
 </style>
 
@@ -118,10 +105,17 @@
   </div>
   
   <div class="hero-buttons">
-    {{ button('Manage Tag Categories', base_path + '/tags' + ext, 'primary', 'large') }}
-    {{ button('Manage Tag Values', base_path + '/tag_values' + ext, 'primary', 'large') }}
-    {{ button('Manage Section Tag Mappings', base_path + '/section_tags' + ext, 'primary', 'large') }}
-    {{ button('Bulk Insert into Section Tags', base_path + '/section_tags_inserts' + ext, 'primary', 'large') }}
+    {# Tag management pages — available to all authenticated users #}
+    {{ button('Manage Tag Categories',        base_path + '/tags'                  + ext, 'primary', 'large') }}
+    {{ button('Manage Tag Values',             base_path + '/tag_values'            + ext, 'primary', 'large') }}
+    {{ button('Manage Section Tag Mappings',   base_path + '/section_tags'          + ext, 'primary', 'large') }}
+    {{ button('Bulk Insert into Section Tags', base_path + '/section_tags_inserts'  + ext, 'primary', 'large') }}
+
+    {# Dataset & Reports pages — TAG_ADMIN only #}
+    {% if is_admin %}
+      {{ button('Dataset Requests', base_path + '/dataset_request'  + ext, 'primary', 'large') }}
+      {{ button('Reports Hub',      base_path + '/reports_hub'      + ext, 'primary', 'large') }}
+    {% endif %}
   </div>
 </div>
 {% endblock %}

@@ -36,7 +36,7 @@ def get_current_user() -> str:
     # Log the login — once per user per day, silently ignores errors
     if user and user != "unknown":
         try:
-            from libs.login_logger import log_user_login
+            from libs.login_logs import log_user_login
             log_user_login(user)
         except Exception:
             pass 
@@ -65,7 +65,8 @@ def can_write(user: Optional[str] = None) -> bool:
     Shibboleth is the door — we only block unauthenticated/unknown users.
     """
     user = (user or get_current_user()).strip()
-    return bool(user) and user != "unknown"
+    return user in get_read_write_users()
+    # return bool(user) and user != "unknown"
 
 
 def get_tag_admin_users() -> Set[str]:
