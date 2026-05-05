@@ -46,7 +46,7 @@ def fetch_swagger_docs():
     try:
         resp = safe_request(
             SWAGGER_DOCS_URL,
-            headers={"Accept": "application/json", "ApiKey": get_api_key(1)},
+            headers={"Accept": "application/json", "ApiKey": get_api_key(2)},
             verify=False,
         )
         if isinstance(resp, (dict, list)):

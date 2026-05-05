@@ -4,90 +4,182 @@
 
 {% block content %}
 <style>
-  /* ── Reset container ── */
-  .container.mt-4 { max-width:100% !important; padding:0 !important; margin:0 !important; }
+  .container.mt-4 { max-width:100%!important; padding:0!important; margin:0!important; }
 
-  /* ── Page layout ── */
-  .ds-page  { padding: 20px 40px 60px; width: 90vw; max-width: 90vw; margin: 0 auto; }
-  .ds-head  { display: flex; align-items: center; gap: 24px; margin-bottom: 28px; }
-  .ds-bar   { width: 4px; height: 60px; background: #FA4616; flex-shrink: 0; }
-  .ds-title { font-family: 'Poppins', sans-serif; font-size: 48px; font-weight: 700; color: #002657; margin: 0; }
+  /* ── Page shell ── */
+  .ds-page {
+    padding: 32px 40px 80px;
+    width: 90vw;
+    max-width: 900px;
+    margin: 0 auto;
+    background: #002657;
+    min-height: calc(100vh - 60px);
+  }
 
-  /* ── Card ── */
-  .ds-card  { background: #fff; border: 1px solid #E5E7EB; border-radius: 8px; padding: 22px; margin-bottom: 24px; }
+  /* ── Page header ── */
+  .ds-head  { display:flex; align-items:center; gap:18px; margin-bottom:10px; }
+  .ds-bar   { width:5px; height:56px; background:#FA4616; border-radius:3px; flex-shrink:0; }
+  .ds-title { font-family:'Poppins',sans-serif; font-size:42px; font-weight:700; color:#ffffff; margin:0; line-height:1.1; }
+  .ds-intro {
+    font-family:'IBM Plex Sans',sans-serif; font-size:14px; color:#6B7280;
+    line-height:1.75; margin:0 0 36px;
+    padding: 12px 16px;
+    background: #fff;
+    border-left: 4px solid #FA4616;
+    border-radius: 0 6px 6px 0;
+  }
 
-  /* ── Form grid ── */
-  .ds-grid     { display: grid; grid-template-columns: repeat(2, minmax(280px, 1fr)); gap: 18px 20px; }
-  .ds-full     { grid-column: 1 / -1; }
-  .ds-label    { display: block; margin-bottom: 6px; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 600; color: #111827; }
-  .ds-hint     { display: block; margin-top: 4px; font-size: 11px; color: #9CA3AF; font-family: 'IBM Plex Sans', sans-serif; }
+  /* ── Step track ── */
+  .step-track { position:relative; }
+  .step-track::before {
+    content: '';
+    position: absolute;
+    left: 15px; top: 32px; bottom: 32px;
+    width: 2px;
+    background: rgba(255,255,255,0.25);
+    z-index: 0;
+  }
+
+  /* ── Single step ── */
+  .step-wrap { display:flex; gap:16px; align-items:flex-start; margin-bottom:16px; position:relative; z-index:1; }
+  .step-num  {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #FA4616; color: #fff;
+    font-family:'IBM Plex Sans',sans-serif; font-size:13px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; margin-top:14px;
+    box-shadow: 0 0 0 4px #002657;
+    position: relative; z-index: 2;
+  }
+
+  /* ── Step cards ── */
+  .step-card {
+    flex: 1; border-radius: 10px; padding: 20px 24px;
+    background: #ffffff; border: 1px solid #E5E7EB;
+    border-left: 4px solid #FA4616;
+    transition: box-shadow 0.15s;
+  }
+  .step-card:hover { box-shadow: 0 2px 16px rgba(0,0,0,0.18); }
+  .step-card.orange { border-left: 4px solid #FA4616; }
+
+  .step-label {
+    display: inline-block;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 999px; margin-bottom: 6px;
+    background: #FFF0EB; color: #C2410C;
+  }
+  .step-label.orange { background:#FFEDD5; color:#C2410C; }
+
+  .step-title { font-family:'IBM Plex Sans',sans-serif; font-size:16px; font-weight:700; color:#111827; margin:0 0 4px; }
+  .step-hint  { font-family:'IBM Plex Sans',sans-serif; font-size:12px; color:#9CA3AF; margin:0 0 14px; line-height:1.6; }
+  .step-hint a { color:#FA4616; text-decoration:none; font-weight:500; }
+  .step-hint a:hover { text-decoration:underline; }
+
+  .card-divider { border:none; border-top:1px solid #E5E7EB; margin:14px 0; }
 
   /* ── Inputs ── */
+  .ds-label { display:block; margin-bottom:5px; font-family:'IBM Plex Sans',sans-serif; font-size:13px; font-weight:600; color:#374151; }
+  .ds-hint-sm { display:block; margin-top:4px; font-size:11px; color:#9CA3AF; font-family:'IBM Plex Sans',sans-serif; }
   .ds-input, .ds-select, .ds-textarea, .ds-readonly {
-    width: 100%; box-sizing: border-box; padding: 10px 12px;
-    border: 1px solid #D1D5DB; border-radius: 6px;
-    font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; color: #111827; background: #fff;
+    width:100%; box-sizing:border-box; padding:10px 12px;
+    border:1px solid #D1D5DB; border-radius:6px;
+    font-family:'IBM Plex Sans',sans-serif; font-size:14px; color:#111827; background:#fff;
+    transition: border-color 0.15s;
   }
-  .ds-textarea { min-height: 100px; resize: vertical; }
-  .ds-readonly { background: #F9FAFB; color: #374151; }
+  .ds-input:focus, .ds-select:focus, .ds-textarea:focus {
+    outline:none; border-color:#FA4616; box-shadow:0 0 0 3px rgba(250,70,22,0.15);
+  }
+  .ds-textarea { min-height:90px; resize:vertical; }
+  .ds-readonly { background:#F9FAFB; color:#6B7280; cursor:default; border-style:dashed; }
+
+  /* ── Header help box ── */
+  .hdr-help {
+    border:1px solid #E5E7EB; border-radius:6px;
+    padding:12px 14px; background:#FAFAFA;
+    font-family:'IBM Plex Sans',sans-serif; font-size:13px; color:#6B7280;
+    margin-bottom:12px;
+  }
+  .hdr-help ul { margin:6px 0 0 16px; padding:0; }
+  .hdr-help li { margin-bottom:5px; color:#374151; }
 
   /* ── Header rows ── */
-  .hdr-row     { display: grid; grid-template-columns: minmax(240px,1fr) minmax(300px,2fr) auto; gap: 10px; margin-bottom: 10px; align-items: start; }
-  .hdr-row.tag { grid-template-columns: minmax(240px,1fr) minmax(200px,1fr) minmax(200px,1fr) auto; }
-  .hdr-desc    { margin-top: 4px; color: #6B7280; font-size: 12px; }
-  .hdr-help    { border: 1px solid #E5E7EB; border-radius: 6px; padding: 12px; background: #F9FAFB; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; }
-  .hdr-help ul { margin: 8px 0 0 18px; padding: 0; }
-  .req-chip    { display: inline-block; margin-left: 6px; padding: 2px 6px; background: #FEE2E2; color: #991B1B; border-radius: 999px; font-size: 11px; font-weight: 700; }
+  .hdr-row     { display:grid; grid-template-columns:minmax(240px,1fr) minmax(300px,2fr) auto; gap:10px; margin-bottom:10px; align-items:start; }
+  .hdr-row.tag { grid-template-columns:minmax(240px,1fr) minmax(200px,1fr) minmax(200px,1fr) auto; }
+  .hdr-desc    { margin-top:4px; color:#6B7280; font-size:12px; font-family:'IBM Plex Sans',sans-serif; }
+  .req-chip    { display:inline-block; margin-left:5px; padding:1px 7px; background:#FEE2E2; color:#991B1B; border-radius:999px; font-size:10px; font-weight:700; }
 
   /* ── Nightly refresh ── */
-  .nightly     { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: #F0F4FF; border: 1px solid #BFDBFE; border-radius: 8px; }
-  .nightly-lbl { font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 600; color: #1E40AF; white-space: nowrap; }
-  .nightly-txt { font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; color: #6B7280; flex: 1; }
-  .nightly-sel { padding: 8px 12px; border: 1px solid #BFDBFE; border-radius: 6px; font-size: 14px; font-family: 'IBM Plex Sans', sans-serif; background: #fff; color: #111827; min-width: 160px; }
+  .nightly     { display:flex; align-items:center; gap:14px; padding:14px 16px; background:#FFF7ED; border:1px solid #FED7AA; border-radius:8px; }
+  .nightly-lbl { font-family:'IBM Plex Sans',sans-serif; font-size:14px; font-weight:700; color:#92400E; white-space:nowrap; }
+  .nightly-txt { font-family:'IBM Plex Sans',sans-serif; font-size:12px; color:#6B7280; flex:1; line-height:1.5; }
+  .nightly-sel { padding:8px 12px; border:1px solid #FED7AA; border-radius:6px; font-size:13px; font-family:'IBM Plex Sans',sans-serif; background:#fff; color:#111827; }
 
   /* ── Buttons ── */
-  .btn-row  { margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap; }
-  .btn-main { border: none; border-radius: 6px; padding: 10px 18px; cursor: pointer; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 600; background: #002657; color: #fff; transition: background 0.15s; }
-  .btn-main:hover { background: #001a40; }
-  .btn-sm   { border: none; border-radius: 6px; padding: 8px 12px; cursor: pointer; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 600; background: #E5E7EB; color: #111827; }
-  .btn-rm   { border: none; border-radius: 6px; padding: 10px 18px; cursor: pointer; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 600; background: #E5E7EB; color: #111827; }
-  .btn-rm:disabled { opacity: 0.55; cursor: not-allowed; }
+  .btn-row  { margin-top:12px; display:flex; gap:12px; flex-wrap:wrap; padding-left:48px; }
+  .btn-main {
+    border:none; border-radius:6px; padding:12px 28px; cursor:pointer;
+    font-family:'IBM Plex Sans',sans-serif; font-size:14px; font-weight:700;
+    background:#FA4616; color:#fff; transition:background .15s;
+    box-shadow: 0 1px 3px rgba(250,70,22,0.4);
+  }
+  .btn-main:hover { background:#d93a0f; }
+  .btn-ref  {
+    border:none; border-radius:6px; padding:12px 28px; cursor:pointer;
+    font-family:'IBM Plex Sans',sans-serif; font-size:14px; font-weight:700;
+    background:#ffffff; color:#002657; transition:background .15s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+  .btn-ref:hover { background:#F3F4F6; }
+  .btn-sm   {
+    border:1px solid #D1D5DB; border-radius:6px; padding:8px 14px; cursor:pointer;
+    font-family:'IBM Plex Sans',sans-serif; font-size:13px; font-weight:600;
+    background:#fff; color:#374151; margin-top:8px; transition:background .15s;
+  }
+  .btn-sm:hover { background:#F9FAFB; }
+  .btn-rm   {
+    border:none; border-radius:6px; padding:10px 12px; cursor:pointer;
+    font-family:'IBM Plex Sans',sans-serif; font-size:13px; font-weight:600;
+    background:#F3F4F6; color:#6B7280;
+  }
+  .btn-rm:hover { background:#E5E7EB; }
+  .btn-rm:disabled { opacity:.4; cursor:not-allowed; }
 
   /* ── Alerts ── */
-  .alert     { position: relative; padding: 16px 48px 16px 24px; border-radius: 6px; margin-bottom: 24px; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; animation: slideIn 0.3s ease-out; }
-  .alert-ok  { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
-  .alert-err { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
-  .alert-inf { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
-  .alert-x   { position: absolute; top: 50%; right: 12px; transform: translateY(-50%); background: none; border: none; font-size: 20px; cursor: pointer; color: inherit; opacity: 0.7; }
-  .alert-x:hover { opacity: 1; }
-  .alert.out { animation: fadeOut 0.3s ease-out forwards; }
+  .alert     { position:relative; padding:14px 44px 14px 18px; border-radius:8px; margin-bottom:16px; font-family:'IBM Plex Sans',sans-serif; font-size:14px; animation:sIn .3s ease; }
+  .alert-ok  { background:#D1FAE5; color:#065F46; border:1px solid #6EE7B7; }
+  .alert-err { background:#FEE2E2; color:#991B1B; border:1px solid #FCA5A5; }
+  .alert-inf { background:#EFF6FF; color:#1E40AF; border:1px solid #93C5FD; }
+  .alert-x   { position:absolute; top:50%; right:12px; transform:translateY(-50%); background:none; border:none; font-size:18px; cursor:pointer; color:inherit; opacity:.6; }
+  .alert-x:hover { opacity:1; }
+  .alert.out { animation:sOut .3s ease forwards; }
 
   /* ── Access denied ── */
-  .denied      { text-align: center; padding: 60px 40px; }
-  .denied-icon { font-size: 52px; margin-bottom: 16px; }
-  .denied-h    { font-family: 'Poppins', sans-serif; font-size: 26px; font-weight: 700; color: #002657; margin-bottom: 12px; }
-  .denied-p    { font-size: 14px; color: #6B7280; line-height: 1.7; margin-bottom: 8px; }
-  .denied-user { display: inline-block; margin: 12px 0 20px; padding: 6px 16px; background: #F3F4F6; border-radius: 999px; font-size: 13px; color: #374151; font-weight: 500; }
-  .denied-lnk  { display: inline-flex; align-items: center; gap: 6px; margin-top: 24px; padding: 10px 22px; background: #002657; color: #fff; border-radius: 6px; font-size: 14px; font-weight: 600; text-decoration: none; }
-  .denied-lnk:hover { background: #001a40; color: #fff; text-decoration: none; }
+  .denied      { text-align:center; padding:60px 40px; background:#fff; border:1px solid #E5E7EB; border-radius:12px; }
+  .denied-icon { font-size:52px; margin-bottom:16px; }
+  .denied-h    { font-family:'Poppins',sans-serif; font-size:24px; font-weight:700; color:#111827; margin-bottom:10px; }
+  .denied-p    { font-size:14px; color:#6B7280; line-height:1.7; }
+  .denied-user { display:inline-block; margin:12px 0 20px; padding:6px 16px; background:#F3F4F6; border-radius:999px; font-size:13px; color:#374151; font-weight:500; }
+  .denied-lnk  { display:inline-flex; align-items:center; gap:6px; margin-top:20px; padding:10px 22px; background:#FA4616; color:#fff; border-radius:6px; font-size:14px; font-weight:600; text-decoration:none; }
+  .denied-lnk:hover { background:#d93a0f; color:#fff; text-decoration:none; }
 
-  /* ── Animations ── */
-  @keyframes slideIn { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
-  @keyframes fadeOut { from { opacity:1; transform:translateY(0); } to { opacity:0; transform:translateY(-10px); } }
+  @keyframes sIn  { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes sOut { from{opacity:1;transform:translateY(0)} to{opacity:0;transform:translateY(-8px)} }
 
-  /* ── Responsive ── */
-  @media (max-width: 900px) {
-    .ds-grid, .hdr-row, .hdr-row.tag { grid-template-columns: 1fr; }
-    .nightly { flex-direction: column; align-items: flex-start; }
+  @media(max-width:700px) {
+    .ds-page  { padding:20px 16px 60px; }
+    .ds-title { font-size:28px; }
+    .hdr-row, .hdr-row.tag { grid-template-columns:1fr; }
+    .btn-row  { padding-left:0; }
+    .nightly  { flex-direction:column; align-items:flex-start; }
   }
-  @media (max-width: 768px) { .ds-page { padding: 24px 20px; } .ds-title { font-size: 34px; } }
 </style>
 
 <div class="ds-page">
 
-  {% if access_denied %}
-  {# ── ACCESS DENIED ── #}
-  <div class="ds-card denied">
+{% if access_denied %}
+  <div class="denied">
     <div class="denied-icon">🔒</div>
     <h2 class="denied-h">Access Restricted</h2>
     <p class="denied-p">This page is currently only available to administrators.</p>
@@ -96,125 +188,159 @@
     <a class="denied-lnk" href="{{ base_path }}/home.py">← Back to Home</a>
   </div>
 
-  {% else %}
-  {# ── MAIN PAGE ── #}
+{% else %}
 
   <div class="ds-head">
     <div class="ds-bar"></div>
     <h1 class="ds-title">Dataset Requests</h1>
   </div>
+  <p class="ds-intro">
+    Use this page to pull together the data you need for reports or analysis.<br>
+    Follow the steps below — choose your data source, apply any filters, then name and describe your dataset.
+  </p>
 
-  {# Alerts #}
   {% if swagger_error %}
-    <div class="alert alert-err" data-alert>
-      <button class="alert-x" data-close>&times;</button>
-      Failed to load endpoint list: {{ swagger_error }}
-    </div>
+    <div class="alert alert-err" data-alert><button class="alert-x" data-close>&times;</button>Failed to load dataset list: {{ swagger_error }}</div>
   {% endif %}
   {% if message %}
-    <div class="alert alert-ok" data-alert>
-      <button class="alert-x" data-close>&times;</button>
-      {{ message }}
-    </div>
+    <div class="alert alert-ok" data-alert><button class="alert-x" data-close>&times;</button>{{ message }}</div>
   {% endif %}
   {% if error %}
-    <div class="alert alert-err" data-alert>
-      <button class="alert-x" data-close>&times;</button>
-      {{ error }}
-    </div>
+    <div class="alert alert-err" data-alert><button class="alert-x" data-close>&times;</button>{{ error }}</div>
   {% endif %}
   {% if warn_refresh %}
     <div class="alert alert-inf" data-alert>
       <button class="alert-x" data-close>&times;</button>
-      This dataset already exists. Use Refresh to recreate it.
+      This dataset already exists. Use the <b>Refresh Dataset</b> button below to recreate it.
     </div>
   {% endif %}
 
-  {# Form #}
-  <div class="ds-card">
-    <form method="POST">
-      <div class="ds-grid">
+  <form method="POST">
 
-        {# Endpoint #}
-        <div>
-          <label class="ds-label" for="endpoint">Endpoint</label>
+    <div class="step-track">
+
+      {# ── STEP 1 — Data Source ── #}
+      <div class="step-wrap">
+        <div class="step-num">1</div>
+        <div class="step-card">
+          <span class="step-label">Step 1</span>
+          <p class="step-title">Data Source</p>
+          <p class="step-hint">
+            Review the <a href="{{ base_path }}/dataset_description{{ ext }}">Dataset Guide</a>
+            to determine which dataset you need, then select it below.
+          </p>
+          <hr class="card-divider">
+          <label class="ds-label" for="endpoint">Select Dataset</label>
           <select class="ds-select" id="endpoint" name="endpoint" required>
-            <option value="">-- Select endpoint --</option>
+            <option value="">-- Choose a dataset --</option>
             {% for ep in endpoint_list %}
               <option value="{{ ep }}" {% if prefill.endpoint == ep %}selected{% endif %}>{{ ep }}</option>
             {% endfor %}
           </select>
+          <div class="hdr-help" id="hdr-help" style="margin-top:12px;">Select a dataset to view available filters.</div>
         </div>
+      </div>
 
-        {# Table Name #}
-        <div>
+      {# ── STEP 2 — Filters / Headers ── #}
+      <div class="step-wrap">
+        <div class="step-num">2</div>
+        <div class="step-card">
+          <span class="step-label">Step 2</span>
+          <p class="step-title">Filters</p>
+          <p class="step-hint">Narrow down your data. Required filters are added automatically when you select a dataset.</p>
+          <hr class="card-divider">
+          <div id="hdr-container"></div>
+          <button type="button" class="btn-sm" id="add-hdr">+ Add Filter</button>
+          <span class="ds-hint-sm" style="display:block;margin-top:6px;">Required filters are auto-added. Duplicates are not allowed.</span>
+        </div>
+      </div>
+
+      {# ── STEP 3 — Table Name ── #}
+      <div class="step-wrap">
+        <div class="step-num">3</div>
+        <div class="step-card">
+          <span class="step-label">Step 3</span>
+          <p class="step-title">Table Name</p>
+          <p class="step-hint">What would you like to call this table? Give it a name that describes the data it contains.</p>
+          <hr class="card-divider">
           <label class="ds-label" for="table_name">Table Name</label>
           <input class="ds-input" type="text" id="table_name" name="table_name"
-            value="{{ prefill.table_name | default('') }}" placeholder="Enter table name" required>
+            value="{{ prefill.table_name | default('') }}"
+            placeholder="e.g. enrollments_q3_2024" required>
         </div>
+      </div>
 
-        {# Schema #}
-        <div>
-          <label class="ds-label">Schema</label>
-          {% if is_admin %}
-            <input class="ds-input" type="text" id="schema_name" name="schema_name"
-              value="{{ prefill.schema_name | default(schema_name) }}"
-              placeholder="Enter schema name" required>
-            <span class="ds-hint">Admin — enter any valid Snowflake schema. Defaults to your schema ({{ derived_schema }}).</span>
-          {% else %}
-            <div class="ds-readonly">{{ schema_name }}</div>
-            <span class="ds-hint">Automatically set from your account.</span>
-          {% endif %}
-        </div>
-
-        {# Allowed headers help #}
-        <div class="ds-full">
-          <label class="ds-label">Allowed Headers for Selected Endpoint</label>
-          <div class="hdr-help" id="hdr-help">Select an endpoint to view available headers.</div>
-        </div>
-
-        {# Headers #}
-        <div class="ds-full">
-          <label class="ds-label">Headers</label>
-          <div id="hdr-container"></div>
-          <button type="button" class="btn-sm" id="add-hdr">+ Add Header</button>
-          <span class="ds-hint">Required headers are auto-added. Duplicates are not allowed.</span>
-        </div>
-
-        {# Description #}
-        <div class="ds-full">
+      {# ── STEP 4 — Description ── #}
+      <div class="step-wrap">
+        <div class="step-num">4</div>
+        <div class="step-card">
+          <span class="step-label">Step 4</span>
+          <p class="step-title">Description</p>
+          <p class="step-hint">What is this dataset for? Add any notes you'd like to remember.</p>
+          <hr class="card-divider">
           <label class="ds-label" for="dataset_description">Description</label>
           <textarea class="ds-textarea" id="dataset_description" name="dataset_description"
-            placeholder="Short description of why this dataset is being created"
-            required>{{ prefill.dataset_description | default('') }}</textarea>
+            placeholder="e.g. Enrollment data for Q3 literacy coaching report" required
+          >{{ prefill.dataset_description | default('') }}</textarea>
         </div>
+      </div>
 
-        {# Nightly refresh — admin only #}
-        {% if is_admin %}
-        <div class="ds-full">
+      {# ── STEP 5 — Saved Location ── #}
+      <div class="step-wrap">
+        <div class="step-num">5</div>
+        <div class="step-card">
+          <span class="step-label">Step 5</span>
+          <p class="step-title">Saved Location</p>
+          <p class="step-hint">This is where your dataset will be saved in Snowflake. It is set automatically — no action needed.</p>
+          <hr class="card-divider">
+          {% if is_admin %}
+            <label class="ds-label" for="schema_name">
+              Schema
+              <span style="font-weight:400;color:#9CA3AF;font-size:12px;"> — admin: override if needed</span>
+            </label>
+            <input class="ds-input" type="text" id="schema_name" name="schema_name"
+              value="{{ prefill.schema_name | default(schema_name) }}"
+              placeholder="Snowflake schema name">
+            <span class="ds-hint-sm">Defaults to your schema ({{ derived_schema }}).</span>
+          {% else %}
+            <div class="ds-readonly">{{ schema_name }}</div>
+            <span class="ds-hint-sm">Automatically set from your account.</span>
+          {% endif %}
+        </div>
+      </div>
+
+      {# ── STEP 6 — Nightly Refresh (admin only) ── #}
+      {% if is_admin %}
+      <div class="step-wrap">
+        <div class="step-num" style="background:#FA4616;">6</div>
+        <div class="step-card orange">
+          <span class="step-label orange">Step 6 · Admin Only</span>
+          <p class="step-title">Nightly Refresh</p>
+          <p class="step-hint">Schedule this dataset to be refreshed automatically every night in Snowflake.</p>
+          <hr class="card-divider" style="border-color:#FED7AA;">
           <div class="nightly">
-            <span class="nightly-lbl">🔄 Nightly Refresh</span>
-            <span class="nightly-txt">If Yes, the Snowflake processor will automatically refresh this dataset every night.</span>
+            <span class="nightly-lbl">🔄 Auto-Refresh</span>
+            <span class="nightly-txt">If Yes, Snowflake will automatically refresh this dataset every night.</span>
             <select name="nightly_refresh" class="nightly-sel">
               <option value="0" {% if not prefill.nightly_refresh %}selected{% endif %}>No</option>
               <option value="1" {% if prefill.nightly_refresh %}selected{% endif %}>Yes — refresh nightly</option>
             </select>
           </div>
         </div>
-        {% endif %}
-
-      </div>{# /ds-grid #}
-
-      <div class="btn-row">
-        <button type="submit" name="action" value="submit" class="btn-main">Submit Request</button>
-        {% if warn_refresh %}
-          <button type="submit" name="action" value="refresh" class="btn-main">Refresh Dataset</button>
-        {% endif %}
       </div>
-    </form>
-  </div>
+      {% endif %}
 
-  {% endif %}
+    </div>{# /step-track #}
+
+    <div class="btn-row">
+      <button type="submit" name="action" value="submit" class="btn-main">Submit Request</button>
+      {% if warn_refresh %}
+        <button type="submit" name="action" value="refresh" class="btn-ref">🔄 Refresh Dataset</button>
+      {% endif %}
+    </div>
+
+  </form>
+{% endif %}
 </div>
 {% endblock %}
 
@@ -222,14 +348,12 @@
 {% if not access_denied %}
 <script>
 (function () {
-  // ── Data from Python ──
   const EP_MAP   = {{ endpoint_map_json | safe }};
   const PREFILL  = {{ prefill_headers_json | safe }};
   const SEGMENTS = {{ segment_values_json | safe }};
   const TAGS     = {{ all_tags_json | safe }};
   const TAG_VALS = {{ all_tag_values_json | safe }};
 
-  // ── Helpers ──
   function esc(v) {
     return String(v || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
@@ -260,7 +384,7 @@
       .map(s => s.value).filter(Boolean);
   }
 
-  // ── Alert handling ──
+  // ── Alerts ──
   function dismiss(el) {
     if (!el) return;
     el.classList.add('out');
@@ -272,21 +396,24 @@
     setTimeout(() => dismiss(el), 5000);
   });
 
-  // ── Header help panel ──
+  // ── Help panel ──
   function updateHelp(ep) {
-    const box = document.getElementById('hdr-help');
+    const box    = document.getElementById('hdr-help');
     const params = visibleParams(ep);
-    if (!ep)           { box.innerHTML = 'Select an endpoint to view available headers.'; return; }
-    if (!params.length){ box.innerHTML = 'No header parameters found for this endpoint.'; return; }
+    if (!ep)            { box.innerHTML = 'Select a dataset to view available filters.'; return; }
+    if (!params.length) { box.innerHTML = 'No filters available for this dataset.'; return; }
     box.innerHTML = '<ul>' + params.map(p =>
-      `<li><b>${esc(p.name)}</b> — type: ${esc(p.type||'string')}${p.required ? ' <span class="req-chip">Required</span>' : ''}${p.description ? `<div class="hdr-desc">${esc(p.description)}</div>` : ''}</li>`
+      `<li><b>${esc(p.name)}</b> — <em>${esc(p.type||'string')}</em>` +
+      (p.required ? ` <span class="req-chip">Required</span>` : '') +
+      (p.description ? `<div class="hdr-desc">${esc(p.description)}</div>` : '') +
+      '</li>'
     ).join('') + '</ul>';
   }
 
-  // ── Header name dropdown ──
+  // ── Name dropdown ──
   function nameOptionsHtml(selected, skip) {
     const used = usedNames();
-    return '<option value="">-- Select header --</option>' +
+    return '<option value="">-- Select filter --</option>' +
       visibleParams(selectedEp()).map(p => {
         const sel = selected === p.name ? ' selected' : '';
         const dis = used.includes(p.name) && p.name !== skip ? ' disabled' : '';
@@ -355,7 +482,9 @@
 
     function sync() {
       const n = nameSel.value, v = valSel.value;
-      hidden.value = (n || v) ? JSON.stringify([Object.fromEntries([[n&&'tag_name',n],[v&&'tag_value',v]].filter(([k])=>k))]) : '';
+      hidden.value = (n || v)
+        ? JSON.stringify([Object.fromEntries([[n&&'tag_name',n],[v&&'tag_value',v]].filter(([k])=>k))])
+        : '';
     }
 
     nameSel.addEventListener('change', () => { fillTagValues(valSel, nameSel.value, ''); sync(); });
@@ -372,18 +501,17 @@
     if (isTag(name))          return makeTagCtrl('', '');
     const inp = document.createElement('input');
     inp.type = 'text'; inp.name = 'header_value'; inp.className = 'ds-input';
-    inp.placeholder = 'Header value'; inp.value = val || '';
+    inp.placeholder = 'Filter value'; inp.value = val || '';
     return inp;
   }
 
-  // ── Add a header row ──
+  // ── Add a filter row ──
   function addRow(name, value, required) {
     const container = document.getElementById('hdr-container');
     const row = document.createElement('div');
     row.className = 'hdr-row' + (isTag(name) ? ' tag' : '');
     row.dataset.required = !!required;
 
-    // Name select
     const nameWrap = document.createElement('div');
     const nameSel  = document.createElement('select');
     nameSel.name = 'header_name'; nameSel.className = 'ds-select';
@@ -391,19 +519,16 @@
     nameSel.value = name || '';
     nameWrap.appendChild(nameSel);
 
-    // Value wrapper
     const valWrap = document.createElement('div');
     valWrap.style.display = 'contents';
     valWrap.appendChild(makeValueCtrl(name || '', value || ''));
 
-    // Remove button
     const rmWrap = document.createElement('div');
     const rmBtn  = document.createElement('button');
     rmBtn.type = 'button'; rmBtn.className = 'btn-rm';
     rmBtn.textContent = 'Remove'; rmBtn.disabled = !!required;
     rmWrap.appendChild(rmBtn);
 
-    // Events
     nameSel.addEventListener('change', function () {
       const n = this.value;
       row.className = 'hdr-row' + (isTag(n) ? ' tag' : '');
@@ -419,7 +544,6 @@
     container.appendChild(row);
   }
 
-  // ── Auto-add required headers ──
   function addRequired() {
     const ep   = selectedEp();
     const used = usedNames();
@@ -427,7 +551,6 @@
     rebuildNameOptions();
   }
 
-  // ── Populate from prefill ──
   function populateHeaders() {
     document.getElementById('hdr-container').innerHTML = '';
     const ep = selectedEp();
@@ -437,10 +560,8 @@
     syncRequired();
   }
 
-  // ── Endpoint change ──
   function onEpChange() { updateHelp(selectedEp()); populateHeaders(); }
 
-  // ── Init ──
   document.addEventListener('DOMContentLoaded', () => {
     updateHelp(selectedEp());
     populateHeaders();

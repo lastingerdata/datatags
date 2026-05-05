@@ -38,32 +38,36 @@
               </svg>
             </a>
             <div class="dropdown-content">
-              <a href="{{ base_path }}/tags{{ ext }}" class="dropdown-item {% if page_name == 'tags' %}active{% endif %}">Manage Tag Categories</a>
-              <a href="{{ base_path }}/tag_values{{ ext }}" class="dropdown-item {% if page_name == 'tag_values' %}active{% endif %}">Manage Tag Values</a>
-              <a href="{{ base_path }}/section_tags{{ ext }}" class="dropdown-item {% if page_name == 'section_tags' %}active{% endif %}">Manage Section Tag Mappings</a>
+              <a href="{{ base_path }}/tags{{ ext }}"                 class="dropdown-item {% if page_name == 'tags' %}active{% endif %}">Manage Tag Categories</a>
+              <a href="{{ base_path }}/tag_values{{ ext }}"           class="dropdown-item {% if page_name == 'tag_values' %}active{% endif %}">Manage Tag Values</a>
+              <a href="{{ base_path }}/section_tags{{ ext }}"         class="dropdown-item {% if page_name == 'section_tags' %}active{% endif %}">Manage Section Tag Mappings</a>
               <a href="{{ base_path }}/section_tags_inserts{{ ext }}" class="dropdown-item {% if page_name == 'section_tags_inserts' %}active{% endif %}">Bulk Insert into Section Tags</a>
+              <a href="{{ base_path }}/documentation{{ ext }}"        class="dropdown-item">User Guide</a>
             </div>
           </div>
 
-          <a href="{{ base_path }}/logs{{ ext }}" class="nav-item {% if page_name == 'logs' %}active{% endif %}">Logs</a>
-          <a href="{{ base_path }}/rules{{ ext }}" class="nav-item {% if page_name == 'rules' %}active{% endif %}">Rules</a>
+          <a href="{{ base_path }}/logs{{ ext }}"     class="nav-item {% if page_name == 'logs' %}active{% endif %}">Logs</a>
+          <a href="{{ base_path }}/rules{{ ext }}"    class="nav-item {% if page_name == 'rules' %}active{% endif %}">Rules</a>
           <a href="{{ base_path }}/web_logs{{ ext }}" class="nav-item {% if page_name == 'web_logs' %}active{% endif %}">Web Logs</a>
 
-          <div class="nav-dropdown">
-            <a href="{{ base_path }}/dataset_request{{ ext }}" class="nav-item {% if page_name == 'dataset_request' %}active{% endif %}">
-              Dataset Requests
-              <svg class="dropdown-icon" width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-            <div class="dropdown-content">
-              <a href="{{ base_path }}/dataset_request{{ ext }}#request-section" class="dropdown-item">New Request</a>
-              <a href="{{ base_path }}/dataset_description{{ ext }}#guide-section" class="dropdown-item">Dataset Request Guide</a>
-              <a href="{{ base_path }}/dataset_requests_list{{ ext }}#requests-section" class="dropdown-item">Submitted Requests</a>
+          {# Dataset Requests & Reports Hub — TAG_ADMIN only #}
+          {% if is_admin %}
+            <div class="nav-dropdown">
+              <a href="{{ base_path }}/dataset_request{{ ext }}" class="nav-item {% if page_name == 'dataset_request' %}active{% endif %}">
+                Dataset Requests
+                <svg class="dropdown-icon" width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+              <div class="dropdown-content">
+                <a href="{{ base_path }}/dataset_request{{ ext }}#request-section"         class="dropdown-item">New Request</a>
+                <a href="{{ base_path }}/dataset_description{{ ext }}#guide-section"       class="dropdown-item">Dataset Request Guide</a>
+                <a href="{{ base_path }}/dataset_requests_list{{ ext }}#requests-section"  class="dropdown-item">Submitted Requests</a>
+              </div>
             </div>
-          </div>
+            <a href="{{ base_path }}/reports_hub{{ ext }}" class="nav-item {% if page_name == 'reports_hub' %}active{% endif %}">Reports Hub</a>
+          {% endif %}
 
-          <a href="{{ base_path }}/documentation{{ ext }}" class="nav-item">User Guide</a>
           <a href="" class="nav-item" id="snowflake-link" onclick="runSnowflake(event)">Rebuild Demo Table</a>
         </div>
       </div>
@@ -91,14 +95,10 @@
       try {
         const response = await fetch('/ufl_tag_manager/run_snowflake.py', {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
+          headers: { 'Content-Type': 'application/json' }
         });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
         const data = await response.json();
         linkElement.innerText = "Success: " + data.message;
