@@ -7,7 +7,7 @@
   .container.mt-4 { max-width:100%!important; padding:0!important; margin:0!important; }
 
   /* ── Page shell ── */
-  .ds-page {
+  .ds-page  {
     padding: 32px 40px 80px;
     width: 90vw;
     max-width: 900px;
@@ -30,19 +30,21 @@
   }
 
   /* ── Step track ── */
-  .step-track { position:relative; }
+  .step-track  { position:relative; }
   .step-track::before {
     content: '';
     position: absolute;
-    left: 15px; top: 32px; bottom: 32px;
+    left: 15px;
+    top: 32px;
+    bottom: 32px;
     width: 2px;
     background: rgba(255,255,255,0.25);
     z-index: 0;
   }
 
   /* ── Single step ── */
-  .step-wrap { display:flex; gap:16px; align-items:flex-start; margin-bottom:16px; position:relative; z-index:1; }
-  .step-num  {
+  .step-wrap  { display:flex; gap:16px; align-items:flex-start; margin-bottom:16px; position:relative; z-index:1; }
+  .step-num   {
     width: 32px; height: 32px; border-radius: 50%;
     background: #FA4616; color: #fff;
     font-family:'IBM Plex Sans',sans-serif; font-size:13px; font-weight:700;
@@ -54,8 +56,11 @@
 
   /* ── Step cards ── */
   .step-card {
-    flex: 1; border-radius: 10px; padding: 20px 24px;
-    background: #ffffff; border: 1px solid #E5E7EB;
+    flex: 1;
+    border-radius: 10px;
+    padding: 20px 24px;
+    background: #ffffff;
+    border: 1px solid #E5E7EB;
     border-left: 4px solid #FA4616;
     transition: box-shadow 0.15s;
   }
@@ -80,8 +85,7 @@
   .card-divider { border:none; border-top:1px solid #E5E7EB; margin:14px 0; }
 
   /* ── Inputs ── */
-  .ds-label { display:block; margin-bottom:5px; font-family:'IBM Plex Sans',sans-serif; font-size:13px; font-weight:600; color:#374151; }
-  .ds-hint-sm { display:block; margin-top:4px; font-size:11px; color:#9CA3AF; font-family:'IBM Plex Sans',sans-serif; }
+  .ds-label  { display:block; margin-bottom:5px; font-family:'IBM Plex Sans',sans-serif; font-size:13px; font-weight:600; color:#374151; }
   .ds-input, .ds-select, .ds-textarea, .ds-readonly {
     width:100%; box-sizing:border-box; padding:10px 12px;
     border:1px solid #D1D5DB; border-radius:6px;
@@ -94,7 +98,7 @@
   .ds-textarea { min-height:90px; resize:vertical; }
   .ds-readonly { background:#F9FAFB; color:#6B7280; cursor:default; border-style:dashed; }
 
-  /* ── Header help box ── */
+  /* ── Filter help box ── */
   .hdr-help {
     border:1px solid #E5E7EB; border-radius:6px;
     padding:12px 14px; background:#FAFAFA;
@@ -104,11 +108,78 @@
   .hdr-help ul { margin:6px 0 0 16px; padding:0; }
   .hdr-help li { margin-bottom:5px; color:#374151; }
 
-  /* ── Header rows ── */
-  .hdr-row     { display:grid; grid-template-columns:minmax(240px,1fr) minmax(300px,2fr) auto; gap:10px; margin-bottom:10px; align-items:start; }
-  .hdr-row.tag { grid-template-columns:minmax(240px,1fr) minmax(200px,1fr) minmax(200px,1fr) auto; }
-  .hdr-desc    { margin-top:4px; color:#6B7280; font-size:12px; font-family:'IBM Plex Sans',sans-serif; }
-  .req-chip    { display:inline-block; margin-left:5px; padding:1px 7px; background:#FEE2E2; color:#991B1B; border-radius:999px; font-size:10px; font-weight:700; }
+  /* ── Filter section layout ── */
+  .filter-section { display:flex; flex-direction:column; gap:10px; }
+
+  /* ── Filter block (one filter type) ── */
+  .filter-block {
+    border:1px solid #E5E7EB; border-radius:8px;
+    padding:14px 16px; background:#FAFAFA;
+  }
+
+  .filter-block-header {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:10px;
+  }
+
+  .filter-block-label {
+    font-family:'IBM Plex Sans',sans-serif; font-size:12px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.07em; color:#6B7280;
+    display:flex; align-items:center; gap:8px;
+  }
+
+  .req-chip { display:inline-block; padding:1px 7px; background:#FEE2E2; color:#991B1B; border-radius:999px; font-size:10px; font-weight:700; }
+
+  /* ── AND/OR toggle switch ── */
+  .mode-toggle-wrap {
+    display:flex; align-items:center; gap:8px;
+    font-family:'IBM Plex Sans',sans-serif; font-size:12px; font-weight:600; color:#6B7280;
+  }
+
+  .toggle-switch {
+    position:relative; display:inline-block; width:52px; height:24px; flex-shrink:0;
+  }
+  .toggle-switch input { opacity:0; width:0; height:0; }
+  .toggle-slider {
+    position:absolute; cursor:pointer;
+    top:0; left:0; right:0; bottom:0;
+    background:#D1D5DB; border-radius:24px;
+    transition:background 0.2s;
+  }
+  .toggle-slider:before {
+    content:''; position:absolute;
+    height:18px; width:18px; left:3px; bottom:3px;
+    background:#fff; border-radius:50%;
+    transition:transform 0.2s;
+  }
+  .toggle-switch input:checked + .toggle-slider { background:#002657; }
+  .toggle-switch input:checked + .toggle-slider:before { transform:translateX(28px); }
+
+  .mode-label-or  { color:#6B7280; }
+  .mode-label-and { color:#002657; font-weight:700; }
+
+  /* ── Tag rows container ── */
+  .tag-rows { display:flex; flex-direction:column; gap:8px; }
+
+  /* ── Single tag row ── */
+  .tag-row {
+    display:grid; grid-template-columns:1fr 1fr auto;
+    gap:8px; align-items:center;
+  }
+
+  /* ── Add tag button (AND mode only) ── */
+  .btn-add-tag {
+    display:none; /* shown via JS */
+    border:1px dashed #D1D5DB; border-radius:6px; padding:8px 14px; cursor:pointer;
+    font-family:'IBM Plex Sans',sans-serif; font-size:13px; font-weight:600;
+    background:#fff; color:#6B7280; margin-top:4px; width:100%;
+    transition:background 0.15s, border-color 0.15s;
+  }
+  .btn-add-tag:hover { background:#F9FAFB; border-color:#9CA3AF; }
+  .btn-add-tag.visible { display:block; }
+
+  /* ── Simple filter row (segment / anonymize) ── */
+  .simple-row { display:grid; grid-template-columns:1fr; gap:8px; }
 
   /* ── Nightly refresh ── */
   .nightly     { display:flex; align-items:center; gap:14px; padding:14px 16px; background:#FFF7ED; border:1px solid #FED7AA; border-radius:8px; }
@@ -132,12 +203,6 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.15);
   }
   .btn-ref:hover { background:#F3F4F6; }
-  .btn-sm   {
-    border:1px solid #D1D5DB; border-radius:6px; padding:8px 14px; cursor:pointer;
-    font-family:'IBM Plex Sans',sans-serif; font-size:13px; font-weight:600;
-    background:#fff; color:#374151; margin-top:8px; transition:background .15s;
-  }
-  .btn-sm:hover { background:#F9FAFB; }
   .btn-rm   {
     border:none; border-radius:6px; padding:10px 12px; cursor:pointer;
     font-family:'IBM Plex Sans',sans-serif; font-size:13px; font-weight:600;
@@ -170,7 +235,7 @@
   @media(max-width:700px) {
     .ds-page  { padding:20px 16px 60px; }
     .ds-title { font-size:28px; }
-    .hdr-row, .hdr-row.tag { grid-template-columns:1fr; }
+    .tag-row  { grid-template-columns:1fr; }
     .btn-row  { padding-left:0; }
     .nightly  { flex-direction:column; align-items:flex-start; }
   }
@@ -216,6 +281,7 @@
   {% endif %}
 
   <form method="POST">
+    <input type="hidden" name="form_mode" id="form_mode" value="submit">
 
     <div class="step-track">
 
@@ -241,17 +307,25 @@
         </div>
       </div>
 
-      {# ── STEP 2 — Filters / Headers ── #}
+      {# ── STEP 2 — Filters ── #}
       <div class="step-wrap">
         <div class="step-num">2</div>
         <div class="step-card">
           <span class="step-label">Step 2</span>
           <p class="step-title">Filters</p>
-          <p class="step-hint">Narrow down your data. Required filters are added automatically when you select a dataset.</p>
+          <p class="step-hint">Narrow down your data. All available filters for the selected dataset are shown below.</p>
           <hr class="card-divider">
-          <div id="hdr-container"></div>
-          <button type="button" class="btn-sm" id="add-hdr">+ Add Filter</button>
-          <span class="ds-hint-sm" style="display:block;margin-top:6px;">Required filters are auto-added. Duplicates are not allowed.</span>
+
+          {# Filters are rendered by JS into this container #}
+          <div class="filter-section" id="filter-section">
+            <div style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:#9CA3AF;">
+              Select a dataset above to see available filters.
+            </div>
+          </div>
+
+          {# Hidden inputs — JS writes final values here before submit #}
+          <div id="hidden-inputs"></div>
+
         </div>
       </div>
 
@@ -301,10 +375,8 @@
             <input class="ds-input" type="text" id="schema_name" name="schema_name"
               value="{{ prefill.schema_name | default(schema_name) }}"
               placeholder="Snowflake schema name">
-            <span class="ds-hint-sm">Defaults to your schema ({{ derived_schema }}).</span>
           {% else %}
             <div class="ds-readonly">{{ schema_name }}</div>
-            <span class="ds-hint-sm">Automatically set from your account.</span>
           {% endif %}
         </div>
       </div>
@@ -347,226 +419,367 @@
 {% block extra_scripts %}
 {% if not access_denied %}
 <script>
-(function () {
-  const EP_MAP   = {{ endpoint_map_json | safe }};
-  const PREFILL  = {{ prefill_headers_json | safe }};
-  const SEGMENTS = {{ segment_values_json | safe }};
-  const TAGS     = {{ all_tags_json | safe }};
-  const TAG_VALS = {{ all_tag_values_json | safe }};
+(function(){
+  const EP    = {{ endpoint_map_json | safe }};
+  const PRE   = {{ prefill_headers_json | safe }};
+  const SEGS  = {{ segment_values_json | safe }};
+  const TAGS  = {{ all_tags_json | safe }};
+  const TVALS = {{ all_tag_values_json | safe }};
 
-  function esc(v) {
-    return String(v || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const esc = v => String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const ep  = () => (document.getElementById('endpoint')||{}).value || '';
+
+  const state = {
+    segment:   '',
+    anonymize: '',
+    tagMode:   'or',
+    tagRows:   [{ tagName: '', tagValue: '' }],
+  };
+
+  // ── Param helpers ───────────────────────────────────────────────────────────
+  function allParams(e) {
+    return ((EP[e]||{}).parameters||[]).filter(p=>p&&p.in==='header'&&p.name);
   }
 
-  function selectedEp() {
-    const s = document.getElementById('endpoint');
-    return s ? s.value : '';
+  function visibleParams(e) {
+    const all = allParams(e);
+    const hasFlag = all.some(p => 'x-show_on_website' in p);
+    return hasFlag ? all.filter(p => p['x-show_on_website'] === true) : all;
   }
 
-  function allParams(ep) {
-    if (!ep || !EP_MAP[ep]) return [];
-    return (EP_MAP[ep].parameters || []).filter(p => p && p.in === 'header' && p.name);
+  function hasFilter(e, name) {
+    return visibleParams(e).some(p => p.name === name);
   }
 
-  function visibleParams(ep) {
-    return allParams(ep).filter(p => p['x-show_on_website'] === true);
-  }
-
-  function isTag(name) { return (name || '').startsWith('tag'); }
-
-  function isRequired(ep, name) {
-    const p = allParams(ep).find(p => p.name === name);
+  function isRequired(e, name) {
+    const p = allParams(e).find(p => p.name === name);
     return p ? !!p.required : false;
   }
 
-  function usedNames() {
-    return [...document.querySelectorAll('select[name="header_name"]')]
-      .map(s => s.value).filter(Boolean);
+  function tagHeaderName(e) {
+    return (visibleParams(e).find(p => (p.name||'').startsWith('tag')) || {}).name || null;
   }
 
-  // ── Alerts ──
-  function dismiss(el) {
-    if (!el) return;
-    el.classList.add('out');
-    setTimeout(() => el.remove(), 300);
-  }
-
-  document.querySelectorAll('[data-alert]').forEach(el => {
-    el.querySelector('[data-close]')?.addEventListener('click', () => dismiss(el));
-    setTimeout(() => dismiss(el), 5000);
-  });
-
-  // ── Help panel ──
-  function updateHelp(ep) {
-    const box    = document.getElementById('hdr-help');
-    const params = visibleParams(ep);
-    if (!ep)            { box.innerHTML = 'Select a dataset to view available filters.'; return; }
-    if (!params.length) { box.innerHTML = 'No filters available for this dataset.'; return; }
-    box.innerHTML = '<ul>' + params.map(p =>
+  // ── Help panel ─────────────────────────────────────────────────────────────
+  function updateHelp(e) {
+    const box = document.getElementById('hdr-help');
+    const vp  = visibleParams(e);
+    if (!e)        { box.innerHTML = 'Select a dataset to view available filters.'; return; }
+    if (!vp.length){ box.innerHTML = 'No filters available for this dataset.'; return; }
+    box.innerHTML = '<ul>' + vp.map(p =>
       `<li><b>${esc(p.name)}</b> — <em>${esc(p.type||'string')}</em>` +
       (p.required ? ` <span class="req-chip">Required</span>` : '') +
-      (p.description ? `<div class="hdr-desc">${esc(p.description)}</div>` : '') +
+      (p.description ? `<br><span style="color:#9CA3AF;font-size:11px">${esc(p.description)}</span>` : '') +
       '</li>'
     ).join('') + '</ul>';
   }
 
-  // ── Name dropdown ──
-  function nameOptionsHtml(selected, skip) {
-    const used = usedNames();
-    return '<option value="">-- Select filter --</option>' +
-      visibleParams(selectedEp()).map(p => {
-        const sel = selected === p.name ? ' selected' : '';
-        const dis = used.includes(p.name) && p.name !== skip ? ' disabled' : '';
-        return `<option value="${esc(p.name)}"${sel}${dis}>${esc(p.name)}</option>`;
-      }).join('');
-  }
+  // ── Render the full filter section ─────────────────────────────────────────
+  function renderFilters() {
+    const e       = ep();
+    const section = document.getElementById('filter-section');
+    section.innerHTML = '';
 
-  function rebuildNameOptions() {
-    document.querySelectorAll('select[name="header_name"]').forEach(s => {
-      const cur = s.value;
-      s.innerHTML = nameOptionsHtml(cur, cur);
-      s.value = cur;
-    });
-  }
-
-  function syncRequired() {
-    const ep = selectedEp();
-    document.querySelectorAll('.hdr-row').forEach(row => {
-      const s   = row.querySelector('select[name="header_name"]');
-      const btn = row.querySelector('.btn-rm');
-      const req = isRequired(ep, s?.value || '');
-      row.dataset.required = req;
-      if (btn) btn.disabled = req;
-    });
-  }
-
-  // ── Value controls ──
-  function makeSegmentCtrl(val) {
-    const s = document.createElement('select');
-    s.name = 'header_value'; s.className = 'ds-select';
-    s.innerHTML = '<option value="">-- Select segment --</option>' +
-      SEGMENTS.map(v => `<option value="${esc(v)}"${v===val?' selected':''}>${esc(v)}</option>`).join('');
-    return s;
-  }
-
-  function makeAnonCtrl(val) {
-    const s = document.createElement('select');
-    s.name = 'header_value'; s.className = 'ds-select';
-    s.innerHTML = '<option value="">-- Select --</option>' +
-      `<option value="false"${val==='false'?' selected':''}>No</option>` +
-      `<option value="true"${val==='true'?' selected':''}>Yes</option>`;
-    return s;
-  }
-
-  function fillTagValues(sel, tagName, selected) {
-    const vals = (tagName && TAG_VALS[tagName]) ? TAG_VALS[tagName] : [];
-    sel.innerHTML = '<option value="">-- Select tag value --</option>' +
-      vals.map(v => `<option value="${esc(v)}"${v===selected?' selected':''}>${esc(v)}</option>`).join('');
-  }
-
-  function makeTagCtrl(tagName, tagVal) {
-    const wrap = document.createElement('div');
-    wrap.style.display = 'contents';
-
-    const nameSel = document.createElement('select');
-    nameSel.name = 'header_tag_name'; nameSel.className = 'ds-select';
-    nameSel.innerHTML = '<option value="">-- Select tag --</option>' +
-      TAGS.map(t => `<option value="${esc(t)}"${t===tagName?' selected':''}>${esc(t)}</option>`).join('');
-
-    const valSel = document.createElement('select');
-    valSel.name = 'header_tag_value'; valSel.className = 'ds-select';
-    fillTagValues(valSel, tagName, tagVal);
-
-    const hidden = document.createElement('input');
-    hidden.type = 'hidden'; hidden.name = 'header_value'; hidden.value = '';
-
-    function sync() {
-      const n = nameSel.value, v = valSel.value;
-      hidden.value = (n || v)
-        ? JSON.stringify([Object.fromEntries([[n&&'tag_name',n],[v&&'tag_value',v]].filter(([k])=>k))])
-        : '';
+    if (!e) {
+      section.innerHTML = '<div style="font-family:\'IBM Plex Sans\',sans-serif;font-size:13px;color:#9CA3AF;">Select a dataset above to see available filters.</div>';
+      return;
     }
 
-    nameSel.addEventListener('change', () => { fillTagValues(valSel, nameSel.value, ''); sync(); });
-    valSel.addEventListener('change', sync);
-    sync();
+    const hasSegment   = hasFilter(e, 'segment');
+    const hasAnonymize = hasFilter(e, 'anonymize');
+    const tagHdr       = tagHeaderName(e);
 
-    wrap.append(nameSel, valSel, hidden);
-    return wrap;
+    if (!hasSegment && !hasAnonymize && !tagHdr) {
+      section.innerHTML = '<div style="font-family:\'IBM Plex Sans\',sans-serif;font-size:13px;color:#9CA3AF;">No filters available for this dataset.</div>';
+      return;
+    }
+
+    // ── Segment block ──
+    if (hasSegment) {
+      const req = isRequired(e, 'segment');
+      section.appendChild(makeSegmentBlock(req));
+    }
+
+    // ── Anonymize block ──
+    if (hasAnonymize) {
+      section.appendChild(makeAnonymizeBlock());
+    }
+
+    // ── Tag Sections block ──
+    if (tagHdr) {
+      section.appendChild(makeTagBlock());
+    }
+
+    syncHiddenInputs();
   }
 
-  function makeValueCtrl(name, val) {
-    if (name === 'segment')   return makeSegmentCtrl(val);
-    if (name === 'anonymize') return makeAnonCtrl(val);
-    if (isTag(name))          return makeTagCtrl('', '');
-    const inp = document.createElement('input');
-    inp.type = 'text'; inp.name = 'header_value'; inp.className = 'ds-input';
-    inp.placeholder = 'Filter value'; inp.value = val || '';
-    return inp;
+  // ── Segment block ──────────────────────────────────────────────────────────
+  function makeSegmentBlock(required) {
+    const block = document.createElement('div');
+    block.className = 'filter-block';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'filter-block-header';
+    hdr.innerHTML = `<span class="filter-block-label">Segment${required ? ' <span class="req-chip">Required</span>' : ''}</span>`;
+    block.appendChild(hdr);
+
+    const sel = document.createElement('select');
+    sel.className = 'ds-select';
+    sel.innerHTML = '<option value="">-- Select segment --</option>' +
+      SEGS.map(s => `<option value="${esc(s)}"${s === state.segment ? ' selected' : ''}>${esc(s)}</option>`).join('');
+    sel.addEventListener('change', () => { state.segment = sel.value; syncHiddenInputs(); });
+    block.appendChild(sel);
+    return block;
   }
 
-  // ── Add a filter row ──
-  function addRow(name, value, required) {
-    const container = document.getElementById('hdr-container');
-    const row = document.createElement('div');
-    row.className = 'hdr-row' + (isTag(name) ? ' tag' : '');
-    row.dataset.required = !!required;
+  // ── Anonymize block ────────────────────────────────────────────────────────
+  function makeAnonymizeBlock() {
+    const block = document.createElement('div');
+    block.className = 'filter-block';
 
-    const nameWrap = document.createElement('div');
-    const nameSel  = document.createElement('select');
-    nameSel.name = 'header_name'; nameSel.className = 'ds-select';
-    nameSel.innerHTML = nameOptionsHtml(name || '', name || '');
-    nameSel.value = name || '';
-    nameWrap.appendChild(nameSel);
+    const hdr = document.createElement('div');
+    hdr.className = 'filter-block-header';
+    hdr.innerHTML = `<span class="filter-block-label">Anonymize</span>`;
+    block.appendChild(hdr);
 
-    const valWrap = document.createElement('div');
-    valWrap.style.display = 'contents';
-    valWrap.appendChild(makeValueCtrl(name || '', value || ''));
+    const sel = document.createElement('select');
+    sel.className = 'ds-select';
+    sel.innerHTML = `<option value="">-- Select --</option>
+      <option value="false"${state.anonymize === 'false' ? ' selected' : ''}>No</option>
+      <option value="true"${state.anonymize === 'true'  ? ' selected' : ''}>Yes</option>`;
+    sel.addEventListener('change', () => { state.anonymize = sel.value; syncHiddenInputs(); });
+    block.appendChild(sel);
+    return block;
+  }
 
-    const rmWrap = document.createElement('div');
-    const rmBtn  = document.createElement('button');
-    rmBtn.type = 'button'; rmBtn.className = 'btn-rm';
-    rmBtn.textContent = 'Remove'; rmBtn.disabled = !!required;
-    rmWrap.appendChild(rmBtn);
+  // ── Tag Sections block ─────────────────────────────────────────────────────
+  function makeTagBlock() {
+    const block = document.createElement('div');
+    block.className = 'filter-block';
+    block.id = 'tag-block';
 
-    nameSel.addEventListener('change', function () {
-      const n = this.value;
-      row.className = 'hdr-row' + (isTag(n) ? ' tag' : '');
-      while (valWrap.firstChild) valWrap.removeChild(valWrap.firstChild);
-      valWrap.appendChild(makeValueCtrl(n, ''));
-      rebuildNameOptions();
-      syncRequired();
+    const hdr = document.createElement('div');
+    hdr.className = 'filter-block-header';
+
+    const lbl = document.createElement('span');
+    lbl.className = 'filter-block-label';
+    lbl.textContent = 'Tag Sections';
+
+    const toggleWrap = document.createElement('div');
+    toggleWrap.className = 'mode-toggle-wrap';
+    toggleWrap.innerHTML = `
+      <span class="mode-label-or">OR</span>
+      <label class="toggle-switch" title="Switch between OR (any tag) and AND (all tags)">
+        <input type="checkbox" id="tag-mode-toggle" ${state.tagMode === 'and' ? 'checked' : ''}>
+        <span class="toggle-slider"></span>
+      </label>
+      <span class="mode-label-and">AND</span>
+    `;
+
+    hdr.appendChild(lbl);
+    hdr.appendChild(toggleWrap);
+    block.appendChild(hdr);
+
+    const rowsContainer = document.createElement('div');
+    rowsContainer.className = 'tag-rows';
+    rowsContainer.id = 'tag-rows';
+    block.appendChild(rowsContainer);
+
+    const addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.className = 'btn-add-tag' + (state.tagMode === 'and' && state.tagRows.length < 2 ? ' visible' : '');
+    addBtn.id = 'add-tag-btn';
+    addBtn.textContent = '+ Add Another Tag Filter';
+    block.appendChild(addBtn);
+
+    const hint = document.createElement('div');
+    hint.style.cssText = 'font-size:11px;color:#9CA3AF;margin-top:6px;font-family:\'IBM Plex Sans\',sans-serif;';
+    hint.id = 'tag-mode-hint';
+    hint.textContent = state.tagMode === 'and'
+      ? 'AND mode: records must match all tag filters (max 2).'
+      : 'OR mode: records matching any of the selected tags will be returned.';
+    block.appendChild(hint);
+
+    renderTagRows(rowsContainer);
+
+    // Toggle event
+    document.addEventListener('change', function handler(e) {
+      if (e.target && e.target.id === 'tag-mode-toggle') {
+        state.tagMode = e.target.checked ? 'and' : 'or';
+        // If switching to OR and there are 2 rows, remove the second
+        if (state.tagMode === 'or' && state.tagRows.length > 1) {
+          state.tagRows = [state.tagRows[0]];
+        }
+        renderFilters();
+        document.removeEventListener('change', handler);
+      }
     });
 
-    rmBtn.addEventListener('click', () => { row.remove(); rebuildNameOptions(); syncRequired(); });
+    // Add tag row button
+    addBtn.addEventListener('click', () => {
+      if (state.tagMode === 'and' && state.tagRows.length < 2) {
+        state.tagRows.push({ tagName: '', tagValue: '' });
+        renderTagRows(rowsContainer);
+        updateAddTagBtn();
+        syncHiddenInputs();
+      }
+    });
 
-    row.append(nameWrap, valWrap, rmWrap);
-    container.appendChild(row);
+    return block;
   }
 
-  function addRequired() {
-    const ep   = selectedEp();
-    const used = usedNames();
-    visibleParams(ep).forEach(p => { if (p.required && !used.includes(p.name)) addRow(p.name, '', true); });
-    rebuildNameOptions();
+  function renderTagRows(container) {
+    container.innerHTML = '';
+    state.tagRows.forEach((row, idx) => {
+      container.appendChild(makeTagRow(row, idx));
+    });
   }
 
-  function populateHeaders() {
-    document.getElementById('hdr-container').innerHTML = '';
-    const ep = selectedEp();
-    (PREFILL || []).forEach(item => addRow(item.name || '', item.value || '', isRequired(ep, item.name || '')));
-    addRequired();
-    rebuildNameOptions();
-    syncRequired();
+  function makeTagRow(rowState, idx) {
+    const row = document.createElement('div');
+    row.className = 'tag-row';
+
+    // Tag name select
+    const ns = document.createElement('select');
+    ns.className = 'ds-select';
+    ns.innerHTML = '<option value="">-- Select tag --</option>' +
+      TAGS.map(t => `<option value="${esc(t)}"${t === rowState.tagName ? ' selected' : ''}>${esc(t)}</option>`).join('');
+
+    // Tag value select
+    const vs = document.createElement('select');
+    vs.className = 'ds-select';
+
+    function fillVals(tagName) {
+      const vals = (tagName && TVALS[tagName]) || [];
+      vs.innerHTML = '<option value="">-- Select value --</option>' +
+        vals.map(v => `<option value="${esc(v)}"${v === rowState.tagValue ? ' selected' : ''}>${esc(v)}</option>`).join('');
+    }
+    fillVals(rowState.tagName);
+
+    ns.addEventListener('change', () => {
+      state.tagRows[idx].tagName  = ns.value;
+      state.tagRows[idx].tagValue = '';
+      fillVals(ns.value);
+      syncHiddenInputs();
+    });
+    vs.addEventListener('change', () => {
+      state.tagRows[idx].tagValue = vs.value;
+      syncHiddenInputs();
+    });
+
+    // Remove button — only on second row
+    const rb = document.createElement('button');
+    rb.type = 'button'; rb.className = 'btn-rm';
+    rb.textContent = 'Remove';
+    rb.style.visibility = idx === 0 ? 'hidden' : 'visible';
+    rb.addEventListener('click', () => {
+      state.tagRows.splice(idx, 1);
+      const container = document.getElementById('tag-rows');
+      if (container) renderTagRows(container);
+      updateAddTagBtn();
+      syncHiddenInputs();
+    });
+
+    row.appendChild(ns);
+    row.appendChild(vs);
+    row.appendChild(rb);
+    return row;
   }
 
-  function onEpChange() { updateHelp(selectedEp()); populateHeaders(); }
+  function updateAddTagBtn() {
+    const btn = document.getElementById('add-tag-btn');
+    if (!btn) return;
+    const canAdd = state.tagMode === 'and' && state.tagRows.length < 2;
+    btn.classList.toggle('visible', canAdd);
+  }
+
+  function syncHiddenInputs() {
+    const e   = ep();
+    const box = document.getElementById('hidden-inputs');
+    if (!box) return;
+    box.innerHTML = '';
+
+    function addPair(name, value) {
+      const n = document.createElement('input'); n.type='hidden'; n.name='header_name';  n.value=name;
+      const v = document.createElement('input'); v.type='hidden'; v.name='header_value'; v.value=value;
+      box.appendChild(n); box.appendChild(v);
+    }
+
+    // Segment
+    if (hasFilter(e, 'segment') && state.segment) {
+      addPair('segment', state.segment);
+    }
+
+    // Anonymize
+    if (hasFilter(e, 'anonymize') && state.anonymize) {
+      addPair('anonymize', state.anonymize);
+    }
+
+    const tagHdr = tagHeaderName(e);
+    if (tagHdr) {
+      const tagObjs = state.tagRows
+        .filter(r => r.tagName || r.tagValue)
+        .map(r => {
+          const o = {};
+          if (r.tagName)  o.tag_name  = r.tagName;
+          if (r.tagValue) o.tag_value = r.tagValue;
+          return o;
+        });
+      if (tagObjs.length) {
+        addPair('filterMode', state.tagMode === 'and' ? 'all' : 'any');
+        addPair(tagHdr, JSON.stringify(tagObjs));
+      }
+    }
+  }
+
+  function initStateFromPrefill() {
+    state.segment   = '';
+    state.anonymize = '';
+    state.tagMode   = 'or';
+    state.tagRows   = [{ tagName: '', tagValue: '' }];
+
+    if (!PRE || !PRE.length) return;
+
+    PRE.forEach(item => {
+      if (item.name === 'segment')   state.segment   = item.value || '';
+      if (item.name === 'anonymize') state.anonymize = item.value || '';
+      if ((item.name || '').startsWith('tag') && item.value) {
+        try {
+          const parsed = JSON.parse(item.value);
+          if (Array.isArray(parsed) && parsed.length) {
+            state.tagRows = parsed.map(o => ({ tagName: o.tag_name || '', tagValue: o.tag_value || '' }));
+            if (state.tagRows.length > 1) state.tagMode = 'and';
+          }
+        } catch(e) {}
+      }
+    });
+  }
+
+  function dismiss(el) { el.classList.add('out'); setTimeout(() => el.remove(), 300); }
 
   document.addEventListener('DOMContentLoaded', () => {
-    updateHelp(selectedEp());
-    populateHeaders();
-    document.getElementById('endpoint')?.addEventListener('change', onEpChange);
-    document.getElementById('add-hdr')?.addEventListener('click', () => { addRow('', '', false); rebuildNameOptions(); });
+    document.querySelectorAll('[data-alert]').forEach(el => {
+      el.querySelector('[data-close]')?.addEventListener('click', () => dismiss(el));
+      setTimeout(() => dismiss(el), 5000);
+    });
+
+    initStateFromPrefill();
+    updateHelp(ep());
+    renderFilters();
+
+    document.getElementById('endpoint')?.addEventListener('change', () => {
+     
+      state.segment   = '';
+      state.anonymize = '';
+      state.tagMode   = 'or';
+      state.tagRows   = [{ tagName: '', tagValue: '' }];
+      updateHelp(ep());
+      renderFilters();
+    });
+
+    document.querySelector('form')?.addEventListener('submit', () => {
+      syncHiddenInputs();
+    });
   });
 }());
 </script>
