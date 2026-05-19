@@ -8,7 +8,7 @@ import cgitb
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from env_config import (
     get_current_user, get_base_path,
-    get_tag_admin_users, get_valid_users, is_admin_only_mode,
+    get_user_role, is_in_user_access, is_admin_only_mode,
 )
 from libs.dataset_request_db import (
     get_all_dataset_requests,
@@ -35,17 +35,19 @@ def main():
     method       = os.environ.get("REQUEST_METHOD", "GET").upper()
     current_user = get_current_user()
 
-    admin_only = is_admin_only_mode()
-    is_admin   = current_user in get_tag_admin_users()
-    is_valid   = current_user in get_valid_users()
+    is_admin = get_user_role(current_user) == "admin"
+    is_valid = is_in_user_access(current_user)
 
-    if (admin_only and not is_admin) or (not admin_only and not is_valid):
+    # ADMIN_ONLY_MODE = emergency lockdown (only admins can access)
+    # Normal mode     = anyone in the user_access table can view submitted requests
+    if (is_admin_only_mode() and not is_admin) or (not is_admin_only_mode() and not is_valid):
         render("dataset_requests_list.html",
             current_user=current_user,
             base_path=get_base_path(),
             page_name="dataset_requests_list",
             access_denied=True,
             is_admin=False,
+            user_role="read",
             requests=[],
             message="",
             error="",
@@ -66,17 +68,15 @@ def main():
             error = "Invalid request — no request ID provided."
 
         elif action == "row_refresh":
-            # Reset existing completed/failed row back to pending
             try:
                 refresh_existing_request(int(request_id))
-                message = f"Request #{request_id}  will be refreshed shortly."
+                message = f"Request #{request_id} will be refreshed shortly."
             except ValueError as exc:
                 error = str(exc)
             except Exception as exc:
                 error = f"Failed to refresh request: {exc}"
 
         elif action == "set_nightly" and is_admin:
-            # Toggle nightly refresh flag — admin only
             nightly = form.getfirst("nightly_refresh", "0").strip()
             try:
                 set_nightly_refresh(int(request_id), nightly == "1")
@@ -96,6 +96,7 @@ def main():
         page_name="dataset_requests_list",
         access_denied=False,
         is_admin=is_admin,
+        user_role=get_user_role(current_user),
         requests=requests,
         message=message,
         error=error,

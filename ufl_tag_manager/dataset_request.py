@@ -6,9 +6,11 @@ import os, re, cgi, cgitb, json
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from env_config import (
     get_current_user, get_base_path, get_api_key, safe_request,
-    get_tag_admin_users, get_valid_users, is_admin_only_mode,
+    get_user_role, is_in_user_access, is_admin_only_mode,
 )
-from libs.dataset_request_db import ( add_request, request_refresh, get_existing_status, get_all_tags, get_tag_values_by_tag, get_segment_values, table_exists,
+from libs.dataset_request_db import (
+    add_request, request_refresh, get_existing_status, get_all_tags,
+    get_tag_values_by_tag, get_segment_values, table_exists,
 )
 
 cgitb.enable()
@@ -28,6 +30,7 @@ _TYPE_MAP = {
     "json": "json", "array": "array", "object": "object",
 }
 
+
 def render(template_name, **kwargs):
     print("Content-Type: text/html; charset=utf-8\n")
     print(env.get_template(template_name).render(**kwargs))
@@ -38,15 +41,17 @@ def render_access_denied(current_user):
         current_user=current_user, base_path=get_base_path(),
         page_name="dataset_request", access_denied=True,
         schema_name="", derived_schema="", is_admin=False,
+        user_role="read",
         message="", error="", warn_refresh=False, prefill={},
         endpoint_list=[], endpoint_map_json="{}", swagger_error="",
         ext=".py", prefill_headers_json="[]", segment_values_json="[]",
         all_tags_json="[]", all_tag_values_json="{}",
     )
 
+
 def derive_schema_name(email):
-   
     return re.sub(r"[^a-zA-Z0-9]", "", (email or "").split("@")[0]).lower()
+
 
 def validate_schema_name(name):
     name = (name or "").strip().lower()
@@ -58,6 +63,7 @@ def validate_schema_name(name):
             "letters, numbers, _, or $. No spaces or special characters."
         )
     return True, ""
+
 
 def validate_table_name(name):
     name = (name or "").strip()
@@ -72,11 +78,13 @@ def validate_table_name(name):
         )
     return True, ""
 
+
 def empty_prefill():
     return {
         "endpoint": "", "table_name": "", "dataset_description": "",
         "submitted_headers": [], "nightly_refresh": False, "schema_name": "",
     }
+
 
 def fetch_swagger_docs():
     try:
@@ -96,7 +104,6 @@ def fetch_swagger_docs():
 
 
 def parse_dataset_endpoints(swagger_docs):
-    """Include only endpoints flagged with x-show_on_website: true."""
     endpoint_map = {}
     if isinstance(swagger_docs, list):
         for item in swagger_docs:
@@ -115,6 +122,7 @@ def parse_dataset_endpoints(swagger_docs):
                     "responses":   data.get("responses") or {},
                 }
     return endpoint_map
+
 
 def normalize_type(raw):
     return _TYPE_MAP.get((raw or "string").strip().lower(), "string")
@@ -195,17 +203,18 @@ def build_headers_json(endpoint_data, form):
 
     return headers, errors
 
+
 def main():
     form         = cgi.FieldStorage()
     method       = os.environ.get("REQUEST_METHOD", "GET").upper()
     current_user = get_current_user()
 
-    # Access control
-    admin_only = is_admin_only_mode()
-    is_admin   = current_user in get_tag_admin_users()
-    is_valid   = current_user in get_valid_users()
+    is_admin = get_user_role(current_user) == "admin"
+    is_valid = is_in_user_access(current_user)
 
-    if (admin_only and not is_admin) or (not admin_only and not is_valid):
+    # dataset_request.py is admin-only regardless of ADMIN_ONLY_MODE.
+    # Only admins can submit dataset requests.
+    if not is_admin:
         render_access_denied(current_user)
         return
 
@@ -281,11 +290,12 @@ def main():
                 valid_table, table_err = validate_table_name(table_name)
                 if not valid_table:
                     error = table_err
-                else: 
+                else:
                     if action != "refresh" and table_exists(table_name.upper(), schema_name):
-                       error = (
-                           f"Table '{table_name.upper()}' already exists in schema '{schema_name}'. "
-                           f"Please choose a different table name.")
+                        error = (
+                            f"Table '{table_name.upper()}' already exists in schema '{schema_name}'. "
+                            f"Please choose a different table name."
+                        )
                     else:
                         headers_obj, header_errors = build_headers_json(endpoint_map[endpoint], form)
                         if header_errors:
@@ -303,7 +313,7 @@ def main():
                                     prefill = {**empty_prefill(), "schema_name": schema_name}
                                 except Exception as exc:
                                     error = str(exc)
-                                    
+
                             else:
                                 status = get_existing_status(
                                     endpoint, table_name.upper(), schema_name, headers_json
@@ -330,6 +340,7 @@ def main():
         schema_name=prefill.get("schema_name", derived_schema),
         derived_schema=derived_schema,
         is_admin=is_admin,
+        user_role=get_user_role(current_user),
         access_denied=False,
         message=message,
         error=error,

@@ -7,345 +7,565 @@
   /* ── Reset ── */
   .container.mt-4 { max-width:100% !important; padding:0 !important; margin:0 !important; }
 
-  /* ── Page shell — lighter navy so header/footer stand out ── */
+  /* ── Page shell — full bleed navy ── */
   .dg-page {
     font-family: 'IBM Plex Sans', sans-serif;
-    background: #1a3a6b;          /* lighter than #002657 so header/footer contrast */
+    background: #002657;
     min-height: calc(100vh - 60px);
-    padding: 40px 40px 60px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
   }
 
-  /* ── Page header ── */
-  .dg-header   { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:16px; }
-  .dg-title    { font-family:'Poppins', sans-serif; font-size:36px; font-weight:700; color:#ffffff; line-height:1.2; margin-bottom:6px; }
-  .dg-subtitle { font-size:14px; color:#CBD5E1; line-height:1.6; max-width:520px; }
+  /* ── Top header bar ── */
+  .dg-topbar {
+    padding: 36px 48px 28px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .dg-title-group { display: flex; align-items: center; gap: 20px; }
+  .dg-bar   { width: 6px; height: 64px; background: #FA4616; border-radius: 3px; flex-shrink: 0; }
+  .dg-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 52px; font-weight: 700;
+    color: #ffffff; line-height: 1.05;
+    letter-spacing: -0.5px; margin: 0;
+  }
+  .dg-subtitle {
+    font-size: 14px; color: rgba(255,255,255,0.55);
+    line-height: 1.65; max-width: 520px; margin-top: 6px;
+  }
 
   /* ── Back button ── */
   .dg-back {
-    display:inline-flex; align-items:center; gap:6px;
-    font-size:13px; font-family:'IBM Plex Sans', sans-serif; font-weight:500;
-    color:#ffffff; text-decoration:none;
-    padding:8px 16px;
-    border:1px solid rgba(255,255,255,0.3);
-    border-radius:7px;
-    background:rgba(255,255,255,0.1);
-    white-space:nowrap;
-    transition:background 0.15s;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 500;
+    color: #ffffff; text-decoration: none;
+    padding: 9px 18px;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 7px;
+    background: rgba(255,255,255,0.08);
+    white-space: nowrap;
+    transition: background 0.15s;
+    margin-top: 4px;
   }
-  .dg-back:hover { background:rgba(255,255,255,0.2); color:#ffffff; text-decoration:none; }
+  .dg-back:hover { background: rgba(255,255,255,0.16); color: #ffffff; text-decoration: none; }
 
   /* ── Search toolbar ── */
-  .dg-toolbar  { display:flex; align-items:center; gap:12px; margin-bottom:24px; flex-wrap:wrap; }
-  .dg-search   {
-    display:flex; align-items:center; gap:8px;
-    padding:10px 16px;
-    border:1px solid rgba(255,255,255,0.2);
-    border-radius:24px;
-    background:rgba(255,255,255,0.1);
-    flex:1; min-width:200px; max-width:400px;
-    transition:border-color 0.15s, background 0.15s;
+  .dg-toolbar {
+    padding: 20px 48px 0;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .dg-search {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 16px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 24px;
+    background: rgba(255,255,255,0.1);
+    flex: 1; min-width: 200px; max-width: 400px;
+    transition: border-color 0.15s, background 0.15s;
   }
   .dg-search:focus-within {
-    border-color:rgba(255,255,255,0.5);
-    background:rgba(255,255,255,0.15);
+    border-color: rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.15);
   }
-  .dg-search i  { font-size:15px; color:rgba(255,255,255,0.5); flex-shrink:0; }
+  .dg-search-icon { font-size: 15px; color: rgba(255,255,255,0.45); flex-shrink: 0; }
   .dg-search input {
-    border:none; background:transparent;
-    font-size:13px; font-family:'IBM Plex Sans', sans-serif;
-    color:#ffffff; outline:none; width:100%;
+    border: none; background: transparent;
+    font-size: 13px; font-family: 'IBM Plex Sans', sans-serif;
+    color: #ffffff; outline: none; width: 100%;
   }
-  .dg-search input::placeholder { color:rgba(255,255,255,0.4); }
-  .dg-count { font-size:12px; color:rgba(255,255,255,0.5); margin-left:auto; white-space:nowrap; }
+  .dg-search input::placeholder { color: rgba(255,255,255,0.35); }
+  .dg-count {
+    font-size: 12px; color: rgba(255,255,255,0.45);
+    margin-left: auto; white-space: nowrap;
+  }
 
-  /* ── Cards grid ── */
-  .dg-grid  { display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:18px; align-items:start; }
-  .dg-empty { display:none; grid-column:1/-1; padding:48px; text-align:center; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:10px; font-size:14px; color:rgba(255,255,255,0.5); }
+  /* ── Body layout: sidebar + main ── */
+  .dg-body {
+    display: flex;
+    flex: 1;
+    padding: 28px 48px 60px;
+    gap: 28px;
+    align-items: flex-start;
+  }
+
+  /* ── Left sidebar nav ── */
+  .dg-nav {
+    width: 210px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.15) transparent;
+  }
+  .dg-nav::-webkit-scrollbar { width: 4px; }
+  .dg-nav::-webkit-scrollbar-track { background: transparent; }
+  .dg-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+
+  .dg-nav-label {
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.35);
+    padding: 0 0 10px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 8px;
+  }
+
+  .dg-nav-list { list-style: none; margin: 0; padding: 0; }
+  .dg-nav-item { margin-bottom: 2px; }
+  .dg-nav-link {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 10px; border-radius: 7px;
+    font-size: 13px; font-weight: 500;
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    transition: background 0.12s, color 0.12s;
+    line-height: 1.3;
+  }
+  .dg-nav-link:hover { background: rgba(255,255,255,0.1); color: #ffffff; text-decoration: none; }
+  .dg-nav-link.active { background: rgba(250,70,22,0.18); color: #FA4616; font-weight: 700; }
+  .dg-nav-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(255,255,255,0.25); flex-shrink: 0;
+    transition: background 0.12s;
+  }
+  .dg-nav-link.active .dg-nav-dot { background: #FA4616; }
+  .dg-nav-link.hidden-nav { display: none; }
+
+  /* ── Main content area ── */
+  .dg-main { flex: 1; min-width: 0; }
+
+  /* ── Cards grid — 4 columns fixed ── */
+  .dg-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    align-items: stretch;
+  }
+  .dg-empty {
+    display: none; grid-column: 1/-1;
+    padding: 48px; text-align: center;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    font-size: 14px; color: rgba(255,255,255,0.45);
+  }
 
   /* ── Card ── */
   .ds-card {
-    background:#ffffff;
-    border:1px solid rgba(255,255,255,0.15);
-    border-radius:12px; overflow:hidden;
-    transition:border-color 0.15s, box-shadow 0.15s;
-    cursor:pointer;
+    background: #ffffff;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px; overflow: hidden;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    cursor: pointer;
+    /* Standardised height for collapsed cards */
+    display: flex; flex-direction: column;
   }
-  .ds-card:hover { border-color:#93C5FD; box-shadow:0 4px 20px rgba(0,0,0,0.25); }
-  .ds-card.open  { border-color:#FA4616; grid-column:1/-1; }
-  .ds-card.hidden { display:none; }
+  .ds-card:hover { border-color: #93C5FD; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+  .ds-card.open  { border-color: #FA4616; grid-column: 1 / -1; cursor: default; }
+  .ds-card.hidden { display: none; }
 
-  /* ── Card top ── */
-  .ds-top { padding:18px 18px 14px; }
-  .ds-badge-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  /* ── Card top — fixed min-height so all collapsed cards are uniform ── */
+  .ds-top {
+    padding: 24px 22px 20px;
+    flex: 1;
+    display: flex; flex-direction: column;
+    min-height: 180px;
+    cursor: pointer;
+  }
+  .ds-badge-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
   .ds-badge {
-    display:inline-block; font-family:'IBM Plex Mono', monospace;
-    font-size:11px; font-weight:500; padding:4px 10px;
-    border-radius:6px; background:#F3F4F6; color:#374151; letter-spacing:0.04em;
+    display: inline-block; font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; font-weight: 500; padding: 4px 10px;
+    border-radius: 6px; background: #F3F4F6; color: #374151;
+    letter-spacing: 0.04em;
   }
-  .ds-card.open .ds-badge { background:#DBEAFE; color:#1E40AF; }
-  .ds-chevron { font-size:14px; color:#9CA3AF; transition:transform 0.2s; }
-  .ds-card.open .ds-chevron { transform:rotate(180deg); color:#002657; }
-  .ds-card-title { font-family:'Poppins', sans-serif; font-size:16px; font-weight:700; color:#111827; line-height:1.45; margin-bottom:8px; }
-  .ds-card-desc  { font-family:'IBM Plex Sans', sans-serif; font-size:13px; color:#6B7280; line-height:1.7; }
+  .ds-card.open .ds-badge { background: #DBEAFE; color: #1E40AF; }
+  .ds-chevron { font-size: 14px; color: #9CA3AF; transition: transform 0.2s; }
+  .ds-card.open .ds-chevron { transform: rotate(180deg); color: #002657; }
 
-  /* ── Card body ── */
-  .ds-body {
-    display:none; border-top:1px solid #E5E7EB;
-    padding:18px; flex-direction:column; gap:18px;
-    background:#FCFCFD; animation:fadeIn 0.18s ease;
+  .ds-card-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 30px; font-weight: 700;
+    color: #111827; line-height: 1.35; margin-bottom: 10px;
   }
-  .ds-card.open .ds-body { display:flex; }
+  .ds-card-desc {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 16px; color: #6B7280; line-height: 1.7;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .ds-card.open .ds-card-desc { -webkit-line-clamp: unset; overflow: visible; }
+
+  /* ── Card body (expanded) ── */
+  .ds-body {
+    display: none; border-top: 1px solid #E5E7EB;
+    padding: 20px 20px 20px; flex-direction: column; gap: 20px;
+    background: #FCFCFD; animation: fadeIn 0.18s ease;
+  }
+  .ds-card.open .ds-body { display: flex; }
+
   .ds-section-lbl {
-    font-family:'IBM Plex Sans', sans-serif;
-    font-size:11px; font-weight:600; letter-spacing:0.08em;
-    text-transform:uppercase; color:#9CA3AF; margin-bottom:10px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: #9CA3AF; margin-bottom: 10px;
   }
 
   /* ── Questions ── */
-  .ds-q-list  { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px; }
-  .ds-q-item  { display:flex; align-items:flex-start; gap:8px; font-family:'IBM Plex Sans', sans-serif; font-size:14px; color:#374151; line-height:1.6; }
-  .ds-q-dot   { width:16px; height:16px; border-radius:50%; background:#DBEAFE; color:#1E40AF; font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:3px; }
+  .ds-q-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  .ds-q-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 14px;
+    color: #374151; line-height: 1.6;
+  }
+  .ds-q-dot {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #DBEAFE; color: #1E40AF;
+    font-size: 9px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 3px;
+  }
 
   /* ── Doc button ── */
-  .ds-col-hdr  { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
-  .ds-doc-wrap { display:inline-flex; align-items:center; gap:12px; flex-wrap:wrap; }
-  .ds-doc-btn  {
-    display:inline-flex; align-items:center; gap:6px;
-    padding:6px 14px; font-size:12px; font-weight:600;
-    font-family:'IBM Plex Sans', sans-serif;
-    color:#ffffff; background:#002657;
-    border:1px solid #002657; border-radius:7px;
-    text-decoration:none; transition:background 0.1s; white-space:nowrap;
+  .ds-col-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .ds-doc-wrap { display: inline-flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .ds-doc-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; font-size: 12px; font-weight: 600;
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: #ffffff; background: #002657;
+    border: 1px solid #002657; border-radius: 7px;
+    text-decoration: none; transition: background 0.1s; white-space: nowrap;
   }
-  .ds-doc-btn:hover { background:#1a3a6b; color:#ffffff; text-decoration:none; }
-  .ds-doc-note { font-family:'IBM Plex Sans', sans-serif; font-size:12px; color:#6B7280; }
+  .ds-doc-btn:hover { background: #1a3a6b; color: #ffffff; text-decoration: none; }
+  .ds-doc-note { font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; color: #6B7280; }
 
   /* ── Columns table ── */
-  .ds-tbl-wrap   { border:1px solid #E5E7EB; border-radius:10px; overflow:hidden; background:#fff; }
-  .ds-tbl-scroll { overflow-x:auto; }
-  .ds-tbl        { width:100%; border-collapse:collapse; min-width:900px; }
-  .ds-tbl th     {
-    background:#002657; color:#F3F4F6;
-    font-family:'IBM Plex Sans', sans-serif;
-    font-size:12px; font-weight:600;
-    text-transform:uppercase; letter-spacing:0.04em;
-    padding:14px 16px; text-align:left; white-space:nowrap;
+  .ds-tbl-wrap   { border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; background: #fff; }
+  .ds-tbl-scroll { overflow-x: auto; }
+  .ds-tbl        { width: 100%; border-collapse: collapse; min-width: 900px; }
+  .ds-tbl th {
+    background: #002657; color: #F3F4F6;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 12px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.04em;
+    padding: 14px 16px; text-align: left; white-space: nowrap;
   }
-  .ds-tbl th:nth-child(1) { width:200px; }
-  .ds-tbl th:nth-child(2) { width:400px; }
-  .ds-tbl th:nth-child(3) { width:200px; }
-  .ds-tbl th:nth-child(4) { width:110px; text-align:center; }
-  .ds-tbl td     {
-    padding:14px 16px; border-bottom:1px solid #F3F4F6;
-    font-family:'IBM Plex Sans', sans-serif;
-    font-size:14px; color:#374151; vertical-align:top; line-height:1.65;
+  .ds-tbl th:nth-child(1) { width: 200px; }
+  .ds-tbl th:nth-child(2) { width: 400px; }
+  .ds-tbl th:nth-child(3) { width: 200px; }
+  .ds-tbl th:nth-child(4) { width: 110px; text-align: center; }
+  .ds-tbl td {
+    padding: 14px 16px; border-bottom: 1px solid #F3F4F6;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px; color: #374151; vertical-align: top; line-height: 1.65;
   }
-  .ds-tbl tr:nth-child(even) td { background:#FAFAFB; }
-  .ds-tbl tr:last-child td { border-bottom:none; }
-  .ds-col-name { font-family:'IBM Plex Mono', monospace; font-size:13px; color:#111827; font-weight:600; white-space:nowrap; }
-  .ds-ex-cell  { color:#6B7280; font-size:13px; white-space:pre-line; word-break:break-word; }
-  .ds-anon     { text-align:center; vertical-align:middle; white-space:nowrap; }
-  .anon-yes    { display:inline-flex; align-items:center; padding:3px 10px; border-radius:999px; background:#FEF3C7; color:#92400E; font-size:11px; font-weight:600; }
-  .anon-no     { display:inline-flex; align-items:center; padding:3px 10px; border-radius:999px; background:#F3F4F6; color:#9CA3AF; font-size:11px; font-weight:600; }
+  .ds-tbl tr:nth-child(even) td { background: #FAFAFB; }
+  .ds-tbl tr:last-child td { border-bottom: none; }
+  .ds-col-name { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #111827; font-weight: 600; white-space: nowrap; }
+  .ds-ex-cell  { color: #6B7280; font-size: 13px; white-space: pre-line; word-break: break-word; }
+  .ds-anon     { text-align: center; vertical-align: middle; white-space: nowrap; }
+  .anon-yes    { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; background: #FEF3C7; color: #92400E; font-size: 11px; font-weight: 600; }
+  .anon-no     { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; background: #F3F4F6; color: #9CA3AF; font-size: 11px; font-weight: 600; }
 
   /* ── Request button ── */
   .ds-req-btn {
-    display:inline-flex; align-items:center; gap:6px;
-    padding:10px 18px; font-size:13px; font-weight:600;
-    font-family:'IBM Plex Sans', sans-serif;
-    color:#ffffff; background:#FA4616;
-    border:none; border-radius:8px;
-    text-decoration:none; transition:background 0.1s;
-    align-self:flex-start; margin-top:4px;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 18px; font-size: 13px; font-weight: 600;
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: #ffffff; background: #FA4616;
+    border: none; border-radius: 8px;
+    text-decoration: none; transition: background 0.1s;
+    align-self: flex-start; margin-top: 4px;
   }
-  .ds-req-btn:hover { background:#d93a0f; color:#ffffff; text-decoration:none; }
+  .ds-req-btn:hover { background: #d93a0f; color: #ffffff; text-decoration: none; }
 
   /* ── Access denied ── */
-  .denied-card { text-align:center; padding:60px 40px; background:#fff; border:1px solid #E5E7EB; border-radius:12px; max-width:520px; margin:60px auto; }
-  .denied-icon { font-size:52px; margin-bottom:16px; }
-  .denied-h    { font-family:'Poppins', sans-serif; font-size:26px; font-weight:700; color:#002657; margin-bottom:12px; }
-  .denied-p    { font-family:'IBM Plex Sans', sans-serif; font-size:14px; color:#6B7280; line-height:1.7; margin-bottom:8px; }
-  .denied-user { display:inline-block; margin:12px 0 20px; padding:6px 16px; background:#F3F4F6; border-radius:999px; font-size:13px; color:#374151; font-weight:500; }
-  .denied-link { display:inline-flex; align-items:center; gap:6px; margin-top:24px; padding:10px 22px; background:#002657; color:#fff; border-radius:6px; font-size:14px; font-weight:600; text-decoration:none; }
-  .denied-link:hover { background:#001a40; color:#fff; text-decoration:none; }
+  .denied-card { text-align: center; padding: 60px 40px; background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; max-width: 520px; margin: 60px auto; }
+  .denied-icon { font-size: 52px; margin-bottom: 16px; }
+  .denied-h    { font-family: 'Poppins', sans-serif; font-size: 26px; font-weight: 700; color: #002657; margin-bottom: 12px; }
+  .denied-p    { font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; color: #6B7280; line-height: 1.7; margin-bottom: 8px; }
+  .denied-user { display: inline-block; margin: 12px 0 20px; padding: 6px 16px; background: #F3F4F6; border-radius: 999px; font-size: 13px; color: #374151; font-weight: 500; }
+  .denied-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 24px; padding: 10px 22px; background: #002657; color: #fff; border-radius: 6px; font-size: 14px; font-weight: 600; text-decoration: none; }
+  .denied-link:hover { background: #001a40; color: #fff; text-decoration: none; }
 
-  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-  @media (max-width:768px) {
-    .dg-page  { padding:24px 20px 40px; }
-    .dg-title { font-size:26px; }
-    .dg-grid  { grid-template-columns:1fr; }
-    .dg-header { flex-direction:column; }
-    .ds-tbl   { min-width:700px; }
-    .ds-col-hdr { flex-direction:column; align-items:flex-start; gap:8px; }
+  @media (max-width: 1200px) {
+    .dg-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 900px) {
+    .dg-topbar { padding: 24px 24px 20px; }
+    .dg-toolbar { padding: 16px 24px 0; }
+    .dg-body   { padding: 20px 24px 40px; flex-direction: column; }
+    .dg-nav    { width: 100%; position: static; max-height: none; overflow: visible; }
+    .dg-nav-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .dg-nav-item { margin-bottom: 0; }
+    .dg-title  { font-size: 34px; }
+    .dg-grid   { grid-template-columns: 1fr; }
+    .ds-tbl    { min-width: 700px; }
   }
 </style>
 
 <div class="dg-page">
 
   {% if access_denied %}
-  <div class="denied-card">
-    <div class="denied-icon">🔒</div>
-    <h2 class="denied-h">Access Restricted</h2>
-    <p class="denied-p">This page is currently only available to administrators.</p>
-    <div class="denied-user">{{ current_user }}</div>
-    <p class="denied-p">Your account does not have the required permissions to view this page.</p>
-    <a class="denied-link" href="{{ base_path }}/home.py">← Back to Home</a>
+  <div style="padding:48px;">
+    <div class="denied-card">
+      <div class="denied-icon">🔒</div>
+      <h2 class="denied-h">Access Restricted</h2>
+      <p class="denied-p">This page is currently only available to administrators.</p>
+      <div class="denied-user">{{ current_user }}</div>
+      <p class="denied-p">Your account does not have the required permissions to view this page.</p>
+      <a class="denied-link" href="{{ base_path }}/home.py">← Back to Home</a>
+    </div>
   </div>
 
   {% else %}
 
-  <div class="dg-header">
+  <!-- ── Top header ── -->
+  <div class="dg-topbar">
     <div>
-      <h1 class="dg-title">Dataset Guide</h1>
-      <p class="dg-subtitle">Explore what each endpoint contains and the questions it can help you answer — before submitting a request.</p>
+      <div class="dg-title-group">
+        <div class="dg-bar"></div>
+        <div>
+          <h1 class="dg-title">Dataset Guide</h1>
+          <p class="dg-subtitle">Explore what each dataset contains and the questions it can help you answer — before submitting a request.</p>
+        </div>
+      </div>
     </div>
     <a class="dg-back" href="{{ base_path }}/dataset_request{{ ext }}">← Back to requests</a>
   </div>
 
+  <!-- ── Search toolbar ── -->
   <div class="dg-toolbar">
     <div class="dg-search">
-      <i>⌕</i>
-      <input type="text" id="dg-search" placeholder="Search datasets">
+      <span class="dg-search-icon">⌕</span>
+      <input type="text" id="dg-search" placeholder="Search datasets&hellip;" autocomplete="off">
     </div>
     <span class="dg-count" id="dg-count"></span>
   </div>
 
-  <div class="dg-grid" id="dg-grid">
-    {% for ds in datasets %}
-    <div class="ds-card" data-name="{{ ds.name|lower }}">
+  <!-- ── Body: nav + grid ── -->
+  <div class="dg-body">
 
-      <div class="ds-top" onclick="toggle(this.closest('.ds-card'))">
-        <div class="ds-badge-row">
-          <span class="ds-badge">{{ ds.name }}</span>
-          <span class="ds-chevron">▾</span>
-        </div>
-        <div class="ds-card-title">{{ ds.title }}</div>
-        <div class="ds-card-desc">{{ ds.description or "No description available." }}</div>
-      </div>
+    <!-- Left nav -->
+    <nav class="dg-nav" aria-label="Dataset navigation">
+      <div class="dg-nav-label">Datasets</div>
+      <ul class="dg-nav-list" id="dg-nav-list">
+        {% for ds in datasets %}
+        <li class="dg-nav-item" data-nav="{{ ds.name|lower }}">
+          <a class="dg-nav-link" href="#card-{{ ds.name|lower }}" onclick="navClick(event, '{{ ds.name|lower }}')">
+            <span class="dg-nav-dot"></span>
+            {{ ds.title }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </nav>
 
-      <div class="ds-body">
+    <!-- Cards grid -->
+    <main class="dg-main">
+      <div class="dg-grid" id="dg-grid">
+        {% for ds in datasets %}
+        <div class="ds-card" id="card-{{ ds.name|lower }}" data-name="{{ ds.name|lower }}">
 
-        {# Questions #}
-        <div>
-          <div class="ds-section-lbl">Questions this dataset answers</div>
-          {% if ds.questions %}
-            <ul class="ds-q-list">
-              {% for q in ds.questions %}
-                <li class="ds-q-item">
-                  <div class="ds-q-dot">?</div>
-                  <span>{{ q }}</span>
-                </li>
-              {% endfor %}
-            </ul>
-          {% else %}
-            <div style="color:#9CA3AF;font-family:'IBM Plex Sans',sans-serif;font-size:13px;">No questions available.</div>
-          {% endif %}
-        </div>
-
-        {# Doc link #}
-        {% if ds.doc_link %}
-        <div class="ds-col-hdr">
-          <div class="ds-doc-wrap">
-            <a class="ds-doc-btn" href="{{ ds.doc_link }}" target="_blank" rel="noopener noreferrer">
-              ⎆ View Documentation
-            </a>
-            <div class="ds-doc-note">
-              GitHub access required.
-              <a href="mailto:lastingerdatasupport@coe.ufl.edu?subject=Request%20Access%20to%20Software%20Repository">Request access</a>
+          <div class="ds-top" onclick="toggle(this.closest('.ds-card'))">
+            <div class="ds-badge-row">
+              <span class="ds-badge">{{ ds.name }}</span>
+              <span class="ds-chevron">▾</span>
             </div>
+            <div class="ds-card-title">{{ ds.title }}</div>
+            <div class="ds-card-desc">{{ ds.description or "No description available." }}</div>
           </div>
-        </div>
-        {% endif %}
 
-        {# Column descriptions #}
-        <div>
-          <div class="ds-section-lbl">Column descriptions</div>
-          <div class="ds-tbl-wrap">
-            <div class="ds-tbl-scroll">
-              <table class="ds-tbl">
-                <thead>
-                  <tr>
-                    <th>Column</th>
-                    <th>Description</th>
-                    <th>Example</th>
-                    <th>Anonymized</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% if ds.columns %}
-                    {% for col in ds.columns %}
+          <div class="ds-body">
+
+            {# Questions #}
+            <div>
+              <div class="ds-section-lbl">Questions this dataset answers</div>
+              {% if ds.questions %}
+                <ul class="ds-q-list">
+                  {% for q in ds.questions %}
+                    <li class="ds-q-item">
+                      <div class="ds-q-dot">?</div>
+                      <span>{{ q }}</span>
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <div style="color:#9CA3AF;font-family:'IBM Plex Sans',sans-serif;font-size:13px;">No questions available.</div>
+              {% endif %}
+            </div>
+
+            {# Doc link #}
+            {% if ds.doc_link %}
+            <div>
+              <div class="ds-doc-wrap">
+                <a class="ds-doc-btn" href="{{ ds.doc_link }}" target="_blank" rel="noopener noreferrer">
+                  ⎆ View Documentation
+                </a>
+                <div class="ds-doc-note">
+                  GitHub access required.
+                  <a href="mailto:lastingerdatasupport@coe.ufl.edu?subject=Request%20Access%20to%20Software%20Repository">Request access</a>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+
+            {# Column descriptions #}
+            <div>
+              <div class="ds-section-lbl">Column descriptions</div>
+              <div class="ds-tbl-wrap">
+                <div class="ds-tbl-scroll">
+                  <table class="ds-tbl">
+                    <thead>
                       <tr>
-                        <td class="ds-col-name">{{ col.col }}</td>
-                        <td>{{ col.desc or "-" }}</td>
-                        <td class="ds-ex-cell">{{ col.example or "-" }}</td>
-                        <td class="ds-anon">
-                          {% if col.anon %}<span class="anon-yes">Yes</span>
-                          {% else %}<span class="anon-no">No</span>{% endif %}
-                        </td>
+                        <th>Column</th>
+                        <th>Description</th>
+                        <th>Example</th>
+                        <th>Anonymized</th>
                       </tr>
-                    {% endfor %}
-                  {% else %}
-                    <tr>
-                      <td colspan="4" style="text-align:center;color:#9CA3AF;font-family:'IBM Plex Sans',sans-serif;">
-                        No column metadata found.
-                      </td>
-                    </tr>
-                  {% endif %}
-                </tbody>
-              </table>
+                    </thead>
+                    <tbody>
+                      {% if ds.columns %}
+                        {% for col in ds.columns %}
+                          <tr>
+                            <td class="ds-col-name">{{ col.col }}</td>
+                            <td>{{ col.desc or "-" }}</td>
+                            <td class="ds-ex-cell">{{ col.example or "-" }}</td>
+                            <td class="ds-anon">
+                              {% if col.anon %}<span class="anon-yes">Yes</span>
+                              {% else %}<span class="anon-no">No</span>{% endif %}
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      {% else %}
+                        <tr>
+                          <td colspan="4" style="text-align:center;color:#9CA3AF;font-family:'IBM Plex Sans',sans-serif;">
+                            No column metadata found.
+                          </td>
+                        </tr>
+                      {% endif %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
+
+            {# Request button #}
+            <a class="ds-req-btn" href="{{ base_path }}/dataset_request{{ ext }}?ep={{ ds.name|lower }}">
+              Request this dataset →
+            </a>
+
           </div>
         </div>
+        {% endfor %}
 
-        {# Request button #}
-        <a class="ds-req-btn" href="{{ base_path }}/dataset_request{{ ext }}?ep={{ ds.name|lower }}">
-          Request this dataset →
-        </a>
-
+        <div class="dg-empty" id="dg-empty">No datasets match your search.</div>
       </div>
-    </div>
-    {% endfor %}
+    </main>
 
-    <div class="dg-empty" id="dg-empty">No datasets match your search.</div>
-  </div>
-
+  </div>{# /dg-body #}
   {% endif %}
-</div>
+</div>{# /dg-page #}
 {% endblock %}
 
 {% block extra_scripts %}
 {% if not access_denied %}
 <script>
 (function () {
-  const cards = [...document.querySelectorAll('.ds-card[data-name]')];
+  const cards    = [...document.querySelectorAll('.ds-card[data-name]')];
+  const navItems = [...document.querySelectorAll('.dg-nav-item[data-nav]')];
 
+  // ── Toggle card open/closed ──────────────────────────────────────────────
   window.toggle = function (card) {
     const opening = !card.classList.contains('open');
     cards.forEach(c => c.classList.remove('open'));
+    setActiveNav(null);
     if (opening) {
       card.classList.add('open');
-      setTimeout(() => card.scrollIntoView({ behavior:'smooth', block:'start' }), 120);
+      setActiveNav(card.dataset.name);
+      setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     }
   };
 
+  // ── Nav click: open the target card and scroll ───────────────────────────
+  window.navClick = function (e, name) {
+    e.preventDefault();
+    const card = document.getElementById('card-' + name);
+    if (!card) return;
+    // If already open, just scroll; otherwise open it
+    if (!card.classList.contains('open')) {
+      cards.forEach(c => c.classList.remove('open'));
+      card.classList.add('open');
+    }
+    setActiveNav(name);
+    setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+  };
+
+  // ── Highlight the active nav link ────────────────────────────────────────
+  function setActiveNav(name) {
+    navItems.forEach(item => {
+      const link = item.querySelector('.dg-nav-link');
+      if (!link) return;
+      link.classList.toggle('active', item.dataset.nav === name);
+    });
+  }
+
+  // ── Search / filter ──────────────────────────────────────────────────────
   function filter() {
     const q = (document.getElementById('dg-search')?.value || '').toLowerCase().trim();
     let shown = 0;
-    cards.forEach(c => {
-      const match = !q || c.textContent.toLowerCase().includes(q);
-      c.classList.toggle('hidden', !match);
-      if (!match) c.classList.remove('open');
+
+    cards.forEach(card => {
+      const match = !q || card.textContent.toLowerCase().includes(q);
+      card.classList.toggle('hidden', !match);
+      if (!match) card.classList.remove('open');
       if (match) shown++;
+
+      // Mirror visibility on nav items
+      const navItem = document.querySelector(`.dg-nav-item[data-nav="${card.dataset.name}"]`);
+      if (navItem) {
+        const link = navItem.querySelector('.dg-nav-link');
+        if (link) link.classList.toggle('hidden-nav', !match);
+      }
     });
+
     const countEl = document.getElementById('dg-count');
     if (countEl) countEl.textContent = `${shown} of ${cards.length} datasets`;
+
     const emptyEl = document.getElementById('dg-empty');
     if (emptyEl) emptyEl.style.display = shown === 0 ? 'block' : 'none';
   }
 
   document.getElementById('dg-search')?.addEventListener('input', filter);
-  filter();
+
+  // ── Highlight nav on scroll (intersection observer) ──────────────────────
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && entry.target.classList.contains('open')) {
+        setActiveNav(entry.target.dataset.name);
+      }
+    });
+  }, { rootMargin: '-20% 0px -60% 0px', threshold: 0 });
+
+  cards.forEach(card => observer.observe(card));
+
+  filter(); // initialise count
 }());
 </script>
 {% endif %}

@@ -6,101 +6,151 @@
 <style>
   .container.mt-4 { max-width:100%!important; padding:0!important; margin:0!important; }
 
-  /* ── Page shell ── */
-  .ds-page  {
-    padding: 32px 40px 80px;
-    width: 90vw;
-    max-width: 900px;
-    margin: 0 auto;
+  /* ── Page shell — full bleed navy ── */
+  .ds-page {
+    padding: 40px 48px 100px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
     background: #002657;
     min-height: calc(100vh - 60px);
+    box-sizing: border-box;
+  }
+
+  /* ── Inner content column ── */
+  .ds-inner {
+    max-width: 1500px;
+    margin: 0 auto;
   }
 
   /* ── Page header ── */
-  .ds-head  { display:flex; align-items:center; gap:18px; margin-bottom:10px; }
-  .ds-bar   { width:5px; height:56px; background:#FA4616; border-radius:3px; flex-shrink:0; }
-  .ds-title { font-family:'Poppins',sans-serif; font-size:42px; font-weight:700; color:#ffffff; margin:0; line-height:1.1; }
-  .ds-intro {
-    font-family:'IBM Plex Sans',sans-serif; font-size:14px; color:#6B7280;
-    line-height:1.75; margin:0 0 36px;
-    padding: 12px 16px;
-    background: #fff;
-    border-left: 4px solid #FA4616;
-    border-radius: 0 6px 6px 0;
+  .ds-head  { display:flex; align-items:center; gap:20px; margin-bottom:14px; }
+  .ds-bar   { width:6px; height:64px; background:#FA4616; border-radius:3px; flex-shrink:0; }
+  .ds-title {
+    font-family:'Poppins',sans-serif;
+    font-size:52px;
+    font-weight:700;
+    color:#ffffff;
+    margin:0;
+    line-height:1.05;
+    letter-spacing:-0.5px;
   }
 
+  /* ── Intro block ── */
+  .ds-intro {
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:15px;
+    color:#374151;
+    line-height:1.8;
+    margin:0 0 40px;
+    padding:16px 20px;
+    background:#fff;
+    border-left:4px solid #FA4616;
+    border-radius:0 8px 8px 0;
+  }
+  .ds-intro strong { color:#111827; }
+
   /* ── Step track ── */
-  .step-track  { position:relative; }
+  .step-track { position:relative; }
   .step-track::before {
-    content: '';
-    position: absolute;
-    left: 15px;
-    top: 32px;
-    bottom: 32px;
-    width: 2px;
-    background: rgba(255,255,255,0.25);
-    z-index: 0;
+    content:'';
+    position:absolute;
+    left:18px;
+    top:36px;
+    bottom:36px;
+    width:2px;
+    background:rgba(255,255,255,0.2);
+    z-index:0;
   }
 
   /* ── Single step ── */
-  .step-wrap  { display:flex; gap:16px; align-items:flex-start; margin-bottom:16px; position:relative; z-index:1; }
-  .step-num   {
-    width: 32px; height: 32px; border-radius: 50%;
-    background: #FA4616; color: #fff;
-    font-family:'IBM Plex Sans',sans-serif; font-size:13px; font-weight:700;
+  .step-wrap {
+    display:flex;
+    gap:20px;
+    align-items:flex-start;
+    margin-bottom:20px;
+    position:relative;
+    z-index:1;
+  }
+
+  /* ── Step number bubble ── */
+  .step-num {
+    width:38px; height:38px; border-radius:50%;
+    background:#FA4616; color:#fff;
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:25px; font-weight:700;
     display:flex; align-items:center; justify-content:center;
-    flex-shrink:0; margin-top:14px;
-    box-shadow: 0 0 0 4px #002657;
-    position: relative; z-index: 2;
+    flex-shrink:0; margin-top:16px;
+    box-shadow:0 0 0 0px #002657;
+    position:relative; z-index:2;
   }
 
   /* ── Step cards ── */
   .step-card {
-    flex: 1;
-    border-radius: 10px;
-    padding: 20px 24px;
-    background: #ffffff;
-    border: 1px solid #E5E7EB;
-    border-left: 4px solid #FA4616;
-    transition: box-shadow 0.15s;
+    flex:1;
+    border-radius:12px;
+    padding:24px 28px;
+    background:#ffffff;
+    border:1px solid #E5E7EB;
+    border-left:4px solid #FA4616;
+    transition:box-shadow 0.15s;
   }
-  .step-card:hover { box-shadow: 0 2px 16px rgba(0,0,0,0.18); }
-  .step-card.orange { border-left: 4px solid #FA4616; }
+  .step-card:hover { box-shadow:0 4px 20px rgba(0,0,0,0.15); }
+  .step-card.orange { border-left:4px solid #FA4616; }
 
+  /* ── Step label (pill) ── */
   .step-label {
-    display: inline-block;
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 10px; font-weight: 700;
-    letter-spacing: 0.08em; text-transform: uppercase;
-    padding: 2px 8px; border-radius: 999px; margin-bottom: 6px;
-    background: #FFF0EB; color: #C2410C;
+    display:inline-block;
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:15px; font-weight:700;
+    letter-spacing:0.09em; text-transform:uppercase;
+    padding:3px 10px; border-radius:999px; margin-bottom:6px;
+    background:#FFF0EB; color:#C2410C;
   }
   .step-label.orange { background:#FFEDD5; color:#C2410C; }
 
-  .step-title { font-family:'IBM Plex Sans',sans-serif; font-size:16px; font-weight:700; color:#111827; margin:0 0 4px; }
-  .step-hint  { font-family:'IBM Plex Sans',sans-serif; font-size:12px; color:#9CA3AF; margin:0 0 14px; line-height:1.6; }
-  .step-hint a { color:#FA4616; text-decoration:none; font-weight:500; }
+  /* ── Step titles & hints ── */
+  .step-title {
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:30px; font-weight:700;
+    color:#111827; margin:0 0 5px;
+  }
+  .step-hint {
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:13px; color:#020408;
+    margin:0 0 16px; line-height:1.65;
+  }
+  .step-hint a { color:#FA4616; text-decoration:none; font-weight:600; }
   .step-hint a:hover { text-decoration:underline; }
 
-  .card-divider { border:none; border-top:1px solid #E5E7EB; margin:14px 0; }
+  .card-divider { border:none; border-top:1px solid #E5E7EB; margin:16px 0; }
 
   /* ── Inputs ── */
-  .ds-label  { display:block; margin-bottom:5px; font-family:'IBM Plex Sans',sans-serif; font-size:13px; font-weight:600; color:#374151; }
+  .ds-label {
+    display:block; margin-bottom:6px;
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:15px; font-weight:600; color:#374151;
+  }
   .ds-input, .ds-select, .ds-textarea, .ds-readonly {
-    width:100%; box-sizing:border-box; padding:10px 12px;
-    border:1px solid #D1D5DB; border-radius:6px;
-    font-family:'IBM Plex Sans',sans-serif; font-size:14px; color:#111827; background:#fff;
-    transition: border-color 0.15s;
+    width:100%; box-sizing:border-box; padding:10px 13px;
+    border:1px solid #D1D5DB; border-radius:7px;
+    font-family:'IBM Plex Sans',sans-serif; font-size:14px;
+    color:#111827; background:#fff;
+    transition:border-color 0.15s;
   }
   .ds-input:focus, .ds-select:focus, .ds-textarea:focus {
-    outline:none; border-color:#FA4616; box-shadow:0 0 0 3px rgba(250,70,22,0.15);
+    outline:none; border-color:#FA4616;
+    box-shadow:0 0 0 3px rgba(250,70,22,0.15);
   }
   .ds-textarea { min-height:90px; resize:vertical; }
-  .ds-readonly { background:#F9FAFB; color:#6B7280; cursor:default; border-style:dashed; }
+  .ds-readonly {
+    background:#F9FAFB; color:#6B7280;
+    cursor:default; border-style:dashed;
+  }
 
   /* ── Filter help box ── */
   .hdr-help {
-    border:1px solid #E5E7EB; border-radius:6px;
+    border:1px solid #E5E7EB; border-radius:7px;
     padding:12px 14px; background:#FAFAFA;
     font-family:'IBM Plex Sans',sans-serif; font-size:13px; color:#6B7280;
     margin-bottom:12px;
@@ -108,103 +158,127 @@
   .hdr-help ul { margin:6px 0 0 16px; padding:0; }
   .hdr-help li { margin-bottom:5px; color:#374151; }
 
-  /* ── Filter section layout ── */
-  .filter-section { display:flex; flex-direction:column; gap:10px; }
+  /* ── Filter section ── */
+  .filter-section { display:flex; flex-direction:column; gap:12px; }
 
-  /* ── Filter block (one filter type) ── */
+  /* ── Filter block ── */
   .filter-block {
-    border:1px solid #E5E7EB; border-radius:8px;
-    padding:14px 16px; background:#FAFAFA;
+    border:1px solid #E5E7EB; border-radius:9px;
+    padding:16px 18px; background:#FAFAFA;
   }
 
   .filter-block-header {
-    display:flex; align-items:center; justify-content:space-between;
-    margin-bottom:10px;
+    display:flex; align-items:flex-start; justify-content:space-between;
+    margin-bottom:12px; gap:12px;
   }
 
   .filter-block-label {
-    font-family:'IBM Plex Sans',sans-serif; font-size:12px; font-weight:700;
-    text-transform:uppercase; letter-spacing:0.07em; color:#6B7280;
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:15px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.07em; color:#030407;
     display:flex; align-items:center; gap:8px;
+    flex-shrink:0; padding-top:2px;
   }
 
-  .req-chip { display:inline-block; padding:1px 7px; background:#FEE2E2; color:#991B1B; border-radius:999px; font-size:10px; font-weight:700; }
+  .req-chip {
+    display:inline-block; padding:1px 7px;
+    background:#FEE2E2; color:#991B1B;
+    border-radius:999px; font-size:10px; font-weight:700;
+  }
 
-  /* ── AND/OR toggle switch ── */
+  /* ── Toggle: Require All Filters ── */
   .mode-toggle-wrap {
-    display:flex; align-items:center; gap:8px;
-    font-family:'IBM Plex Sans',sans-serif; font-size:12px; font-weight:600; color:#6B7280;
+    display:flex; align-items:flex-start; gap:10px;
+    font-family:'IBM Plex Sans',sans-serif;
   }
 
   .toggle-switch {
-    position:relative; display:inline-block; width:52px; height:24px; flex-shrink:0;
+    position:relative; display:inline-block;
+    width:52px; height:26px; flex-shrink:0; margin-top:1px;
   }
   .toggle-switch input { opacity:0; width:0; height:0; }
   .toggle-slider {
     position:absolute; cursor:pointer;
     top:0; left:0; right:0; bottom:0;
-    background:#D1D5DB; border-radius:24px;
+    background:#D1D5DB; border-radius:26px;
     transition:background 0.2s;
   }
   .toggle-slider:before {
     content:''; position:absolute;
-    height:18px; width:18px; left:3px; bottom:3px;
+    height:20px; width:20px; left:3px; bottom:3px;
     background:#fff; border-radius:50%;
     transition:transform 0.2s;
   }
   .toggle-switch input:checked + .toggle-slider { background:#002657; }
-  .toggle-switch input:checked + .toggle-slider:before { transform:translateX(28px); }
+  .toggle-switch input:checked + .toggle-slider:before { transform:translateX(26px); }
 
-  .mode-label-or  { color:#6B7280; }
-  .mode-label-and { color:#002657; font-weight:700; }
+  /* Toggle label + description stacked */
+  .toggle-text-group {
+    display:flex; flex-direction:column; gap:2px;
+  }
+  .toggle-main-label {
+    font-size:13px; font-weight:700; color:#111827; line-height:1.3;
+  }
+  .toggle-sub-label {
+    font-size:11px; color:#06070a; line-height:1.5; max-width:280px;
+  }
+  /* Description changes based on state — JS will swap the text */
 
-  /* ── Tag rows container ── */
+  /* ── Tag rows ── */
   .tag-rows { display:flex; flex-direction:column; gap:8px; }
 
-  /* ── Single tag row ── */
   .tag-row {
     display:grid; grid-template-columns:1fr 1fr auto;
     gap:8px; align-items:center;
   }
 
-  /* ── Add tag button (AND mode only) ── */
+  /* ── Add tag button ── */
   .btn-add-tag {
-    display:none; /* shown via JS */
-    border:1px dashed #D1D5DB; border-radius:6px; padding:8px 14px; cursor:pointer;
+    display:none;
+    border:1px dashed #D1D5DB; border-radius:7px; padding:9px 14px;
+    cursor:pointer;
     font-family:'IBM Plex Sans',sans-serif; font-size:13px; font-weight:600;
-    background:#fff; color:#6B7280; margin-top:4px; width:100%;
+    background:#fff; color:#6B7280; margin-top:6px; width:100%;
     transition:background 0.15s, border-color 0.15s;
   }
   .btn-add-tag:hover { background:#F9FAFB; border-color:#9CA3AF; }
   .btn-add-tag.visible { display:block; }
 
-  /* ── Simple filter row (segment / anonymize) ── */
-  .simple-row { display:grid; grid-template-columns:1fr; gap:8px; }
-
   /* ── Nightly refresh ── */
-  .nightly     { display:flex; align-items:center; gap:14px; padding:14px 16px; background:#FFF7ED; border:1px solid #FED7AA; border-radius:8px; }
+  .nightly {
+    display:flex; align-items:center; gap:14px;
+    padding:14px 16px;
+    background:#FFF7ED; border:1px solid #FED7AA; border-radius:8px;
+  }
   .nightly-lbl { font-family:'IBM Plex Sans',sans-serif; font-size:14px; font-weight:700; color:#92400E; white-space:nowrap; }
   .nightly-txt { font-family:'IBM Plex Sans',sans-serif; font-size:12px; color:#6B7280; flex:1; line-height:1.5; }
-  .nightly-sel { padding:8px 12px; border:1px solid #FED7AA; border-radius:6px; font-size:13px; font-family:'IBM Plex Sans',sans-serif; background:#fff; color:#111827; }
+  .nightly-sel {
+    padding:8px 12px; border:1px solid #FED7AA; border-radius:6px;
+    font-size:13px; font-family:'IBM Plex Sans',sans-serif;
+    background:#fff; color:#111827;
+  }
 
   /* ── Buttons ── */
-  .btn-row  { margin-top:12px; display:flex; gap:12px; flex-wrap:wrap; padding-left:48px; }
+  .btn-row {
+    margin-top:16px; display:flex; gap:12px;
+    flex-wrap:wrap; padding-left:58px;
+  }
   .btn-main {
-    border:none; border-radius:6px; padding:12px 28px; cursor:pointer;
-    font-family:'IBM Plex Sans',sans-serif; font-size:14px; font-weight:700;
-    background:#FA4616; color:#fff; transition:background .15s;
-    box-shadow: 0 1px 3px rgba(250,70,22,0.4);
+    border:none; border-radius:7px; padding:13px 30px; cursor:pointer;
+    font-family:'IBM Plex Sans',sans-serif; font-size:15px; font-weight:700;
+    background:#FA4616; color:#fff; transition:background 0.15s;
+    box-shadow:0 1px 4px rgba(250,70,22,0.4);
   }
   .btn-main:hover { background:#d93a0f; }
-  .btn-ref  {
-    border:none; border-radius:6px; padding:12px 28px; cursor:pointer;
-    font-family:'IBM Plex Sans',sans-serif; font-size:14px; font-weight:700;
-    background:#ffffff; color:#002657; transition:background .15s;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  .btn-ref {
+    border:none; border-radius:7px; padding:13px 30px; cursor:pointer;
+    font-family:'IBM Plex Sans',sans-serif; font-size:15px; font-weight:700;
+    background:#ffffff; color:#002657; transition:background 0.15s;
+    box-shadow:0 1px 3px rgba(0,0,0,0.15);
   }
   .btn-ref:hover { background:#F3F4F6; }
-  .btn-rm   {
-    border:none; border-radius:6px; padding:10px 12px; cursor:pointer;
+  .btn-rm {
+    border:none; border-radius:7px; padding:10px 13px; cursor:pointer;
     font-family:'IBM Plex Sans',sans-serif; font-size:13px; font-weight:600;
     background:#F3F4F6; color:#6B7280;
   }
@@ -212,36 +286,47 @@
   .btn-rm:disabled { opacity:.4; cursor:not-allowed; }
 
   /* ── Alerts ── */
-  .alert     { position:relative; padding:14px 44px 14px 18px; border-radius:8px; margin-bottom:16px; font-family:'IBM Plex Sans',sans-serif; font-size:14px; animation:sIn .3s ease; }
+  .alert {
+    position:relative; padding:14px 44px 14px 18px; border-radius:8px;
+    margin-bottom:16px; font-family:'IBM Plex Sans',sans-serif;
+    font-size:14px; animation:sIn .3s ease;
+  }
   .alert-ok  { background:#D1FAE5; color:#065F46; border:1px solid #6EE7B7; }
   .alert-err { background:#FEE2E2; color:#991B1B; border:1px solid #FCA5A5; }
   .alert-inf { background:#EFF6FF; color:#1E40AF; border:1px solid #93C5FD; }
-  .alert-x   { position:absolute; top:50%; right:12px; transform:translateY(-50%); background:none; border:none; font-size:18px; cursor:pointer; color:inherit; opacity:.6; }
+  .alert-x {
+    position:absolute; top:50%; right:12px; transform:translateY(-50%);
+    background:none; border:none; font-size:18px; cursor:pointer;
+    color:inherit; opacity:.6;
+  }
   .alert-x:hover { opacity:1; }
   .alert.out { animation:sOut .3s ease forwards; }
 
   /* ── Access denied ── */
-  .denied      { text-align:center; padding:60px 40px; background:#fff; border:1px solid #E5E7EB; border-radius:12px; }
+  .denied { text-align:center; padding:60px 40px; background:#fff; border:1px solid #E5E7EB; border-radius:12px; }
   .denied-icon { font-size:52px; margin-bottom:16px; }
-  .denied-h    { font-family:'Poppins',sans-serif; font-size:24px; font-weight:700; color:#111827; margin-bottom:10px; }
-  .denied-p    { font-size:14px; color:#6B7280; line-height:1.7; }
+  .denied-h { font-family:'Poppins',sans-serif; font-size:24px; font-weight:700; color:#111827; margin-bottom:10px; }
+  .denied-p { font-size:14px; color:#6B7280; line-height:1.7; }
   .denied-user { display:inline-block; margin:12px 0 20px; padding:6px 16px; background:#F3F4F6; border-radius:999px; font-size:13px; color:#374151; font-weight:500; }
-  .denied-lnk  { display:inline-flex; align-items:center; gap:6px; margin-top:20px; padding:10px 22px; background:#FA4616; color:#fff; border-radius:6px; font-size:14px; font-weight:600; text-decoration:none; }
+  .denied-lnk { display:inline-flex; align-items:center; gap:6px; margin-top:20px; padding:10px 22px; background:#FA4616; color:#fff; border-radius:6px; font-size:14px; font-weight:600; text-decoration:none; }
   .denied-lnk:hover { background:#d93a0f; color:#fff; text-decoration:none; }
 
   @keyframes sIn  { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
   @keyframes sOut { from{opacity:1;transform:translateY(0)} to{opacity:0;transform:translateY(-8px)} }
 
   @media(max-width:700px) {
-    .ds-page  { padding:20px 16px 60px; }
-    .ds-title { font-size:28px; }
+    .ds-page  { padding:24px 16px 60px; }
+    .ds-title { font-size:34px; }
     .tag-row  { grid-template-columns:1fr; }
     .btn-row  { padding-left:0; }
     .nightly  { flex-direction:column; align-items:flex-start; }
+    .toggle-sub-label { max-width:100%; }
+    .filter-block-header { flex-direction:column; align-items:flex-start; }
   }
 </style>
 
 <div class="ds-page">
+<div class="ds-inner">
 
 {% if access_denied %}
   <div class="denied">
@@ -259,9 +344,12 @@
     <div class="ds-bar"></div>
     <h1 class="ds-title">Dataset Requests</h1>
   </div>
+
   <p class="ds-intro">
-    Use this page to pull together the data you need for reports or analysis.<br>
-    Follow the steps below — choose your data source, apply any filters, then name and describe your dataset.
+    <strong>Need data for a report or analysis?</strong><br>
+    Use this form to request a custom dataset pulled directly from Snowflake.
+    Select your data source, apply any filters, and give your dataset a name and description —
+    we'll handle the rest.
   </p>
 
   {% if swagger_error %}
@@ -292,8 +380,9 @@
           <span class="step-label">Step 1</span>
           <p class="step-title">Data Source</p>
           <p class="step-hint">
-            Review the <a href="{{ base_path }}/dataset_description{{ ext }}">Dataset Guide</a>
-            to determine which dataset you need, then select it below.
+            Not sure which dataset you need? Review the
+            <a href="{{ base_path }}/dataset_description{{ ext }}">Dataset Guide</a>
+            first, then select your dataset below.
           </p>
           <hr class="card-divider">
           <label class="ds-label" for="endpoint">Select Dataset</label>
@@ -303,7 +392,7 @@
               <option value="{{ ep }}" {% if prefill.endpoint == ep %}selected{% endif %}>{{ ep }}</option>
             {% endfor %}
           </select>
-          <div class="hdr-help" id="hdr-help" style="margin-top:12px;">Select a dataset to view available filters.</div>
+          <div class="hdr-help" id="hdr-help" style="margin-top:14px;">Select a dataset to view available filters.</div>
         </div>
       </div>
 
@@ -313,19 +402,16 @@
         <div class="step-card">
           <span class="step-label">Step 2</span>
           <p class="step-title">Filters</p>
-          <p class="step-hint">Narrow down your data. All available filters for the selected dataset are shown below.</p>
+          <p class="step-hint">What data would you like to include? Available filters for your selected dataset will appear below.  .</p>
           <hr class="card-divider">
 
-          {# Filters are rendered by JS into this container #}
           <div class="filter-section" id="filter-section">
             <div style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:#9CA3AF;">
               Select a dataset above to see available filters.
             </div>
           </div>
 
-          {# Hidden inputs — JS writes final values here before submit #}
           <div id="hidden-inputs"></div>
-
         </div>
       </div>
 
@@ -335,7 +421,7 @@
         <div class="step-card">
           <span class="step-label">Step 3</span>
           <p class="step-title">Table Name</p>
-          <p class="step-hint">What would you like to call this table? Give it a name that describes the data it contains.</p>
+          <p class="step-hint">Give your dataset a short, descriptive name. This will be the name of the table created in Snowflake.</p>
           <hr class="card-divider">
           <label class="ds-label" for="table_name">Table Name</label>
           <input class="ds-input" type="text" id="table_name" name="table_name"
@@ -350,7 +436,7 @@
         <div class="step-card">
           <span class="step-label">Step 4</span>
           <p class="step-title">Description</p>
-          <p class="step-hint">What is this dataset for? Add any notes you'd like to remember.</p>
+          <p class="step-hint">What is this dataset for? Add any context or notes you'd like to reference later.</p>
           <hr class="card-divider">
           <label class="ds-label" for="dataset_description">Description</label>
           <textarea class="ds-textarea" id="dataset_description" name="dataset_description"
@@ -413,7 +499,9 @@
 
   </form>
 {% endif %}
-</div>
+
+</div>{# /ds-inner #}
+</div>{# /ds-page #}
 {% endblock %}
 
 {% block extra_scripts %}
@@ -436,7 +524,7 @@
     tagRows:   [{ tagName: '', tagValue: '' }],
   };
 
-  // ── Param helpers ───────────────────────────────────────────────────────────
+  // ── Param helpers ────────────────────────────────────────────────────────
   function allParams(e) {
     return ((EP[e]||{}).parameters||[]).filter(p=>p&&p.in==='header'&&p.name);
   }
@@ -460,7 +548,7 @@
     return (visibleParams(e).find(p => (p.name||'').startsWith('tag')) || {}).name || null;
   }
 
-  // ── Help panel ─────────────────────────────────────────────────────────────
+  // ── Help panel ───────────────────────────────────────────────────────────
   function updateHelp(e) {
     const box = document.getElementById('hdr-help');
     const vp  = visibleParams(e);
@@ -474,7 +562,7 @@
     ).join('') + '</ul>';
   }
 
-  // ── Render the full filter section ─────────────────────────────────────────
+  // ── Render filter section ────────────────────────────────────────────────
   function renderFilters() {
     const e       = ep();
     const section = document.getElementById('filter-section');
@@ -494,26 +582,14 @@
       return;
     }
 
-    // ── Segment block ──
-    if (hasSegment) {
-      const req = isRequired(e, 'segment');
-      section.appendChild(makeSegmentBlock(req));
-    }
-
-    // ── Anonymize block ──
-    if (hasAnonymize) {
-      section.appendChild(makeAnonymizeBlock());
-    }
-
-    // ── Tag Sections block ──
-    if (tagHdr) {
-      section.appendChild(makeTagBlock());
-    }
+    if (hasSegment)   section.appendChild(makeSegmentBlock(isRequired(e, 'segment')));
+    if (hasAnonymize) section.appendChild(makeAnonymizeBlock());
+    if (tagHdr)       section.appendChild(makeTagBlock());
 
     syncHiddenInputs();
   }
 
-  // ── Segment block ──────────────────────────────────────────────────────────
+  // ── Segment block ────────────────────────────────────────────────────────
   function makeSegmentBlock(required) {
     const block = document.createElement('div');
     block.className = 'filter-block';
@@ -532,7 +608,7 @@
     return block;
   }
 
-  // ── Anonymize block ────────────────────────────────────────────────────────
+  // ── Anonymize block ──────────────────────────────────────────────────────
   function makeAnonymizeBlock() {
     const block = document.createElement('div');
     block.className = 'filter-block';
@@ -552,12 +628,13 @@
     return block;
   }
 
-  // ── Tag Sections block ─────────────────────────────────────────────────────
+  // ── Tag Sections block ───────────────────────────────────────────────────
   function makeTagBlock() {
     const block = document.createElement('div');
     block.className = 'filter-block';
     block.id = 'tag-block';
 
+    // Header: label on left, toggle group on right
     const hdr = document.createElement('div');
     hdr.className = 'filter-block-header';
 
@@ -565,15 +642,24 @@
     lbl.className = 'filter-block-label';
     lbl.textContent = 'Tag Sections';
 
+    // Toggle group: switch + stacked text description
     const toggleWrap = document.createElement('div');
     toggleWrap.className = 'mode-toggle-wrap';
+
+    const isAnd = state.tagMode === 'and';
     toggleWrap.innerHTML = `
-      <span class="mode-label-or">OR</span>
-      <label class="toggle-switch" title="Switch between OR (any tag) and AND (all tags)">
-        <input type="checkbox" id="tag-mode-toggle" ${state.tagMode === 'and' ? 'checked' : ''}>
+      <label class="toggle-switch" title="Require All Filters">
+        <input type="checkbox" id="tag-mode-toggle" ${isAnd ? 'checked' : ''}>
         <span class="toggle-slider"></span>
       </label>
-      <span class="mode-label-and">AND</span>
+      <div class="toggle-text-group">
+        <span class="toggle-main-label">Require All Filters</span>
+        <span class="toggle-sub-label" id="toggle-sub-label">${
+          isAnd
+            ? 'When enabled, results will only include records that match all selected filters.'
+            : 'When disabled, results will include records that match any of the selected filters.'
+        }</span>
+      </div>
     `;
 
     hdr.appendChild(lbl);
@@ -592,30 +678,27 @@
     addBtn.textContent = '+ Add Another Tag Filter';
     block.appendChild(addBtn);
 
-    const hint = document.createElement('div');
-    hint.style.cssText = 'font-size:11px;color:#9CA3AF;margin-top:6px;font-family:\'IBM Plex Sans\',sans-serif;';
-    hint.id = 'tag-mode-hint';
-    hint.textContent = state.tagMode === 'and'
-      ? ''
-      : '';
-    block.appendChild(hint);
-
     renderTagRows(rowsContainer);
 
     // Toggle event
     document.addEventListener('change', function handler(e) {
       if (e.target && e.target.id === 'tag-mode-toggle') {
         state.tagMode = e.target.checked ? 'and' : 'or';
-        // If switching to OR and there are 2 rows, remove the second
         if (state.tagMode === 'or' && state.tagRows.length > 1) {
           state.tagRows = [state.tagRows[0]];
+        }
+        // Update sub-label text without full re-render
+        const subLbl = document.getElementById('toggle-sub-label');
+        if (subLbl) {
+          subLbl.innerHTML = state.tagMode === 'and'
+            ? 'When enabled, results will only include records that match all selected filters.'
+            : 'When disabled, results will include records that match any of the selected filters.';
         }
         renderFilters();
         document.removeEventListener('change', handler);
       }
     });
 
-    // Add tag row button
     addBtn.addEventListener('click', () => {
       if (state.tagMode === 'and' && state.tagRows.length < 2) {
         state.tagRows.push({ tagName: '', tagValue: '' });
@@ -639,13 +722,11 @@
     const row = document.createElement('div');
     row.className = 'tag-row';
 
-    // Tag name select
     const ns = document.createElement('select');
     ns.className = 'ds-select';
     ns.innerHTML = '<option value="">-- Select tag --</option>' +
       TAGS.map(t => `<option value="${esc(t)}"${t === rowState.tagName ? ' selected' : ''}>${esc(t)}</option>`).join('');
 
-    // Tag value select
     const vs = document.createElement('select');
     vs.className = 'ds-select';
 
@@ -667,7 +748,6 @@
       syncHiddenInputs();
     });
 
-    // Remove button — only on second row
     const rb = document.createElement('button');
     rb.type = 'button'; rb.className = 'btn-rm';
     rb.textContent = 'Remove';
@@ -689,8 +769,7 @@
   function updateAddTagBtn() {
     const btn = document.getElementById('add-tag-btn');
     if (!btn) return;
-    const canAdd = state.tagMode === 'and' && state.tagRows.length < 2;
-    btn.classList.toggle('visible', canAdd);
+    btn.classList.toggle('visible', state.tagMode === 'and' && state.tagRows.length < 2);
   }
 
   function syncHiddenInputs() {
@@ -705,15 +784,8 @@
       box.appendChild(n); box.appendChild(v);
     }
 
-    // Segment
-    if (hasFilter(e, 'segment') && state.segment) {
-      addPair('segment', state.segment);
-    }
-
-    // Anonymize
-    if (hasFilter(e, 'anonymize') && state.anonymize) {
-      addPair('anonymize', state.anonymize);
-    }
+    if (hasFilter(e, 'segment') && state.segment)     addPair('segment', state.segment);
+    if (hasFilter(e, 'anonymize') && state.anonymize) addPair('anonymize', state.anonymize);
 
     const tagHdr = tagHeaderName(e);
     if (tagHdr) {
@@ -768,7 +840,6 @@
     renderFilters();
 
     document.getElementById('endpoint')?.addEventListener('change', () => {
-     
       state.segment   = '';
       state.anonymize = '';
       state.tagMode   = 'or';
