@@ -33,55 +33,167 @@ def _read_config() -> dict:
 
 def get_current_user() -> str:
     user = os.environ.get("REMOTE_USER", "unknown").strip()
-    # Log the login — once per user per day, silently ignores errors
     if user and user != "unknown":
         try:
             from libs.login_logs import log_user_login
             log_user_login(user)
         except Exception:
-            pass 
-
+            pass
     return user
 
 
-def get_valid_users() -> Set[str]:
-    """
-    Used only for dataset pages access control during testing phase.
-    Once dataset pages go public, this check will be removed from those pages.
-    """
-    data = _read_config()
-    return set(data.get("VALID_USERS", []))
+# ---------------------------------------------------------------------------
+# DB connection helper (shared internally)
+# ---------------------------------------------------------------------------
+
+def _db_connect():
+    from libs import taggingMySQLDB_connection as localMySQLDB_connection
+    return localMySQLDB_connection.LocalDBConnection().connect()
 
 
-def get_read_write_users() -> Set[str]:
-    data = _read_config()
-    return set(data.get("READ_WRITE_USERS", []))
+# ---------------------------------------------------------------------------
+# Primary access check — replaces VALID_USERS / READ_WRITE_USERS config lists
+# ---------------------------------------------------------------------------
+
+def is_in_user_access(user: Optional[str] = None) -> bool:
+    """
+    Returns True if the user has ANY row in the user_access table.
+    This is the single gate for all tagging and dataset pages.
+    Users not in the table receive an Access Denied screen.
+    """
+    user = (user or get_current_user()).strip()
+    if not user or user == "unknown":
+        return False
+    try:
+        db = _db_connect()
+        cursor = db.cursor(dictionary=True)
+        try:
+            cursor.execute(
+                "SELECT id FROM user_access WHERE LOWER(email) = LOWER(%s) LIMIT 1",
+                (user,)
+            )
+            return cursor.fetchone() is not None
+        finally:
+            cursor.close()
+            db.close()
+    except Exception:
+        return False
+
+
+# ---------------------------------------------------------------------------
+# Role helpers — all read from user_access DB table
+# ---------------------------------------------------------------------------
+
+def get_user_role(user: Optional[str] = None) -> str:
+    """
+    Returns the user's role from user_access: 'read', 'read_write', or 'admin'.
+    Returns 'read' as the safe default if not found or on error.
+    """
+    user = (user or get_current_user()).strip()
+    if not user or user == "unknown":
+        return "read"
+    try:
+        db = _db_connect()
+        cursor = db.cursor(dictionary=True)
+        try:
+            cursor.execute(
+                "SELECT role FROM user_access WHERE LOWER(email) = LOWER(%s) LIMIT 1",
+                (user,)
+            )
+            row = cursor.fetchone()
+            if row and row["role"] in ("read", "read_write", "admin"):
+                return row["role"]
+        finally:
+            cursor.close()
+            db.close()
+    except Exception:
+        pass
+    return "read"
 
 
 def can_write(user: Optional[str] = None) -> bool:
     """
-    Controls write access to the tagging pages (section tags, bulk inserts etc).
-    Any authenticated UF user (passed Shibboleth login) can write.
-    Shibboleth is the door — we only block unauthenticated/unknown users.
+    Returns True if the user can write tags (role is read_write or admin).
     """
     user = (user or get_current_user()).strip()
-    return user in get_read_write_users()
-    # return bool(user) and user != "unknown"
-
-
-def get_tag_admin_users() -> Set[str]:
-    data = _read_config()
-    return set(data.get("TAG_ADMIN_USERS", []))
+    if not user or user == "unknown":
+        return False
+    return get_user_role(user) in ("read_write", "admin")
 
 
 def can_edit_tags(user: Optional[str] = None) -> bool:
     """
-    Controls admin-level tag management (add/delete tags and tag values).
-    Restricted to TAG_ADMIN_USERS in config.json.
+    Returns True if the user can manage tags (admin only).
     """
-    user = (user or get_current_user())
-    return user in get_tag_admin_users()
+    user = (user or get_current_user()).strip()
+    if not user or user == "unknown":
+        return False
+    return get_user_role(user) == "admin"
 
+
+# ---------------------------------------------------------------------------
+# Manager check — still config-based (guards the user_access management page
+# itself; cannot be DB-gated or you risk locking everyone out)
+# ---------------------------------------------------------------------------
+
+def is_manager(user: Optional[str] = None) -> bool:
+    """
+    Returns True if the user is in the MANAGERS list in config.json.
+    Managers can access user_access.py to add/remove users from the DB table.
+    Keep MANAGERS in config.json — do NOT move this to the DB table.
+    """
+    user = (user or get_current_user()).strip()
+    if not user or user == "unknown":
+        return False
+    return user in set(_read_config().get("MANAGERS", []))
+
+
+# ---------------------------------------------------------------------------
+# Deprecated config-list helpers — kept for any legacy callers but no longer
+# used for access control. Safe to remove once all pages are updated.
+# ---------------------------------------------------------------------------
+
+def get_valid_users() -> Set[str]:
+    """
+    DEPRECATED: access is now controlled by the user_access DB table.
+    Use is_in_user_access() instead. Kept only to avoid import errors
+    in pages not yet updated.
+    """
+    return set()
+
+
+def get_read_write_users() -> Set[str]:
+    """
+    DEPRECATED: write access is now controlled by get_user_role() via DB.
+    Use can_write() instead.
+    """
+    return set()
+
+
+def get_tag_admin_users() -> Set[str]:
+    """
+    DEPRECATED: admin access is now controlled by get_user_role() via DB.
+    Use can_edit_tags() instead.
+    """
+    return set()
+
+
+# ---------------------------------------------------------------------------
+# Admin-only mode — emergency lockdown switch (still config-based)
+# ---------------------------------------------------------------------------
+
+def is_admin_only_mode() -> bool:
+    """
+    Emergency lockdown: when True, only admin-role users can access dataset pages.
+    Controlled by ADMIN_ONLY_MODE in config.json.
+    """
+    data = _read_config()
+    return bool(data.get("ADMIN_ONLY_MODE", False))
+
+
+# ---------------------------------------------------------------------------
+# API config
+# ---------------------------------------------------------------------------
 
 def get_base_path() -> str:
     env = get_environment()
@@ -164,6 +276,10 @@ def safe_request(
         return {"error": f"{type(exc).__name__}: {exc}"}
 
 
+# ---------------------------------------------------------------------------
+# MySQL config
+# ---------------------------------------------------------------------------
+
 def get_mysql_config() -> Dict[str, Any]:
     data  = _read_config()
     mysql = data.get("MYSQL", {}) or {}
@@ -185,11 +301,3 @@ def get_mysql_config() -> Dict[str, Any]:
     }
 
 
-def is_admin_only_mode() -> bool:
-    """
-    Emergency lockdown switch for dataset pages.
-    When True, only TAG_ADMIN_USERS can access dataset pages.
-    Controlled by ADMIN_ONLY_MODE in config.json.
-    """
-    data = _read_config()
-    return bool(data.get("ADMIN_ONLY_MODE", False))

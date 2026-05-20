@@ -1,0 +1,169 @@
+{% extends "tags_base.html" %}
+
+{% block title %}User Access Management — UFL Tag Manager{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-10">
+
+    <div class="d-flex align-items-center mb-4">
+      <div>
+        <h2 class="mb-0" style="text-align:left;color:#002657;font-family:'Poppins',sans-serif;font-weight:700;">
+          User Access Management
+        </h2>
+        <p class="mb-0 text-muted" style="font-size:0.88rem;">
+          Control who can view and edit tags in UFL Tag Manager
+        </p>
+      </div>
+    </div>
+
+    {# ── alerts ──────────────────────────────────────────────────────────── #}
+    {% if message %}
+    <div class="alert alert-success alert-dismissible fade show" id="ua-success" role="alert">
+      <strong>Success:</strong> {{ message }}
+      <button type="button" class="close" data-dismiss="alert">
+        <span>&times;</span>
+      </button>
+    </div>
+    {% endif %}
+
+    {% if error %}
+    <div class="alert alert-danger alert-dismissible fade show" id="ua-error" role="alert">
+      <strong>Error:</strong> {{ error }}
+      <button type="button" class="close" data-dismiss="alert">
+        <span>&times;</span>
+      </button>
+    </div>
+    {% endif %}
+
+    {# ── Add User card ───────────────────────────────────────────────────── #}
+    <div class="card mb-4" style="border:1px solid #E5E7EB;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.06);">
+      <div class="card-header" style="background:#F9FAFB;border-bottom:1px solid #E5E7EB;border-radius:8px 8px 0 0;">
+        <h6 class="mb-0" style="color:#002657;font-family:'Poppins',sans-serif;font-weight:600;">
+          Add User
+        </h6>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="{{ base_path }}/user_access{{ ext }}">
+          <input type="hidden" name="action" value="add">
+          <div class="form-row align-items-end">
+            <div class="col-md-6">
+              <label for="ua-email" class="small font-weight-bold text-uppercase text-muted" style="letter-spacing:.04em;">
+                Email Address
+              </label>
+              <input type="email" id="ua-email" name="email"
+                     class="form-control" placeholder="gatormail@ufl.edu"
+                     required autocomplete="off">
+            </div>
+            <div class="col-md-3">
+              <label for="ua-role" class="small font-weight-bold text-uppercase text-muted" style="letter-spacing:.04em;">
+                Role
+              </label>
+              <select id="ua-role" name="role" class="form-control">
+                <option value="read">Read</option>
+                <option value="read_write">Read Write</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <div class="col-md-3 mt-2 mt-md-0">
+              <button type="submit" class="btn btn-primary btn-block">
+                Add User
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    {# ── Users table card ────────────────────────────────────────────────── #}
+    <div class="card" style="border:1px solid #E5E7EB;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.06);">
+      <div class="card-header" style="background:#F9FAFB;border-bottom:1px solid #E5E7EB;border-radius:8px 8px 0 0;">
+        <h6 class="mb-0" style="color:#002657;font-family:'Poppins',sans-serif;font-weight:600;">
+          Current Users
+          {% if users %}
+          <span class="text-muted font-weight-normal" style="font-size:0.82rem;margin-left:6px;">
+            ({{ users|length }})
+          </span>
+          {% endif %}
+        </h6>
+      </div>
+
+      {% if users %}
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead style="background:#002657;color:#fff;">
+            <tr>
+              <th style="border:none;font-size:0.78rem;letter-spacing:.04em;text-transform:uppercase;padding:12px 16px;">Email</th>
+              <th style="border:none;font-size:0.78rem;letter-spacing:.04em;text-transform:uppercase;padding:12px 16px;">Role</th>
+              <th style="border:none;font-size:0.78rem;letter-spacing:.04em;text-transform:uppercase;padding:12px 16px;">Added By</th>
+              <th style="border:none;font-size:0.78rem;letter-spacing:.04em;text-transform:uppercase;padding:12px 16px;">Added At</th>
+              <th style="border:none;font-size:0.78rem;letter-spacing:.04em;text-transform:uppercase;padding:12px 16px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr>
+              <td style="vertical-align:middle;font-weight:500;color:#002657;word-break:break-all;">
+                {{ user.email }}
+              </td>
+
+              {# inline role update #}
+              <td style="vertical-align:middle;">
+                <form method="POST" action="{{ base_path }}/user_access{{ ext }}"
+                      class="d-flex align-items-center" style="gap:6px;">
+                  <input type="hidden" name="action"  value="update">
+                  <input type="hidden" name="user_id" value="{{ user.id }}">
+                  <select name="role" class="form-control form-control-sm"
+                          style="width:auto;min-width:120px;">
+                    <option value="read"       {% if user.role == 'read'       %}selected{% endif %}>Read</option>
+                    <option value="read_write" {% if user.role == 'read_write' %}selected{% endif %}>Read Write</option>
+                    <option value="admin"      {% if user.role == 'admin'      %}selected{% endif %}>Admin</option>
+                  </select>
+                  <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                </form>
+              </td>
+
+              <td style="vertical-align:middle;color:#6B7280;font-size:0.85rem;">
+                {{ user.added_by }}
+              </td>
+              <td style="vertical-align:middle;color:#6B7280;font-size:0.85rem;white-space:nowrap;">
+                {{ user.added_at.strftime('%b %d, %Y %H:%M') if user.added_at else '—' }}
+              </td>
+
+              {# remove #}
+              <td style="vertical-align:middle;">
+                <form method="POST" action="{{ base_path }}/user_access{{ ext }}"
+                      onsubmit="return confirm('Remove access for {{ user.email }}?\nThis cannot be undone.');">
+                  <input type="hidden" name="action"  value="remove">
+                  <input type="hidden" name="user_id" value="{{ user.id }}">
+                  <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% else %}
+      <div class="card-body text-center text-muted py-5">
+        <p class="mb-0">No users yet. Add the first user above.</p>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Auto-dismiss alerts after 5 seconds
+  setTimeout(function () {
+    ['ua-success', 'ua-error'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) $(el).alert('close');
+    });
+  }, 5000);
+</script>
+{% endblock %}
