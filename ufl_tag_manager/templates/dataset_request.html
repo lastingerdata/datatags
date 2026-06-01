@@ -40,7 +40,7 @@
   .ds-intro {
     font-family:'IBM Plex Sans',sans-serif;
     font-size:15px;
-    color:#374151;
+    color:#000205;
     line-height:1.8;
     margin:0 0 40px;
     padding:16px 20px;
@@ -113,11 +113,11 @@
   .step-title {
     font-family:'IBM Plex Sans',sans-serif;
     font-size:30px; font-weight:700;
-    color:#111827; margin:0 0 5px;
+    color:#000205; margin:0 0 5px;
   }
   .step-hint {
     font-family:'IBM Plex Sans',sans-serif;
-    font-size:13px; color:#020408;
+    font-size:13px; color:#000205;
     margin:0 0 16px; line-height:1.65;
   }
   .step-hint a { color:#FA4616; text-decoration:none; font-weight:600; }
@@ -129,7 +129,7 @@
   .ds-label {
     display:block; margin-bottom:6px;
     font-family:'IBM Plex Sans',sans-serif;
-    font-size:15px; font-weight:600; color:#374151;
+    font-size:15px; font-weight:600; color:#000000;
   }
   .ds-input, .ds-select, .ds-textarea, .ds-readonly {
     width:100%; box-sizing:border-box; padding:10px 13px;
@@ -144,7 +144,7 @@
   }
   .ds-textarea { min-height:90px; resize:vertical; }
   .ds-readonly {
-    background:#F9FAFB; color:#6B7280;
+    background:#F9FAFB; color:#000000;
     cursor:default; border-style:dashed;
   }
 
@@ -152,7 +152,7 @@
   .hdr-help {
     border:1px solid #E5E7EB; border-radius:7px;
     padding:12px 14px; background:#FAFAFA;
-    font-family:'IBM Plex Sans',sans-serif; font-size:13px; color:#6B7280;
+    font-family:'IBM Plex Sans',sans-serif; font-size:15px; color:#6B7280;
     margin-bottom:12px;
   }
   .hdr-help ul { margin:6px 0 0 16px; padding:0; }
@@ -346,8 +346,8 @@
   </div>
 
   <p class="ds-intro">
-    <strong>Need data for a report or analysis?</strong><br>
-    Use this form to request a custom dataset pulled directly from Snowflake.
+    <strong>Need data for a report or analysis?<br></strong>
+    Use this form to request a custom dataset to be built in Snowflake.
     Select your data source, apply any filters, and give your dataset a name and description —
     we'll handle the rest.
   </p>
@@ -557,7 +557,7 @@
     box.innerHTML = '<ul>' + vp.map(p =>
       `<li><b>${esc(p.name)}</b> — <em>${esc(p.type||'string')}</em>` +
       (p.required ? ` <span class="req-chip">Required</span>` : '') +
-      (p.description ? `<br><span style="color:#9CA3AF;font-size:11px">${esc(p.description)}</span>` : '') +
+      (p.description ? `<br><span style="color:#000205;font-size:13px">${esc(p.description)}</span>` : '') +
       '</li>'
     ).join('') + '</ul>';
   }
@@ -578,7 +578,7 @@
     const tagHdr       = tagHeaderName(e);
 
     if (!hasSegment && !hasAnonymize && !tagHdr) {
-      section.innerHTML = '<div style="font-family:\'IBM Plex Sans\',sans-serif;font-size:13px;color:#9CA3AF;">No filters available for this dataset.</div>';
+      section.innerHTML = '<div style="font-family:\'IBM Plex Sans\',sans-serif;font-size:13px;color:#000205;">No filters available for this dataset.</div>';
       return;
     }
 
@@ -657,7 +657,7 @@
         <span class="toggle-sub-label" id="toggle-sub-label">${
           isAnd
             ? 'When enabled, results will only include records that match all selected filters.'
-            : 'When disabled, results will include records that match any of the selected filters.'
+            : 'When disabled, results will include records that match the selected filter'
         }</span>
       </div>
     `;
@@ -692,7 +692,7 @@
         if (subLbl) {
           subLbl.innerHTML = state.tagMode === 'and'
             ? 'When enabled, results will only include records that match all selected filters.'
-            : 'When disabled, results will include records that match any of the selected filters.';
+            : 'When disabled, results will include records that match the selected filter';
         }
         renderFilters();
         document.removeEventListener('change', handler);
