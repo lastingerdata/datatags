@@ -4,118 +4,99 @@
 
 {% block content %}
 <style>
-  body {
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-  }
+  body { margin:0; padding:0; overflow-x:hidden; }
 
   .hero-section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    max-width: 100%;
     width: 100%;
     margin: 0;
-    padding: 10px 0 60px;
-    background: #FFFFFF;
+    padding: 40px 0 80px;
+    background: #ffffff;
   }
-  
+
   .hero-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 100px;
+    gap: 80px;
     width: 100%;
-    max-width: 100%;
+    max-width: 1100px;
     padding: 0 60px;
-    margin-bottom: 50px;
+    margin-bottom: 60px;
   }
-  
-  .hero-content {
-    flex: 1;
-  }
-  
+
+  .hero-content { flex: 1; }
+
   .hero-content h1 {
-    font-size: 64px;
+    font-size: 56px;
     font-weight: 700;
     font-family: 'Poppins', sans-serif;
     color: #002657;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
     line-height: 1.1;
   }
-  
+
   .hero-content p {
-    font-size: 20px;
+    font-size: 17px;
     font-family: 'IBM Plex Sans', sans-serif;
     color: #4A4A4A;
-    margin-bottom: 20px;
-    line-height: 1.6;
+    margin-bottom: 16px;
+    line-height: 1.7;
+    max-width: 560px;
   }
-  
-  .hero-buttons {
-    display: flex;
-    gap: 24px;
-    flex-wrap: wrap;
-    justify-content: center;
-    width: 100%;
-    max-width: 900px;
-  }
-  
+
   .hero-image {
     flex: 0 0 auto;
-    width: 240px !important;
-    min-width: 240px;
+    width: 220px;
     display: flex;
     justify-content: center;
     align-items: center;
   }
-  
+
   .hero-image img {
-    width: 240px !important;
-    height: 320px !important;
-    max-width: 240px !important;
-    max-height: 320px !important;
+    width: 220px;
+    height: 300px;
     object-fit: contain;
-    opacity: 1;
   }
-  
-  @media (max-width: 1024px) {
-    .hero-section { padding: 60px 80px; gap: 60px; }
+
+  .hero-buttons {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 1100px;
+    padding: 0 60px;
   }
-  
-  @media (max-width: 768px) {
-    .hero-section { flex-direction: column; text-align: center; padding: 40px 20px; }
+
+  @media (max-width: 900px) {
+    .hero-top { flex-direction: column; padding: 0 24px; gap: 32px; }
     .hero-content h1 { font-size: 36px; }
-    .hero-buttons { justify-content: center; }
+    .hero-buttons { padding: 0 24px; }
+    .hero-image { display: none; }
   }
 </style>
 
 <div class="hero-section">
+
   <div class="hero-top">
     <div class="hero-content">
       <h1>Tag Management Dashboard</h1>
-      <p>The Tag Management System is a web-based tool developed to streamline the tagging process for academic course sections. Designed for efficiency and scalability, the system allows users to manage tagging categories, values, and mappings.</p>
-      <p>Whether organizing courses by program type or term, the system ensures that tagging remains consistent, accurate, and easily searchable.</p>
+      <p>A web-based tool to streamline the tagging process for academic course sections — manage categories, values, and mappings with efficiency and scalability.</p>
+      <p>Whether organising courses by program type or term, the system ensures tagging remains consistent, accurate, and easily searchable.</p>
     </div>
-    
     <div class="hero-image">
       <img src="/ufl_tag_manager/assets/home_hero.png" alt="Tag Management Illustration" />
     </div>
   </div>
-  
-  <div class="hero-buttons">
-    {# Tag management pages — available to all authenticated users #}
-    {{ button('Manage Tag Categories',        base_path + '/tags'                  + ext, 'primary', 'large') }}
-    {{ button('Manage Tag Values',             base_path + '/tag_values'            + ext, 'primary', 'large') }}
-    {{ button('Manage Section Tag Mappings',   base_path + '/section_tags'          + ext, 'primary', 'large') }}
-    {{ button('Bulk Insert into Section Tags', base_path + '/section_tags_inserts'  + ext, 'primary', 'large') }}
 
-    {# Dataset & Reports pages — TAG_ADMIN only #}
-    {% if is_admin %}
-      {{ button('Dataset Requests', base_path + '/dataset_request'  + ext, 'primary', 'large') }}
-      {{ button('Reports Hub',      base_path + '/reports_hub'      + ext, 'primary', 'large') }}
-    {% endif %}
+  <div class="hero-buttons">
+    {{ button('Manage Tag Categories',        base_path + '/tags'                 + ext, 'primary', 'large') }}
+    {{ button('Manage Tag Values',            base_path + '/tag_values'           + ext, 'primary', 'large') }}
+    {{ button('Manage Section Tag Mappings',  base_path + '/section_tags'         + ext, 'primary', 'large') }}
+    {{ button('Bulk Insert into Section Tags',base_path + '/section_tags_inserts' + ext, 'primary', 'large') }}
   </div>
+
 </div>
 {% endblock %}

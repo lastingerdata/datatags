@@ -6,10 +6,8 @@ import cgi
 import cgitb
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import get_current_user, get_base_path, get_user_role
-from libs.dataset_request_db import (
-    get_admin_requests, refresh_existing_request, set_nightly_refresh,
-)
+from env_config import get_current_user, get_base_path, get_user_role, is_in_user_access
+from libs.dataset_request_db import get_user_requests, refresh_existing_request
 
 cgitb.enable()
 
@@ -25,19 +23,17 @@ def render(template, **kw):
     print(env.get_template(template).render(**kw))
 
 
-def _denied(current_user):
-    render("dataset_requests_list.html",
+def _denied(current_user, is_admin, user_role):
+    render("user_datasets.html",
         current_user=current_user,
         base_path=get_base_path(),
-        page_name="dataset_requests_list",
+        page_name="user_datasets",
         access_denied=True,
-        is_admin=False, user_role="read",
+        is_admin=is_admin, user_role=user_role,
         requests=[], message="", error="",
         showing=0, total=0, total_pages=0, current_page=1,
-        endpoint_filter="", table_filter="", header_filter="",
-        endpoint_options=[], ext=".py",
+        ext=".py",
     )
-
 
 def main():
     form         = cgi.FieldStorage()
@@ -46,8 +42,8 @@ def main():
     user_role    = get_user_role(current_user)
     is_admin     = user_role == "admin"
 
-    if not is_admin:
-        _denied(current_user)
+    if not is_in_user_access(current_user):
+        _denied(current_user, is_admin, user_role)
         return
 
     message = error = ""
@@ -64,41 +60,26 @@ def main():
                 message = f"Request #{request_id} will be refreshed shortly."
             except (ValueError, Exception) as exc:
                 error = str(exc)
-        elif action == "set_nightly":
-            nightly = form.getfirst("nightly_refresh", "0").strip()
-            try:
-                set_nightly_refresh(int(request_id), nightly == "1")
-                message = f"Nightly refresh {'enabled' if nightly == '1' else 'disabled'} for #{request_id}."
-            except Exception as exc:
-                error = f"Failed to update nightly refresh: {exc}"
         else:
             error = "Unknown action."
-
-    endpoint_filter = form.getfirst("endpoint_filter", "").strip()
-    table_filter    = form.getfirst("table_filter", "").strip()
-    header_filter   = form.getfirst("header_filter", "").strip()
 
     try:
         current_page = max(1, int(form.getfirst("page", 1)))
     except (ValueError, TypeError):
         current_page = 1
 
-    requests, total = get_admin_requests(
-        endpoint_filter=endpoint_filter or None,
-        table_filter=table_filter or None,
-        header_filter=header_filter or None,
+    requests, total = get_user_requests(
+        current_user=current_user,
+        is_admin=is_admin,
         page=current_page,
         page_size=PAGE_SIZE,
     )
     total_pages = max(1, (total + PAGE_SIZE - 1) // PAGE_SIZE)
 
-    all_rows, _     = get_admin_requests(page=1, page_size=9999)
-    endpoint_options = sorted({r["endpoint"] for r in all_rows if r.get("endpoint")})
-
-    render("dataset_requests_list.html",
+    render("user_datasets.html",
         current_user=current_user,
         base_path=get_base_path(),
-        page_name="dataset_requests_list",
+        page_name="user_datasets",
         access_denied=False,
         is_admin=is_admin,
         user_role=user_role,
@@ -106,13 +87,8 @@ def main():
         message=message, error=error,
         showing=len(requests), total=total,
         total_pages=total_pages, current_page=current_page,
-        endpoint_filter=endpoint_filter,
-        table_filter=table_filter,
-        header_filter=header_filter,
-        endpoint_options=endpoint_options,
         ext=".py",
     )
-
 
 if __name__ == "__main__":
     main()

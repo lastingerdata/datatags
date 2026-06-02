@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -31,6 +32,10 @@ def _normalize_dataset_key(endpoint, table_name, schema_name, headers_json):
         normalize_headers(headers_json),
     )
 
+# ─────────────────────────────────────────────────────────────────────────────
+# EXISTING REQUEST LOOKUPS
+# ─────────────────────────────────────────────────────────────────────────────
+
 def get_existing_request(endpoint, table_name, schema_name, headers_json):
     endpoint, table_name, schema_name, headers_json = _normalize_dataset_key(
         endpoint, table_name, schema_name, headers_json
@@ -43,7 +48,7 @@ def get_existing_request(endpoint, table_name, schema_name, headers_json):
                 request_id, endpoint, table_name, schema_name,
                 headers_json, requested_by, status,
                 created_at, updated_at, error_message,
-                dataset_description, nightly_refresh
+                dataset_description, nightly_refresh, owner_type
             FROM dataset_requests
             WHERE endpoint = %s
               AND table_name = %s
@@ -61,6 +66,126 @@ def get_existing_status(endpoint, table_name, schema_name, headers_json):
     row = get_existing_request(endpoint, table_name, schema_name, headers_json)
     return row["status"] if row else None
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ADMIN LIST — all admin-owned requests with optional filters + pagination
+# Used by: dataset_requests_list.py (admin only page)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def get_admin_requests(endpoint_filter=None, table_filter=None,header_filter=None, page=1, page_size=25):
+    """
+    Returns only owner_type='admin' rows.
+    Optionally filter by endpoint name or table name.
+    Paginated — page starts at 1.
+    Also returns total count for pagination controls.
+    """
+    offset = (page - 1) * page_size
+
+    where_clauses = ["owner_type = 'admin'"]
+    params = []
+
+    if endpoint_filter:
+        where_clauses.append("endpoint = %s")
+        params.append(endpoint_filter.strip())
+
+    if table_filter:
+        where_clauses.append("table_name LIKE %s")
+        params.append(f"%{table_filter.strip().upper()}%")
+
+    if header_filter:
+        where_clauses.append("headers_json LIKE %s")
+        params.append(f"%{header_filter.strip()}%")
+
+    where_sql = " AND ".join(where_clauses)
+
+    db = localMySQLDB_connection.LocalDBConnection().connect()
+    cursor = db.cursor(dictionary=True)
+    try:
+        # Total count for pagination
+        cursor.execute(f"""
+            SELECT COUNT(*) AS total FROM dataset_requests
+            WHERE {where_sql}
+        """, params)
+        total = cursor.fetchone()["total"]
+
+        # Paginated rows
+        cursor.execute(f"""
+            SELECT
+                request_id, endpoint, table_name, schema_name,
+                headers_json, requested_by, status,
+                created_at, updated_at, error_message,
+                dataset_description, nightly_refresh, owner_type
+            FROM dataset_requests
+            WHERE {where_sql}
+            ORDER BY request_id DESC
+            LIMIT %s OFFSET %s
+        """, params + [page_size, offset])
+
+        rows = cursor.fetchall()
+        return rows, total
+    finally:
+        cursor.close()
+        db.close()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# USER LIST — requests for a specific user, paginated
+# Used by: my_datasets.py
+# If called by admin (is_admin=True), returns ALL user-owned requests
+# If called by regular user, returns only their own
+# ─────────────────────────────────────────────────────────────────────────────
+
+def get_user_requests(current_user, is_admin=False, page=1, page_size=25):
+    """
+    For regular users  → only their own owner_type='user' rows
+    For admins         → ALL owner_type='user' rows (every user's requests)
+    Paginated — page starts at 1.
+    Also returns total count for pagination controls.
+    """
+    offset = (page - 1) * page_size
+
+    if is_admin:
+        where_sql = "owner_type = 'user'"
+        params = []
+    else:
+        where_sql = "owner_type = 'user' AND LOWER(requested_by) = LOWER(%s)"
+        params = [(current_user or "").strip()]
+
+    db = localMySQLDB_connection.LocalDBConnection().connect()
+    cursor = db.cursor(dictionary=True)
+    try:
+        # Total count
+        cursor.execute(f"""
+            SELECT COUNT(*) AS total FROM dataset_requests
+            WHERE {where_sql}
+        """, params)
+        total = cursor.fetchone()["total"]
+
+        # Paginated rows
+        cursor.execute(f"""
+            SELECT
+                request_id, endpoint, table_name, schema_name,
+                headers_json, requested_by, status,
+                created_at, updated_at, error_message,
+                dataset_description, nightly_refresh, owner_type
+            FROM dataset_requests
+            WHERE {where_sql}
+            ORDER BY request_id DESC
+            LIMIT %s OFFSET %s
+        """, params + [page_size, offset])
+
+        rows = cursor.fetchall()
+        return rows, total
+    finally:
+        cursor.close()
+        db.close()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# KEPT FOR BACKWARDS COMPATIBILITY — used by old list page
+# Will be removed once both new list pages are deployed
+# ─────────────────────────────────────────────────────────────────────────────
+
 def get_all_dataset_requests():
     db = localMySQLDB_connection.LocalDBConnection().connect()
     cursor = db.cursor(dictionary=True)
@@ -70,7 +195,7 @@ def get_all_dataset_requests():
                 request_id, endpoint, table_name, schema_name,
                 headers_json, requested_by, status,
                 created_at, updated_at, error_message,
-                dataset_description, nightly_refresh
+                dataset_description, nightly_refresh, owner_type
             FROM dataset_requests
             ORDER BY request_id DESC
         """)
@@ -80,9 +205,17 @@ def get_all_dataset_requests():
         db.close()
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# INSERT — now accepts owner_type
+# ─────────────────────────────────────────────────────────────────────────────
+
 def add_request(endpoint, table_name, schema_name, headers_json,
-                        requested_by, dataset_description="", nightly_refresh=False):
-   
+                requested_by, dataset_description="", nightly_refresh=False,
+                owner_type="admin"):
+    """
+    owner_type = 'admin' → admin-created shared dataset (default)
+    owner_type = 'user'  → user-requested personal dataset
+    """
     endpoint, table_name, schema_name, headers_json = _normalize_dataset_key(
         endpoint, table_name, schema_name, headers_json
     )
@@ -92,13 +225,15 @@ def add_request(endpoint, table_name, schema_name, headers_json,
         cursor.execute("""
             INSERT INTO dataset_requests
                 (endpoint, table_name, schema_name, headers_json,
-                 requested_by, status, dataset_description, nightly_refresh)
-            VALUES (%s, %s, %s, %s, %s, 'pending', %s, %s)
+                 requested_by, status, dataset_description,
+                 nightly_refresh, owner_type)
+            VALUES (%s, %s, %s, %s, %s, 'pending', %s, %s, %s)
         """, (
             endpoint, table_name, schema_name, headers_json,
             (requested_by or "").strip(),
             (dataset_description or "").strip(),
             1 if nightly_refresh else 0,
+            owner_type if owner_type in ("admin", "user") else "admin",
         ))
         db.commit()
         return cursor.lastrowid
@@ -107,11 +242,14 @@ def add_request(endpoint, table_name, schema_name, headers_json,
         db.close()
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# REFRESH / UPDATE HELPERS
+# ─────────────────────────────────────────────────────────────────────────────
+
 def refresh_existing_request(request_id):
     """
-    Resets an existing completed/failed request back to pending so the
+    Resets a completed/failed request back to pending so the
     Snowflake processor picks it up and re-runs it.
-    Only allowed when current status is 'completed' or 'failed'.
     """
     db = localMySQLDB_connection.LocalDBConnection().connect()
     cursor = db.cursor(dictionary=True)
@@ -145,7 +283,6 @@ def refresh_existing_request(request_id):
 def set_nightly_refresh(request_id, nightly_refresh):
     """
     Toggles the nightly_refresh flag for an existing request (admin only).
-    nightly_refresh: True/False or 1/0
     """
     db = localMySQLDB_connection.LocalDBConnection().connect()
     cursor = db.cursor()
@@ -178,30 +315,40 @@ def request_refresh(endpoint, table_name, schema_name, headers_json,
         headers_json=headers_json, requested_by=requested_by,
         dataset_description=dataset_description,
     )
-    return {"result": "REFRESH_REQUESTED", "request_id": new_request_id,
-            "message": "Refresh requested successfully.",
-            "existing_request": decision["existing_request"]}
+    return {
+        "result": "REFRESH_REQUESTED",
+        "request_id": new_request_id,
+        "message": "Refresh requested successfully.",
+        "existing_request": decision["existing_request"],
+    }
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# TABLE EXISTS CHECK
+# ─────────────────────────────────────────────────────────────────────────────
 
 def table_exists(table_name, schema_name):
-  
-   db = localMySQLDB_connection.LocalDBConnection().connect()
-   cursor = db.cursor(dictionary=True)
-   try:
-       cursor.execute("""
-           SELECT request_id FROM dataset_requests
-           WHERE table_name = %s
-             AND schema_name = %s
-           LIMIT 1
-       """, (
-           (table_name or "").strip().upper(),
-           (schema_name or "").strip().lower(),
-       ))
-       return cursor.fetchone() is not None
-   finally:
-       cursor.close()
-       db.close()
+    db = localMySQLDB_connection.LocalDBConnection().connect()
+    cursor = db.cursor(dictionary=True)
+    try:
+        cursor.execute("""
+            SELECT request_id FROM dataset_requests
+            WHERE table_name = %s
+              AND schema_name = %s
+            LIMIT 1
+        """, (
+            (table_name or "").strip().upper(),
+            (schema_name or "").strip().lower(),
+        ))
+        return cursor.fetchone() is not None
+    finally:
+        cursor.close()
+        db.close()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# TAG / SEGMENT HELPERS
+# ─────────────────────────────────────────────────────────────────────────────
 
 def get_all_tags():
     db = localMySQLDB_connection.LocalDBConnection().connect()

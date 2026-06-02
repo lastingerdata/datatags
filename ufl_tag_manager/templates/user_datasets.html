@@ -1,5 +1,5 @@
 {% extends 'tags_base.html' %}
-{% block title %}Admin Dataset Requests{% endblock %}
+{% block title %}My Datasets{% endblock %}
 
 {% block content %}
 <style>
@@ -11,34 +11,13 @@
   .sl-title { font-family:'Poppins',sans-serif; font-size:40px; font-weight:700; color:#002657; margin:0; }
   .sl-sub   { font-family:'IBM Plex Sans',sans-serif; font-size:14px; color:#6B7280; margin:0 0 24px 28px; }
 
-  /* Filter bar */
-  .filter-bar {
-    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
-    background:#F9FAFB; border:1px solid #E5E7EB; border-radius:8px;
-    padding:14px 18px; margin-bottom:20px;
+  .admin-banner {
+    display:flex; align-items:center; gap:10px;
+    background:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px;
+    padding:12px 16px; margin-bottom:20px;
+    font-family:'IBM Plex Sans',sans-serif; font-size:13px; color:#1E40AF;
   }
-  .filter-bar label { font-family:'IBM Plex Sans',sans-serif; font-size:12px; font-weight:600; color:#6B7280; text-transform:uppercase; letter-spacing:0.05em; margin:0; }
-  .filter-select, .filter-input {
-    padding:8px 12px; border:1px solid #D1D5DB; border-radius:6px;
-    font-family:'IBM Plex Sans',sans-serif; font-size:13px; color:#111827;
-    background:#fff; min-width:180px;
-  }
-  .filter-select:focus, .filter-input:focus { outline:none; border-color:#FA4616; }
-  .btn-filter {
-    padding:8px 18px; border:none; border-radius:6px; cursor:pointer;
-    font-family:'IBM Plex Sans',sans-serif; font-size:13px; font-weight:600;
-    background:#002657; color:#fff; transition:background 0.15s;
-  }
-  .btn-filter:hover { background:#001a40; }
-  .btn-clear {
-    padding:8px 14px; border:1px solid #D1D5DB; border-radius:6px; cursor:pointer;
-    font-family:'IBM Plex Sans',sans-serif; font-size:13px; font-weight:600;
-    background:#fff; color:#6B7280; text-decoration:none;
-  }
-  .btn-clear:hover { background:#F3F4F6; color:#374151; text-decoration:none; }
-  .filter-count { margin-left:auto; font-family:'IBM Plex Sans',sans-serif; font-size:12px; color:#9CA3AF; white-space:nowrap; }
 
-  /* Table */
   .sl-card   { background:#fff; border:1px solid #E5E7EB; border-radius:8px; overflow:hidden; }
   .sl-scroll { overflow-x:auto; }
   .sl-tbl    { width:100%; border-collapse:collapse; font-family:'IBM Plex Sans',sans-serif; font-size:13px; }
@@ -50,25 +29,30 @@
   .sl-tbl tbody td { padding:11px 14px; border-bottom:1px solid #F3F4F6; vertical-align:top; color:#111827; }
   .sl-tbl tbody tr:last-child td { border-bottom:none; }
   .sl-tbl tbody tr:hover td { background:#FAFAFA; }
-  .sl-code  { white-space:pre-wrap; word-break:break-word; font-size:12px; line-height:1.4; margin:0; font-family:'IBM Plex Mono',monospace; color:#374151; }
 
-  /* Badges */
   .badge     { display:inline-block; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:600; white-space:nowrap; }
   .s-done    { background:#D1FAE5; color:#065F46; }
   .s-pending { background:#FEF3C7; color:#92400E; }
   .s-proc    { background:#DBEAFE; color:#1E40AF; }
   .s-fail    { background:#FEE2E2; color:#991B1B; }
 
-  /* Action buttons */
   .btn-ref  { border:none; border-radius:6px; padding:6px 12px; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; font-size:12px; font-weight:600; background:#002657; color:#fff; white-space:nowrap; transition:background 0.15s; }
   .btn-ref:hover:not(:disabled) { background:#001a40; }
   .btn-ref:disabled { background:#E5E7EB; color:#9CA3AF; cursor:not-allowed; }
-  .btn-save { border:none; border-radius:6px; padding:5px 10px; cursor:pointer; font-size:11px; font-weight:600; font-family:'IBM Plex Sans',sans-serif; background:#002657; color:#fff; }
-  .btn-save:hover { background:#001a40; }
-  .nl-wrap  { display:flex; flex-direction:column; gap:5px; min-width:120px; }
-  .nl-sel   { padding:5px 8px; border:1px solid #D1D5DB; border-radius:6px; font-size:12px; font-family:'IBM Plex Sans',sans-serif; background:#fff; color:#111827; }
 
-  /* Pagination */
+  .cta-bar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 18px; border-bottom:1px solid #E5E7EB; background:#FAFAFA;
+  }
+  .cta-text { font-family:'IBM Plex Sans',sans-serif; font-size:13px; color:#6B7280; }
+  .btn-new  {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:8px 18px; border:none; border-radius:6px; cursor:pointer;
+    font-family:'IBM Plex Sans',sans-serif; font-size:13px; font-weight:600;
+    background:#FA4616; color:#fff; text-decoration:none; transition:background 0.15s;
+  }
+  .btn-new:hover { background:#d93a0f; color:#fff; text-decoration:none; }
+
   .pagination {
     display:flex; align-items:center; justify-content:space-between;
     padding:14px 18px; border-top:1px solid #E5E7EB;
@@ -80,14 +64,13 @@
     display:inline-flex; align-items:center; justify-content:center;
     min-width:32px; height:32px; padding:0 8px;
     border:1px solid #E5E7EB; border-radius:6px;
-    font-family:'IBM Plex Sans',sans-serif; font-size:13px; font-weight:500;
-    color:#374151; text-decoration:none; background:#fff; transition:background 0.12s;
+    font-size:13px; font-weight:500; color:#374151;
+    text-decoration:none; background:#fff; transition:background 0.12s;
   }
-  .page-btn:hover { background:#F3F4F6; text-decoration:none; color:#374151; }
+  .page-btn:hover  { background:#F3F4F6; text-decoration:none; color:#374151; }
   .page-btn.active { background:#002657; color:#fff; border-color:#002657; font-weight:700; }
   .page-btn.disabled { opacity:0.4; pointer-events:none; }
 
-  /* Alerts */
   .alert    { position:relative; padding:14px 48px 14px 18px; border-radius:7px; margin-bottom:20px; font-family:'IBM Plex Sans',sans-serif; font-size:14px; animation:slideIn 0.25s ease; }
   .alert-ok { background:#D1FAE5; color:#065F46; border:1px solid #A7F3D0; }
   .alert-er { background:#FEE2E2; color:#991B1B; border:1px solid #FECACA; }
@@ -95,14 +78,17 @@
   .alert-x:hover { opacity:1; }
   .alert.out { animation:fadeOut 0.25s ease forwards; }
 
-  /* Empty / denied */
-  .empty-state { text-align:center; padding:48px; color:#9CA3AF; font-family:'IBM Plex Sans',sans-serif; font-size:14px; }
-  .denied { text-align:center; padding:60px 40px; background:#fff; border:1px solid #E5E7EB; border-radius:10px; }
+  .empty-state { text-align:center; padding:60px 40px; font-family:'IBM Plex Sans',sans-serif; }
+  .empty-icon  { font-size:40px; margin-bottom:12px; }
+  .empty-h     { font-size:18px; font-weight:700; color:#111827; margin-bottom:8px; }
+  .empty-p     { font-size:14px; color:#9CA3AF; margin-bottom:20px; }
+
+  .denied      { text-align:center; padding:60px 40px; background:#fff; border:1px solid #E5E7EB; border-radius:10px; }
   .denied-icon { font-size:48px; margin-bottom:14px; }
-  .denied-h { font-family:'Poppins',sans-serif; font-size:22px; font-weight:700; color:#002657; margin-bottom:10px; }
-  .denied-p { font-size:14px; color:#6B7280; line-height:1.7; }
-  .denied-u { display:inline-block; margin:10px 0 18px; padding:5px 14px; background:#F3F4F6; border-radius:999px; font-size:13px; color:#374151; font-weight:500; }
-  .denied-a { display:inline-flex; align-items:center; gap:6px; margin-top:20px; padding:10px 20px; background:#002657; color:#fff; border-radius:6px; font-size:14px; font-weight:600; text-decoration:none; }
+  .denied-h    { font-family:'Poppins',sans-serif; font-size:22px; font-weight:700; color:#002657; margin-bottom:10px; }
+  .denied-p    { font-size:14px; color:#6B7280; line-height:1.7; }
+  .denied-u    { display:inline-block; margin:10px 0 18px; padding:5px 14px; background:#F3F4F6; border-radius:999px; font-size:13px; color:#374151; font-weight:500; }
+  .denied-a    { display:inline-flex; align-items:center; gap:6px; margin-top:20px; padding:10px 20px; background:#002657; color:#fff; border-radius:6px; font-size:14px; font-weight:600; text-decoration:none; }
   .denied-a:hover { background:#001a40; color:#fff; text-decoration:none; }
 
   @keyframes slideIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
@@ -116,7 +102,7 @@
   <div class="denied">
     <div class="denied-icon">🔒</div>
     <h2 class="denied-h">Access Restricted</h2>
-    <p class="denied-p">This page is only available to administrators.</p>
+    <p class="denied-p">You don't have permission to view this page.</p>
     <div class="denied-u">{{ current_user }}</div>
     <a class="denied-a" href="{{ base_path }}/tags_index{{ ext }}">← Back to Home</a>
   </div>
@@ -125,51 +111,39 @@
 
   <div class="sl-head">
     <div class="sl-bar"></div>
-    <h1 class="sl-title">Admin Dataset Requests</h1>
+    <h1 class="sl-title">{% if is_admin %}All User Requests{% else %}My Datasets{% endif %}</h1>
   </div>
-  <p class="sl-sub">Shared datasets created by admins. Use filters to search.</p>
+  <p class="sl-sub">
+    {% if is_admin %}Viewing all personal dataset requests submitted by users.
+    {% else %}Datasets you have personally requested.{% endif %}
+  </p>
+
+  {% if is_admin %}
+  <div class="admin-banner">
+    ℹ️ You are viewing this page as an admin — all users' personal requests are shown.
+  </div>
+  {% endif %}
 
   {% if message %}<div class="alert alert-ok" data-alert><button class="alert-x" data-close>&times;</button>{{ message }}</div>{% endif %}
   {% if error   %}<div class="alert alert-er" data-alert><button class="alert-x" data-close>&times;</button>{{ error }}</div>{% endif %}
 
-  <form method="GET">
-    <div class="filter-bar">
-      <label>Dataset</label>
-      <select name="endpoint_filter" class="filter-select">
-        <option value="">All datasets</option>
-        {% for ep in endpoint_options %}
-          <option value="{{ ep }}" {% if endpoint_filter == ep %}selected{% endif %}>{{ ep }}</option>
-        {% endfor %}
-      </select>
-
-      <label>Table Name</label>
-      <input type="text" name="table_filter" class="filter-input"
-             placeholder="Search table name..." value="{{ table_filter }}">
-
-      <label>Headers</label>
-      <input type="text" name="header_filter" class="filter-input"
-             placeholder="Search headers..." value="{{ header_filter }}">
-
-      <button type="submit" class="btn-filter">Apply</button>
-      {% if endpoint_filter or table_filter or header_filter %}
-        <a href="{{ base_path }}/dataset_requests_list{{ ext }}" class="btn-clear">Clear</a>
-      {% endif %}
-      <span class="filter-count">
-        {% if endpoint_filter or table_filter or header_filter %}{{ total }} result{{ 's' if total != 1 }} found
-        {% else %}{{ total }} total{% endif %}
-      </span>
-    </div>
-  </form>
-
   <div class="sl-card">
+    {% if not is_admin %}
+    <div class="cta-bar">
+      <span class="cta-text">Want a new dataset? Submit a request.</span>
+      <a class="btn-new" href="{{ base_path }}/dataset_request{{ ext }}">+ New Request</a>
+    </div>
+    {% endif %}
+
     <div class="sl-scroll">
       <table class="sl-tbl">
         <thead>
           <tr>
             <th>ID</th><th>Dataset</th><th>Table Name</th><th>Schema</th>
-            <th>Headers</th><th>Description</th><th>Requested By</th>
+            <th>Description</th>
+            {% if is_admin %}<th>Requested By</th>{% endif %}
             <th>Status</th><th>Created</th><th>Updated</th>
-            <th>Refresh</th><th>Nightly</th><th>Error</th>
+            <th>Refresh</th><th>Error</th>
           </tr>
         </thead>
         <tbody>
@@ -181,9 +155,8 @@
                 <td>{{ row.endpoint }}</td>
                 <td>{{ row.table_name }}</td>
                 <td>{{ row.schema_name }}</td>
-                <td><pre class="sl-code">{{ row.headers_json or '' }}</pre></td>
-                <td>{{ row.dataset_description or '' }}</td>
-                <td>{{ row.requested_by }}</td>
+                <td>{{ row.dataset_description or '—' }}</td>
+                {% if is_admin %}<td>{{ row.requested_by }}</td>{% endif %}
                 <td>
                   <span class="badge {% if s=='completed' %}s-done{% elif s=='pending' %}s-pending{% elif s=='processing' %}s-proc{% elif s=='failed' %}s-fail{% endif %}">
                     {{ row.status }}
@@ -193,41 +166,27 @@
                 <td style="white-space:nowrap;">{{ row.updated_at or '—' }}</td>
                 <td>
                   <form method="POST">
-                    <input type="hidden" name="action"          value="row_refresh">
-                    <input type="hidden" name="request_id"      value="{{ row.request_id }}">
-                    <input type="hidden" name="endpoint_filter" value="{{ endpoint_filter }}">
-                    <input type="hidden" name="table_filter"    value="{{ table_filter }}">
-                    <input type="hidden" name="header_filter"   value="{{ header_filter }}">
+                    <input type="hidden" name="action"     value="row_refresh">
+                    <input type="hidden" name="request_id" value="{{ row.request_id }}">
+                    <input type="hidden" name="page"       value="{{ current_page }}">
                     <button type="submit" class="btn-ref"
                       {% if s not in ('completed','failed') %}disabled title="Only available when Completed or Failed"{% endif %}>
                       ↻ Refresh
                     </button>
                   </form>
                 </td>
-                <td>
-                  <form method="POST">
-                    <input type="hidden" name="action"          value="set_nightly">
-                    <input type="hidden" name="request_id"      value="{{ row.request_id }}">
-                    <input type="hidden" name="endpoint_filter" value="{{ endpoint_filter }}">
-                    <input type="hidden" name="table_filter"    value="{{ table_filter }}">
-                    <input type="hidden" name="header_filter"   value="{{ header_filter }}">
-                    <div class="nl-wrap">
-                      <select name="nightly_refresh" class="nl-sel">
-                        <option value="1" {% if row.nightly_refresh %}selected{% endif %}>Yes</option>
-                        <option value="0" {% if not row.nightly_refresh %}selected{% endif %}>No</option>
-                      </select>
-                      <button type="submit" class="btn-save">Save</button>
-                    </div>
-                  </form>
-                </td>
                 <td style="color:#991B1B;font-size:12px;">{{ row.error_message or '' }}</td>
               </tr>
             {% endfor %}
           {% else %}
-            <tr><td colspan="13">
+            <tr><td colspan="{{ 11 if is_admin else 10 }}">
               <div class="empty-state">
-                {% if endpoint_filter or table_filter or header_filter %}No datasets match your filters.
-                {% else %}No admin dataset requests yet.{% endif %}
+                <div class="empty-icon">📂</div>
+                <div class="empty-h">No datasets yet</div>
+                <p class="empty-p">You haven't requested any datasets yet.</p>
+                {% if not is_admin %}
+                  <a class="btn-new" href="{{ base_path }}/dataset_request{{ ext }}">+ Request a Dataset</a>
+                {% endif %}
               </div>
             </td></tr>
           {% endif %}
@@ -236,7 +195,8 @@
     </div>
 
     {% if total_pages > 1 %}
-    {% set base_url = base_path + '/dataset_requests_list' + ext + '?endpoint_filter=' + endpoint_filter + '&table_filter=' + table_filter + '&header_filter=' + header_filter + '&page=' %}
+    {# Fixed: was pointing to /my_datasets, now correctly uses /user_datasets #}
+    {% set base_url = base_path + '/user_datasets' + ext + '?page=' %}
     <div class="pagination">
       <span class="pagination-info">Showing {{ showing }} of {{ total }} — Page {{ current_page }} of {{ total_pages }}</span>
       <div class="pagination-links">
@@ -254,6 +214,7 @@
     </div>
     {% endif %}
   </div>
+
   {% endif %}
 </div>
 {% endblock %}

@@ -214,7 +214,7 @@ def main():
 
     # dataset_request.py is admin-only regardless of ADMIN_ONLY_MODE.
     # Only admins can submit dataset requests.
-    if not is_admin:
+    if not is_valid:
         render_access_denied(current_user)
         return
 
@@ -325,10 +325,12 @@ def main():
                                     error = f"{schema_name}.{table_name.upper()} already exists."
                                 else:
                                     try:
+                                        owner_type = "admin" if is_admin else "user"
                                         add_request(
                                             endpoint, table_name.upper(), schema_name,
                                             headers_json, current_user, dataset_description,
                                             nightly_refresh=nightly_refresh,
+                                            owner_type=owner_type,
                                         )
                                         message = f"Request submitted for {schema_name}.{table_name.upper()}"
                                         prefill = {**empty_prefill(), "schema_name": schema_name}
@@ -357,7 +359,6 @@ def main():
         all_tags_json=json.dumps(all_tags),
         all_tag_values_json=json.dumps(all_tag_values),
     )
-
 
 if __name__ == "__main__":
     main()

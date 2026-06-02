@@ -5,13 +5,14 @@
 <header class="uf-header">
   <div class="container-fluid">
     <div class="row align-items-center">
+
+      <!-- Logo -->
       <div class="col-md-3">
         <a href="{{ base_path }}/tags_index{{ ext }}" class="uf-logo">
-          <img src="/ufl_tag_manager/assets/uf_logo.png" 
-               alt="UF Lastinger Center" 
+          <img src="/ufl_tag_manager/assets/uf_logo.png"
+               alt="UF Lastinger Center"
                class="uf-logo-img"
-               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-               onload="console.log('Image loaded successfully:', this.src);">
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
           <div class="uf-logo-fallback" style="display:none;">
             <div class="uf-logo-text">
               <span class="uf-brand">UF</span>
@@ -25,96 +26,280 @@
         </a>
       </div>
 
-      <div class="col-md-6"></div>
+      <div class="col-md-1"></div>
 
-      <div class="col-md-3">
-        <div class="header-nav">
+      <!-- Nav -->
+      <div class="col-md-8">
+        <nav class="uf-nav" id="uf-nav">
 
-          <div class="nav-dropdown">
-            <a href="{{ base_path }}/tags_index{{ ext }}" class="nav-item">
+          {# ── Tag Management — ALL users ── #}
+          <div class="nav-group" id="navg-tags">
+            <button class="nav-group-btn {% if page_name in ['tags','tag_values','section_tags','section_tags_inserts','documentation'] %}nav-group-btn--active{% endif %}"
+                    onclick="toggleNav('navg-tags', event)">
               Tag Management
-              <svg class="dropdown-icon" width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-            <div class="dropdown-content">
-              <a href="{{ base_path }}/tags{{ ext }}"                 class="dropdown-item {% if page_name == 'tags' %}active{% endif %}">Manage Tag Categories</a>
-              <a href="{{ base_path }}/tag_values{{ ext }}"           class="dropdown-item {% if page_name == 'tag_values' %}active{% endif %}">Manage Tag Values</a>
-              <a href="{{ base_path }}/section_tags{{ ext }}"         class="dropdown-item {% if page_name == 'section_tags' %}active{% endif %}">Manage Section Tag Mappings</a>
-              <a href="{{ base_path }}/section_tags_inserts{{ ext }}" class="dropdown-item {% if page_name == 'section_tags_inserts' %}active{% endif %}">Bulk Insert into Section Tags</a>
-              <a href="{{ base_path }}/documentation{{ ext }}"        class="dropdown-item">User Guide</a>
+              <svg class="nav-chevron" width="11" height="7" viewBox="0 0 11 7" fill="none"><path d="M1 1L5.5 6L10 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+            <div class="nav-mega">
+              <div class="nav-mega-inner">
+                <div class="nav-mega-col">
+                  <div class="nav-mega-heading">Tags</div>
+                  <a href="{{ base_path }}/tags{{ ext }}" class="nav-mega-link {% if page_name=='tags' %}nav-mega-link--active{% endif %}">
+                    <i class="ti ti-category" aria-hidden="true"></i> Manage tag categories
+                  </a>
+                  <a href="{{ base_path }}/tag_values{{ ext }}" class="nav-mega-link {% if page_name=='tag_values' %}nav-mega-link--active{% endif %}">
+                    <i class="ti ti-list" aria-hidden="true"></i> Manage tag values
+                  </a>
+                  <a href="{{ base_path }}/section_tags{{ ext }}" class="nav-mega-link {% if page_name=='section_tags' %}nav-mega-link--active{% endif %}">
+                    <i class="ti ti-link" aria-hidden="true"></i> Manage section tag mappings
+                  </a>
+                  <a href="{{ base_path }}/section_tags_inserts{{ ext }}" class="nav-mega-link {% if page_name=='section_tags_inserts' %}nav-mega-link--active{% endif %}">
+                    <i class="ti ti-upload" aria-hidden="true"></i> Bulk insert into section tags
+                  </a>
+                </div>
+                <div class="nav-mega-divider"></div>
+                <div class="nav-mega-col" style="flex:0 0 auto;min-width:140px;">
+                  <div class="nav-mega-heading">Help</div>
+                  <a href="{{ base_path }}/documentation{{ ext }}" class="nav-mega-link {% if page_name=='documentation' %}nav-mega-link--active{% endif %}">
+                    <i class="ti ti-book" aria-hidden="true"></i> User guide
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
 
-          <a href="{{ base_path }}/logs{{ ext }}"     class="nav-item {% if page_name == 'logs' %}active{% endif %}">Logs</a>
-          <a href="{{ base_path }}/rules{{ ext }}"    class="nav-item {% if page_name == 'rules' %}active{% endif %}">Rules</a>
-          <a href="{{ base_path }}/web_logs{{ ext }}" class="nav-item {% if page_name == 'web_logs' %}active{% endif %}">Web Logs</a>
-
-          {# Dataset Requests & Reports Hub — TAG_ADMIN only #}
-          {% if is_admin %}
-            <div class="nav-dropdown">
-              <a href="{{ base_path }}/dataset_request{{ ext }}" class="nav-item {% if page_name == 'dataset_request' %}active{% endif %}">
-                Dataset Requests
-                <svg class="dropdown-icon" width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </a>
-              <div class="dropdown-content">
-                <a href="{{ base_path }}/dataset_request{{ ext }}#request-section"         class="dropdown-item">New Request</a>
-                <a href="{{ base_path }}/dataset_description{{ ext }}#guide-section"       class="dropdown-item">Dataset Request Guide</a>
-                <a href="{{ base_path }}/dataset_requests_list{{ ext }}#requests-section"  class="dropdown-item">Submitted Requests</a>
+          {# ── Logs — ALL users ── #}
+          <div class="nav-group" id="navg-logs">
+            <button class="nav-group-btn {% if page_name in ['logs','rules','web_logs'] %}nav-group-btn--active{% endif %}"
+                    onclick="toggleNav('navg-logs', event)">
+              Logs
+              <svg class="nav-chevron" width="11" height="7" viewBox="0 0 11 7" fill="none"><path d="M1 1L5.5 6L10 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+            <div class="nav-mega">
+              <div class="nav-mega-inner" style="min-width:200px;">
+                <div class="nav-mega-col">
+                  <a href="{{ base_path }}/logs{{ ext }}" class="nav-mega-link {% if page_name=='logs' %}nav-mega-link--active{% endif %}">
+                    <i class="ti ti-file-text" aria-hidden="true"></i> Logs
+                  </a>
+                  <a href="{{ base_path }}/rules{{ ext }}" class="nav-mega-link {% if page_name=='rules' %}nav-mega-link--active{% endif %}">
+                    <i class="ti ti-adjustments" aria-hidden="true"></i> Rules
+                  </a>
+                  <a href="{{ base_path }}/web_logs{{ ext }}" class="nav-mega-link {% if page_name=='web_logs' %}nav-mega-link--active{% endif %}">
+                    <i class="ti ti-world" aria-hidden="true"></i> Web logs
+                  </a>
+                </div>
               </div>
             </div>
-            <a href="{{ base_path }}/reports_hub{{ ext }}" class="nav-item {% if page_name == 'reports_hub' %}active{% endif %}">Reports Hub</a>
-            <a href="{{ base_path }}/user_access{{ ext }}" class="nav-item {% if page_name == 'user_access' %}active{% endif %}">User Access Management</a>
+          </div>
+
+          {# ── Admin (Dataset Requests + Admin tools) — ADMIN only ── #}
+          {% if is_admin %}
+          <div class="nav-group" id="navg-admin">
+            <button class="nav-group-btn {% if page_name in ['dataset_request','dataset_description','dataset_requests_list','user_datasets','reports_hub','user_access'] %}nav-group-btn--active{% endif %}"
+                    onclick="toggleNav('navg-admin', event)">
+              Admin
+              <svg class="nav-chevron" width="11" height="7" viewBox="0 0 11 7" fill="none"><path d="M1 1L5.5 6L10 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+            <div class="nav-mega">
+              <div class="nav-mega-inner" style="min-width:480px;">
+
+                <div class="nav-mega-col">
+                  <div class="nav-mega-heading">Dataset Requests</div>
+                  <a href="{{ base_path }}/dataset_request{{ ext }}" class="nav-mega-link {% if page_name=='dataset_request' %}nav-mega-link--active{% endif %}">
+                    <i class="ti ti-plus" aria-hidden="true"></i> New request
+                  </a>
+                  <a href="{{ base_path }}/dataset_description{{ ext }}" class="nav-mega-link {% if page_name=='dataset_description' %}nav-mega-link--active{% endif %}">
+                    <i class="ti ti-book-2" aria-hidden="true"></i> Dataset guide
+                  </a>
+                  <a href="{{ base_path }}/dataset_requests_list{{ ext }}" class="nav-mega-link {% if page_name=='dataset_requests_list' %}nav-mega-link--active{% endif %}">
+                    <i class="ti ti-list-check" aria-hidden="true"></i> Admin requests list
+                  </a>
+                  <a href="{{ base_path }}/user_datasets{{ ext }}" class="nav-mega-link {% if page_name=='user_datasets' %}nav-mega-link--active{% endif %}">
+                    <i class="ti ti-list" aria-hidden="true"></i> User requests list
+                  </a>
+                </div>
+
+                <div class="nav-mega-divider"></div>
+
+                <div class="nav-mega-col">
+                  <div class="nav-mega-heading">Admin Tools</div>
+                  <a href="{{ base_path }}/reports_hub{{ ext }}" class="nav-mega-link {% if page_name=='reports_hub' %}nav-mega-link--active{% endif %}">
+                    <i class="ti ti-chart-bar" aria-hidden="true"></i> Reports hub
+                  </a>
+                  <a href="{{ base_path }}/user_access{{ ext }}" class="nav-mega-link {% if page_name=='user_access' %}nav-mega-link--active{% endif %}">
+                    <i class="ti ti-users" aria-hidden="true"></i> User access management
+                  </a>
+                  <a href="{{ base_path }}/diagrams{{ ext }}" class="nav-mega-link {% if page_name=='diagrams' %}nav-mega-link--active{% endif %}">
+                    <i class="ti ti-diagrams" aria-hidden="true"></i> Diagrams
+                  </a>
+                </div>
+
+              </div>
+            </div>
+          </div>
           {% endif %}
 
-          <a href="" class="nav-item" id="snowflake-link" onclick="runSnowflake(event)">Rebuild Demo Table</a>
-          
-        </div>
+          {# ── Rebuild Demo Table — ALL users ── #}
+          <div class="nav-group">
+            <button class="nav-group-btn" id="snowflake-link" onclick="runSnowflake(event)">
+              Rebuild Demo Table
+            </button>
+          </div>
+
+        </nav>
       </div>
+
     </div>
   </div>
-
-  <style>
-    .disabled-link {
-      pointer-events: none;
-      color: gray;
-      text-decoration: none;
-      cursor: wait;
-    }
-  </style>
-
-  <script>
-    async function runSnowflake(event) {
-      event.preventDefault();
-      const linkElement = document.getElementById('snowflake-link');
-      const originalText = linkElement.innerText;
-
-      linkElement.innerText = "Working...";
-      linkElement.classList.add("disabled-link");
-
-      try {
-        const response = await fetch('/ufl_tag_manager/run_snowflake.py', {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        });
-
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-        const data = await response.json();
-        linkElement.innerText = "Success: " + data.message;
-
-        setTimeout(() => {
-          linkElement.innerText = originalText;
-          linkElement.classList.remove("disabled-link");
-        }, 2000);
-
-      } catch (error) {
-        console.error('Error:', error);
-        linkElement.innerText = "Error: Check Console";
-        linkElement.classList.remove("disabled-link");
-      }
-    }
-  </script>
 </header>
+
+<style>
+  .uf-nav {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    justify-content: flex-end;
+  }
+
+  .nav-group { position: relative; }
+
+  .nav-group-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: #002657;
+    padding: 8px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+    line-height: 1;
+    user-select: none;
+  }
+  .nav-group-btn:hover { background: rgba(0,38,87,0.06); }
+  .nav-group-btn--active { color: #FA4616; }
+  .nav-group-btn--active .nav-chevron path { stroke: #FA4616; }
+
+  .nav-chevron { flex-shrink:0; transition: transform 0.2s; }
+  .nav-group.is-open .nav-chevron { transform: rotate(180deg); }
+  .nav-group.is-open .nav-group-btn { background: rgba(0,38,87,0.06); }
+
+  .nav-mega {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 9999;
+    background: #ffffff;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    padding: 6px;
+    animation: megaIn 0.15s ease;
+  }
+  .nav-group.is-open .nav-mega { display: block; }
+
+  .nav-mega-inner {
+    display: flex;
+    gap: 0;
+    min-width: 340px;
+    padding: 4px;
+  }
+  .nav-mega-col {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    padding: 0 4px;
+  }
+  .nav-mega-divider {
+    width: 1px;
+    background: #E5E7EB;
+    margin: 4px 8px;
+    flex-shrink: 0;
+  }
+  .nav-mega-heading {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9CA3AF;
+    padding: 4px 10px 8px;
+  }
+  .nav-mega-link {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 10px;
+    border-radius: 7px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    text-decoration: none;
+    transition: background 0.12s, color 0.12s;
+    white-space: nowrap;
+  }
+  .nav-mega-link i { font-size: 16px; color: #9CA3AF; flex-shrink: 0; transition: color 0.12s; }
+  .nav-mega-link:hover { background: #F3F4F6; color: #002657; text-decoration: none; }
+  .nav-mega-link:hover i { color: #FA4616; }
+  .nav-mega-link--active { background: #FFF0EB; color: #FA4616; font-weight: 600; }
+  .nav-mega-link--active i { color: #FA4616; }
+
+  .nav-group-btn.disabled-link { pointer-events: none; color: #9CA3AF; cursor: wait; }
+
+  @keyframes megaIn {
+    from { opacity:0; transform:translateY(-4px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  @media (max-width: 1200px) {
+    .nav-group-btn { font-size: 13px; padding: 7px 9px; }
+    .nav-mega-link { font-size: 13px; }
+  }
+</style>
+
+<script>
+  function toggleNav(groupId, event) {
+    event.stopPropagation();
+    const allGroups     = document.querySelectorAll('.nav-group');
+    const target        = document.getElementById(groupId);
+    const isAlreadyOpen = target.classList.contains('is-open');
+    allGroups.forEach(g => g.classList.remove('is-open'));
+    if (!isAlreadyOpen) target.classList.add('is-open');
+  }
+
+  document.addEventListener('click', function(event) {
+    const nav = document.getElementById('uf-nav');
+    if (nav && !nav.contains(event.target)) {
+      document.querySelectorAll('.nav-group').forEach(g => g.classList.remove('is-open'));
+    }
+  });
+
+  async function runSnowflake(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const btn      = document.getElementById('snowflake-link');
+    const original = btn.innerText.trim();
+    btn.innerText  = 'Working...';
+    btn.classList.add('disabled-link');
+    try {
+      const response = await fetch('/ufl_tag_manager/run_snowflake.py', {
+        method: 'GET', headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      await response.json();
+      btn.innerText = 'Done!';
+      setTimeout(() => { btn.innerText = original; btn.classList.remove('disabled-link'); }, 2000);
+    } catch (error) {
+      console.error('Snowflake error:', error);
+      btn.innerText = 'Error — check console';
+      btn.classList.remove('disabled-link');
+    }
+  }
+</script>
