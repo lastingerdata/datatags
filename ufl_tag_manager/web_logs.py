@@ -10,7 +10,7 @@ from time import time
 import heapq
 cgitb.enable()
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import safe_request, get_base_path, get_api_key
+from env_config import safe_request, get_base_path, get_api_key,get_current_user,get_user_role
 BASE_PATH = get_base_path()
 EXT = ".py"
 WEB_LOGS_URL = "https://compute.lastinger.center.ufl.edu/web_logs"
@@ -211,6 +211,7 @@ def main():
             cache_ttl=CACHE_TTL_SECONDS,
             total=total,
             showing=len(rows),
+            user_role=get_user_role(get_current_user()),
             current_limit=limit_label
         ))
     except Exception:

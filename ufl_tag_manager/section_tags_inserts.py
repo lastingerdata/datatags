@@ -12,7 +12,7 @@ from html import escape
 cgitb.enable()
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import get_base_path, can_write
+from env_config import get_base_path, can_write,get_user_role,get_current_user
 from libs import db_ops
 
 BASE_PATH = get_base_path()
@@ -248,6 +248,7 @@ def section_tags_inserts():
         can_write=can_write(session_user),
         session_user=session_user,
         user=session_user,
+        user_role=get_user_role(get_current_user()),
     )
 
     cache_headers = {

@@ -11,7 +11,7 @@ import urllib.parse
 cgitb.enable()
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import get_base_path, can_write
+from env_config import get_base_path, can_write, get_user_role
 from libs import db_ops
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -185,6 +185,7 @@ def main():
             can_write=can_write(user),
             sort_col=sort_col,
             sort_dir=sort_dir,
+            user_role=get_user_role(user),
         )
 
         print_headers()

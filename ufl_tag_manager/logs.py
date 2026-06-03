@@ -12,7 +12,7 @@ from urllib.parse import quote, quote_plus
 cgitb.enable()
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import safe_request, get_base_path,get_api_key
+from env_config import get_current_user, safe_request, get_base_path,get_api_key,get_user_role
 
 BASE_PATH = get_base_path()
 EXT = ".py"
@@ -223,6 +223,7 @@ def main():
             report_name=report_filter or "",
             rows=rows,
             messages=[],
+            user_role=get_user_role(get_current_user()),
             page_name='logs'
         ))
 
