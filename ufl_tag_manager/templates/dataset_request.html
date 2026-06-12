@@ -428,6 +428,7 @@
   const SEGS  = {{ segment_values_json | safe }};
   const TAGS  = {{ all_tags_json | safe }};
   const TVALS = {{ all_tag_values_json | safe }};
+  const IS_ADMIN = {{ 'true' if is_admin else 'false' }};
 
   const esc = v => String(v || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const ep  = () => (document.getElementById('endpoint') || {}).value || '';
@@ -479,10 +480,16 @@
   function makeSegmentBlock(required) {
     const block = document.createElement('div');
     block.className = 'filter-block';
-    block.innerHTML = `<div class="filter-block-header"><span class="filter-block-label">Segment${required ? ' <span class="req-chip">Required</span>' : ''}</span></div>`;
+    const hdr = document.createElement('div');
+    hdr.className = 'filter-block-header';
+    hdr.innerHTML = `<span class="filter-block-label">Segment${required ? ' <span class="req-chip">Required</span>' : ''}</span>`;
+    block.appendChild(hdr);
     const sel = document.createElement('select');
     sel.className = 'ds-select';
+    const currentEp = ep();
+    const showAllOption = IS_ADMIN && (currentEp === 'enrollments' || currentEp === 'sections');
     sel.innerHTML = '<option value="">-- Select segment --</option>' +
+      (showAllOption ? '<option value="all"' + (state.segment === "all" ? " selected" : "") + '>all</option>' : '') +
       SEGS.map(s => `<option value="${esc(s)}"${s === state.segment ? ' selected' : ''}>${esc(s)}</option>`).join('');
     sel.addEventListener('change', () => { state.segment = sel.value; syncHiddenInputs(); });
     block.appendChild(sel);
