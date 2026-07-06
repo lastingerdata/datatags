@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -68,14 +67,15 @@ def get_existing_status(endpoint, table_name, schema_name, headers_json):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ADMIN LIST — all admin-owned requests with optional filters + pagination
+# ADMIN LIST — admin-owned requests with optional filters + pagination
 # Used by: dataset_requests_list.py (admin only page)
 # ─────────────────────────────────────────────────────────────────────────────
 
-def get_admin_requests(endpoint_filter=None, table_filter=None,header_filter=None, page=1, page_size=25):
+def get_admin_requests(endpoint_filter=None, table_filter=None,
+                       header_filter=None, page=1, page_size=25):
     """
     Returns only owner_type='admin' rows.
-    Optionally filter by endpoint name or table name.
+    Optionally filter by endpoint name, table name, or headers (text search).
     Paginated — page starts at 1.
     Also returns total count for pagination controls.
     """
@@ -131,8 +131,6 @@ def get_admin_requests(endpoint_filter=None, table_filter=None,header_filter=Non
 # ─────────────────────────────────────────────────────────────────────────────
 # USER LIST — requests for a specific user, paginated
 # Used by: my_datasets.py
-# If called by admin (is_admin=True), returns ALL user-owned requests
-# If called by regular user, returns only their own
 # ─────────────────────────────────────────────────────────────────────────────
 
 def get_user_requests(current_user, is_admin=False, page=1, page_size=25):
@@ -154,14 +152,12 @@ def get_user_requests(current_user, is_admin=False, page=1, page_size=25):
     db = localMySQLDB_connection.LocalDBConnection().connect()
     cursor = db.cursor(dictionary=True)
     try:
-        # Total count
         cursor.execute(f"""
             SELECT COUNT(*) AS total FROM dataset_requests
             WHERE {where_sql}
         """, params)
         total = cursor.fetchone()["total"]
 
-        # Paginated rows
         cursor.execute(f"""
             SELECT
                 request_id, endpoint, table_name, schema_name,
@@ -182,8 +178,7 @@ def get_user_requests(current_user, is_admin=False, page=1, page_size=25):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# KEPT FOR BACKWARDS COMPATIBILITY — used by old list page
-# Will be removed once both new list pages are deployed
+# BACKWARDS COMPATIBILITY
 # ─────────────────────────────────────────────────────────────────────────────
 
 def get_all_dataset_requests():
@@ -206,7 +201,7 @@ def get_all_dataset_requests():
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# INSERT — now accepts owner_type
+# INSERT
 # ─────────────────────────────────────────────────────────────────────────────
 
 def add_request(endpoint, table_name, schema_name, headers_json,
@@ -247,10 +242,6 @@ def add_request(endpoint, table_name, schema_name, headers_json,
 # ─────────────────────────────────────────────────────────────────────────────
 
 def refresh_existing_request(request_id):
-    """
-    Resets a completed/failed request back to pending so the
-    Snowflake processor picks it up and re-runs it.
-    """
     db = localMySQLDB_connection.LocalDBConnection().connect()
     cursor = db.cursor(dictionary=True)
     try:
@@ -281,9 +272,6 @@ def refresh_existing_request(request_id):
 
 
 def set_nightly_refresh(request_id, nightly_refresh):
-    """
-    Toggles the nightly_refresh flag for an existing request (admin only).
-    """
     db = localMySQLDB_connection.LocalDBConnection().connect()
     cursor = db.cursor()
     try:
@@ -391,6 +379,74 @@ def get_segment_values():
         """)
         values = [row["tag_value"] for row in cursor.fetchall() if row.get("tag_value")]
         return values if values else DEFAULT_SEGMENT_VALUES
+    finally:
+        cursor.close()
+        db.close()
+
+
+def edit_request(request_id, table_name=None, dataset_description=None, schema_name=None):
+    """
+    Update the editable metadata fields of a dataset request.
+    Only table_name, dataset_description, and schema_name can be changed.
+    Headers/endpoint are not editable — those require a new request.
+    """
+    fields  = []
+    params  = []
+
+    if table_name is not None:
+        table_name = table_name.strip().upper()
+        if not table_name:
+            raise ValueError("Table name cannot be empty.")
+        fields.append("table_name = %s")
+        params.append(table_name)
+
+    if dataset_description is not None:
+        fields.append("dataset_description = %s")
+        params.append(dataset_description.strip())
+
+    if schema_name is not None:
+        schema_name = schema_name.strip().lower()
+        if not schema_name:
+            raise ValueError("Schema name cannot be empty.")
+        fields.append("schema_name = %s")
+        params.append(schema_name)
+
+    if not fields:
+        raise ValueError("No fields provided to update.")
+
+    fields.append("updated_at = NOW()")
+    params.append(int(request_id))
+
+    db = localMySQLDB_connection.LocalDBConnection().connect()
+    cursor = db.cursor()
+    try:
+        cursor.execute(
+            f"UPDATE dataset_requests SET {', '.join(fields)} WHERE request_id = %s",
+            params,
+        )
+        db.commit()
+        if cursor.rowcount == 0:
+            raise ValueError(f"Request #{request_id} not found.")
+    finally:
+        cursor.close()
+        db.close()
+
+
+def delete_request(request_id):
+    """
+    Permanently delete a dataset request by ID.
+    Admin only — enforced at the view layer.
+    """
+    db = localMySQLDB_connection.LocalDBConnection().connect()
+    cursor = db.cursor()
+    try:
+        cursor.execute(
+            "DELETE FROM dataset_requests WHERE request_id = %s",
+            (int(request_id),),
+        )
+        db.commit()
+        if cursor.rowcount == 0:
+            raise ValueError(f"Request #{request_id} not found.")
     finally:
         cursor.close()
         db.close()

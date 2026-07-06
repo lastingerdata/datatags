@@ -11,18 +11,23 @@
   .sl-title { font-family:'Poppins',sans-serif; font-size:40px; font-weight:700; color:#002657; margin:0; }
   .sl-sub   { font-family:'IBM Plex Sans',sans-serif; font-size:14px; color:#6B7280; margin:0 0 24px 28px; }
 
-  /* Filter bar */
+  /* ── Filter bar ── */
   .filter-bar {
     display:flex; align-items:center; gap:12px; flex-wrap:wrap;
     background:#F9FAFB; border:1px solid #E5E7EB; border-radius:8px;
     padding:14px 18px; margin-bottom:20px;
   }
-  .filter-bar label { font-family:'IBM Plex Sans',sans-serif; font-size:12px; font-weight:600; color:#6B7280; text-transform:uppercase; letter-spacing:0.05em; margin:0; }
+  .filter-bar label {
+    font-family:'IBM Plex Sans',sans-serif; font-size:12px; font-weight:600;
+    color:#6B7280; text-transform:uppercase; letter-spacing:0.05em; margin:0;
+  }
   .filter-select, .filter-input {
     padding:8px 12px; border:1px solid #D1D5DB; border-radius:6px;
     font-family:'IBM Plex Sans',sans-serif; font-size:13px; color:#111827;
-    background:#fff; min-width:180px;
+    background:#fff;
   }
+  .filter-select { min-width:180px; }
+  .filter-input  { min-width:160px; }
   .filter-select:focus, .filter-input:focus { outline:none; border-color:#FA4616; }
   .btn-filter {
     padding:8px 18px; border:none; border-radius:6px; cursor:pointer;
@@ -33,61 +38,73 @@
   .btn-clear {
     padding:8px 14px; border:1px solid #D1D5DB; border-radius:6px; cursor:pointer;
     font-family:'IBM Plex Sans',sans-serif; font-size:13px; font-weight:600;
-    background:#fff; color:#6B7280; text-decoration:none;
+    background:#fff; color:#6B7280; text-decoration:none; transition:background 0.15s;
   }
   .btn-clear:hover { background:#F3F4F6; color:#374151; text-decoration:none; }
   .filter-count { margin-left:auto; font-family:'IBM Plex Sans',sans-serif; font-size:12px; color:#9CA3AF; white-space:nowrap; }
 
-  /* Table */
-  .sl-card   { background:#fff; border:1px solid #E5E7EB; border-radius:8px; overflow:hidden; }
+  /* ── Card & table ── */
+  .sl-card  { background:#fff; border:1px solid #E5E7EB; border-radius:8px; overflow:hidden; }
   .sl-scroll { overflow-x:auto; }
   .sl-tbl    { width:100%; border-collapse:collapse; font-family:'IBM Plex Sans',sans-serif; font-size:13px; }
-  .sl-tbl thead th {
-    text-align:left; background:#002657; color:#fff; padding:12px 14px;
-    white-space:nowrap; font-weight:600; font-size:12px;
-    letter-spacing:0.03em; text-transform:uppercase;
-  }
+  .sl-tbl thead th { text-align:left; background:#002657; color:#fff; padding:12px 14px; white-space:nowrap; font-weight:600; font-size:12px; letter-spacing:0.03em; text-transform:uppercase; }
   .sl-tbl tbody td { padding:11px 14px; border-bottom:1px solid #F3F4F6; vertical-align:top; color:#111827; }
   .sl-tbl tbody tr:last-child td { border-bottom:none; }
   .sl-tbl tbody tr:hover td { background:#FAFAFA; }
   .sl-code  { white-space:pre-wrap; word-break:break-word; font-size:12px; line-height:1.4; margin:0; font-family:'IBM Plex Mono',monospace; color:#374151; }
 
-  /* Badges */
+  /* ── Status badges ── */
   .badge     { display:inline-block; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:600; white-space:nowrap; }
   .s-done    { background:#D1FAE5; color:#065F46; }
   .s-pending { background:#FEF3C7; color:#92400E; }
   .s-proc    { background:#DBEAFE; color:#1E40AF; }
   .s-fail    { background:#FEE2E2; color:#991B1B; }
 
-  /* Action buttons */
+  /* ── Action buttons ── */
   .btn-ref  { border:none; border-radius:6px; padding:6px 12px; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; font-size:12px; font-weight:600; background:#002657; color:#fff; white-space:nowrap; transition:background 0.15s; }
   .btn-ref:hover:not(:disabled) { background:#001a40; }
   .btn-ref:disabled { background:#E5E7EB; color:#9CA3AF; cursor:not-allowed; }
   .btn-save { border:none; border-radius:6px; padding:5px 10px; cursor:pointer; font-size:11px; font-weight:600; font-family:'IBM Plex Sans',sans-serif; background:#002657; color:#fff; }
   .btn-save:hover { background:#001a40; }
+  .btn-edit {
+    border:1px solid #D1D5DB; border-radius:6px; padding:5px 10px; cursor:pointer;
+    font-size:11px; font-weight:600; font-family:'IBM Plex Sans',sans-serif;
+    background:#fff; color:#374151; transition:background 0.15s;
+  }
+  .btn-edit:hover { background:#F3F4F6; }
+  .btn-del {
+    border:none; border-radius:6px; padding:5px 10px; cursor:pointer;
+    font-size:11px; font-weight:600; font-family:'IBM Plex Sans',sans-serif;
+    background:#FEE2E2; color:#991B1B; transition:background 0.15s;
+  }
+  .btn-del:hover { background:#FECACA; }
+  .action-cell { display:flex; flex-direction:column; gap:5px; min-width:90px; }
+
+  /* ── Nightly toggle ── */
   .nl-wrap  { display:flex; flex-direction:column; gap:5px; min-width:120px; }
   .nl-sel   { padding:5px 8px; border:1px solid #D1D5DB; border-radius:6px; font-size:12px; font-family:'IBM Plex Sans',sans-serif; background:#fff; color:#111827; }
 
-  /* Pagination */
+  /* ── Pagination ── */
   .pagination {
     display:flex; align-items:center; justify-content:space-between;
     padding:14px 18px; border-top:1px solid #E5E7EB;
     font-family:'IBM Plex Sans',sans-serif; font-size:13px;
   }
-  .pagination-info  { color:#6B7280; }
+  .pagination-info { color:#6B7280; }
   .pagination-links { display:flex; align-items:center; gap:4px; }
   .page-btn {
     display:inline-flex; align-items:center; justify-content:center;
     min-width:32px; height:32px; padding:0 8px;
     border:1px solid #E5E7EB; border-radius:6px;
     font-family:'IBM Plex Sans',sans-serif; font-size:13px; font-weight:500;
-    color:#374151; text-decoration:none; background:#fff; transition:background 0.12s;
+    color:#374151; text-decoration:none; background:#fff;
+    transition:background 0.12s, border-color 0.12s;
   }
   .page-btn:hover { background:#F3F4F6; text-decoration:none; color:#374151; }
   .page-btn.active { background:#002657; color:#fff; border-color:#002657; font-weight:700; }
   .page-btn.disabled { opacity:0.4; pointer-events:none; }
 
-  /* Alerts */
+  /* ── Alerts ── */
   .alert    { position:relative; padding:14px 48px 14px 18px; border-radius:7px; margin-bottom:20px; font-family:'IBM Plex Sans',sans-serif; font-size:14px; animation:slideIn 0.25s ease; }
   .alert-ok { background:#D1FAE5; color:#065F46; border:1px solid #A7F3D0; }
   .alert-er { background:#FEE2E2; color:#991B1B; border:1px solid #FECACA; }
@@ -95,8 +112,9 @@
   .alert-x:hover { opacity:1; }
   .alert.out { animation:fadeOut 0.25s ease forwards; }
 
-  /* Empty / denied */
   .empty-state { text-align:center; padding:48px; color:#9CA3AF; font-family:'IBM Plex Sans',sans-serif; font-size:14px; }
+
+  /* ── Access denied ── */
   .denied { text-align:center; padding:60px 40px; background:#fff; border:1px solid #E5E7EB; border-radius:10px; }
   .denied-icon { font-size:48px; margin-bottom:14px; }
   .denied-h { font-family:'Poppins',sans-serif; font-size:22px; font-weight:700; color:#002657; margin-bottom:10px; }
@@ -104,6 +122,47 @@
   .denied-u { display:inline-block; margin:10px 0 18px; padding:5px 14px; background:#F3F4F6; border-radius:999px; font-size:13px; color:#374151; font-weight:500; }
   .denied-a { display:inline-flex; align-items:center; gap:6px; margin-top:20px; padding:10px 20px; background:#002657; color:#fff; border-radius:6px; font-size:14px; font-weight:600; text-decoration:none; }
   .denied-a:hover { background:#001a40; color:#fff; text-decoration:none; }
+
+  /* ── Edit modal ── */
+  .modal-backdrop {
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,0.45); z-index:1000;
+    align-items:center; justify-content:center;
+  }
+  .modal-backdrop.open { display:flex; }
+  .modal-box {
+    background:#fff; border-radius:12px;
+    padding:28px 32px; width:100%; max-width:520px;
+    box-shadow:0 8px 32px rgba(0,0,0,0.18);
+    font-family:'IBM Plex Sans',sans-serif;
+  }
+  .modal-title {
+    font-family:'Poppins',sans-serif; font-size:20px; font-weight:700;
+    color:#002657; margin:0 0 6px;
+  }
+  .modal-sub { font-size:13px; color:#6B7280; margin:0 0 22px; }
+  .modal-label { display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:5px; text-transform:uppercase; letter-spacing:0.05em; }
+  .modal-input, .modal-textarea {
+    width:100%; box-sizing:border-box; padding:9px 12px;
+    border:1px solid #D1D5DB; border-radius:7px;
+    font-family:'IBM Plex Sans',sans-serif; font-size:14px; color:#111827;
+    margin-bottom:16px; background:#fff;
+  }
+  .modal-input:focus, .modal-textarea:focus { outline:none; border-color:#FA4616; box-shadow:0 0 0 3px rgba(250,70,22,0.12); }
+  .modal-textarea { min-height:80px; resize:vertical; }
+  .modal-footer { display:flex; gap:10px; justify-content:flex-end; margin-top:6px; }
+  .btn-modal-save {
+    border:none; border-radius:7px; padding:10px 24px; cursor:pointer;
+    font-family:'IBM Plex Sans',sans-serif; font-size:14px; font-weight:700;
+    background:#FA4616; color:#fff; transition:background 0.15s;
+  }
+  .btn-modal-save:hover { background:#d93a0f; }
+  .btn-modal-cancel {
+    border:1px solid #D1D5DB; border-radius:7px; padding:10px 20px; cursor:pointer;
+    font-family:'IBM Plex Sans',sans-serif; font-size:14px; font-weight:600;
+    background:#fff; color:#374151; transition:background 0.15s;
+  }
+  .btn-modal-cancel:hover { background:#F3F4F6; }
 
   @keyframes slideIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
   @keyframes fadeOut { from{opacity:1;transform:translateY(0)} to{opacity:0;transform:translateY(-8px)} }
@@ -118,7 +177,7 @@
     <h2 class="denied-h">Access Restricted</h2>
     <p class="denied-p">This page is only available to administrators.</p>
     <div class="denied-u">{{ current_user }}</div>
-    <a class="denied-a" href="{{ base_path }}/tags_index{{ ext }}">← Back to Home</a>
+    <a class="denied-a" href="{{ base_path }}/home.py">← Back to Home</a>
   </div>
 
   {% else %}
@@ -129,10 +188,15 @@
   </div>
   <p class="sl-sub">Shared datasets created by admins. Use filters to search.</p>
 
-  {% if message %}<div class="alert alert-ok" data-alert><button class="alert-x" data-close>&times;</button>{{ message }}</div>{% endif %}
-  {% if error   %}<div class="alert alert-er" data-alert><button class="alert-x" data-close>&times;</button>{{ error }}</div>{% endif %}
+  {% if message %}
+    <div class="alert alert-ok" data-alert><button class="alert-x" data-close>&times;</button>{{ message }}</div>
+  {% endif %}
+  {% if error %}
+    <div class="alert alert-er" data-alert><button class="alert-x" data-close>&times;</button>{{ error }}</div>
+  {% endif %}
 
-  <form method="GET">
+  {# ── Filter bar ── #}
+  <form method="GET" action="">
     <div class="filter-bar">
       <label>Dataset</label>
       <select name="endpoint_filter" class="filter-select">
@@ -144,19 +208,24 @@
 
       <label>Table Name</label>
       <input type="text" name="table_filter" class="filter-input"
-             placeholder="Search table name..." value="{{ table_filter }}">
+             placeholder="Search table..." value="{{ table_filter }}">
 
       <label>Headers</label>
       <input type="text" name="header_filter" class="filter-input"
              placeholder="Search headers..." value="{{ header_filter }}">
 
       <button type="submit" class="btn-filter">Apply</button>
+
       {% if endpoint_filter or table_filter or header_filter %}
         <a href="{{ base_path }}/dataset_requests_list{{ ext }}" class="btn-clear">Clear</a>
       {% endif %}
+
       <span class="filter-count">
-        {% if endpoint_filter or table_filter or header_filter %}{{ total }} result{{ 's' if total != 1 }} found
-        {% else %}{{ total }} total{% endif %}
+        {% if endpoint_filter or table_filter or header_filter %}
+          {{ total }} result{{ 's' if total != 1 }} found
+        {% else %}
+          {{ total }} total
+        {% endif %}
       </span>
     </div>
   </form>
@@ -166,10 +235,20 @@
       <table class="sl-tbl">
         <thead>
           <tr>
-            <th>ID</th><th>Dataset</th><th>Table Name</th><th>Schema</th>
-            <th>Headers</th><th>Description</th><th>Requested By</th>
-            <th>Status</th><th>Created</th><th>Updated</th>
-            <th>Refresh</th><th>Nightly</th><th>Error</th>
+            <th>ID</th>
+            <th>Dataset</th>
+            <th>Table Name</th>
+            <th>Schema</th>
+            <th>Headers</th>
+            <th>Description</th>
+            <th>Requested By</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Updated</th>
+            <th>Refresh</th>
+            <th>Nightly Refresh</th>
+            <th>Actions</th>
+            <th>Error</th>
           </tr>
         </thead>
         <tbody>
@@ -185,12 +264,18 @@
                 <td>{{ row.dataset_description or '' }}</td>
                 <td>{{ row.requested_by }}</td>
                 <td>
-                  <span class="badge {% if s=='completed' %}s-done{% elif s=='pending' %}s-pending{% elif s=='processing' %}s-proc{% elif s=='failed' %}s-fail{% endif %}">
+                  <span class="badge
+                    {% if s == 'completed' %}s-done
+                    {% elif s == 'pending' %}s-pending
+                    {% elif s == 'processing' %}s-proc
+                    {% elif s == 'failed' %}s-fail{% endif %}">
                     {{ row.status }}
                   </span>
                 </td>
                 <td style="white-space:nowrap;">{{ row.created_at }}</td>
                 <td style="white-space:nowrap;">{{ row.updated_at or '—' }}</td>
+
+                {# ── Refresh ── #}
                 <td>
                   <form method="POST">
                     <input type="hidden" name="action"          value="row_refresh">
@@ -199,11 +284,13 @@
                     <input type="hidden" name="table_filter"    value="{{ table_filter }}">
                     <input type="hidden" name="header_filter"   value="{{ header_filter }}">
                     <button type="submit" class="btn-ref"
-                      {% if s not in ('completed','failed') %}disabled title="Only available when Completed or Failed"{% endif %}>
+                      {% if s not in ('completed', 'failed') %}disabled title="Only available when Completed or Failed"{% endif %}>
                       ↻ Refresh
                     </button>
                   </form>
                 </td>
+
+                {# ── Nightly refresh ── #}
                 <td>
                   <form method="POST">
                     <input type="hidden" name="action"          value="set_nightly">
@@ -220,40 +307,117 @@
                     </div>
                   </form>
                 </td>
+
+                {# ── Edit + Delete (admin only) ── #}
+                <td>
+                  <div class="action-cell">
+                    {# Edit button — opens modal via data attributes (safe for special chars) #}
+                    <button type="button" class="btn-edit"
+                      data-id="{{ row.request_id }}"
+                      data-table="{{ row.table_name | e }}"
+                      data-desc="{{ (row.dataset_description or '') | e }}"
+                      data-schema="{{ row.schema_name | e }}"
+                      onclick="openEditModal(this)">
+                      ✎ Edit
+                    </button>
+
+                    {# Delete button — confirm then POST #}
+                    <form method="POST"
+                      onsubmit="return confirm('Delete request #{{ row.request_id }} ({{ row.table_name }})?\nThis cannot be undone.');">
+                      <input type="hidden" name="action"          value="delete">
+                      <input type="hidden" name="request_id"      value="{{ row.request_id }}">
+                      <input type="hidden" name="endpoint_filter" value="{{ endpoint_filter }}">
+                      <input type="hidden" name="table_filter"    value="{{ table_filter }}">
+                      <input type="hidden" name="header_filter"   value="{{ header_filter }}">
+                      <button type="submit" class="btn-del">🗑 Delete</button>
+                    </form>
+                  </div>
+                </td>
+
                 <td style="color:#991B1B;font-size:12px;">{{ row.error_message or '' }}</td>
               </tr>
             {% endfor %}
           {% else %}
-            <tr><td colspan="13">
-              <div class="empty-state">
-                {% if endpoint_filter or table_filter or header_filter %}No datasets match your filters.
-                {% else %}No admin dataset requests yet.{% endif %}
-              </div>
-            </td></tr>
+            <tr>
+              <td colspan="14">
+                <div class="empty-state">
+                  {% if endpoint_filter or table_filter or header_filter %}
+                    No datasets match your filters.
+                  {% else %}
+                    No admin dataset requests yet.
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
           {% endif %}
         </tbody>
       </table>
     </div>
 
+    {# ── Pagination ── #}
     {% if total_pages > 1 %}
-    {% set base_url = base_path + '/dataset_requests_list' + ext + '?endpoint_filter=' + endpoint_filter + '&table_filter=' + table_filter + '&header_filter=' + header_filter + '&page=' %}
     <div class="pagination">
-      <span class="pagination-info">Showing {{ showing }} of {{ total }} — Page {{ current_page }} of {{ total_pages }}</span>
+      <span class="pagination-info">
+        Showing {{ showing }} of {{ total }} — Page {{ current_page }} of {{ total_pages }}
+      </span>
       <div class="pagination-links">
-        <a href="{{ base_url }}1"                    class="page-btn {% if current_page == 1 %}disabled{% endif %}">«</a>
-        <a href="{{ base_url }}{{ current_page-1 }}" class="page-btn {% if current_page == 1 %}disabled{% endif %}">‹</a>
-        {% for p in range(1, total_pages+1) %}
-          {% if p == current_page %}<span class="page-btn active">{{ p }}</span>
-          {% elif p<=2 or p>=total_pages-1 or (p>=current_page-1 and p<=current_page+1) %}
+        {% set base_url = base_path + '/dataset_requests_list' + ext + '?endpoint_filter=' + endpoint_filter + '&table_filter=' + table_filter + '&header_filter=' + header_filter + '&page=' %}
+        <a href="{{ base_url }}1"
+           class="page-btn {% if current_page == 1 %}disabled{% endif %}">«</a>
+        <a href="{{ base_url }}{{ current_page - 1 }}"
+           class="page-btn {% if current_page == 1 %}disabled{% endif %}">‹</a>
+        {% for p in range(1, total_pages + 1) %}
+          {% if p == current_page %}
+            <span class="page-btn active">{{ p }}</span>
+          {% elif p <= 2 or p >= total_pages - 1 or (p >= current_page - 1 and p <= current_page + 1) %}
             <a href="{{ base_url }}{{ p }}" class="page-btn">{{ p }}</a>
-          {% elif p==3 or p==total_pages-2 %}<span class="page-btn disabled">…</span>{% endif %}
+          {% elif p == 3 or p == total_pages - 2 %}
+            <span class="page-btn disabled">…</span>
+          {% endif %}
         {% endfor %}
-        <a href="{{ base_url }}{{ current_page+1 }}" class="page-btn {% if current_page == total_pages %}disabled{% endif %}">›</a>
-        <a href="{{ base_url }}{{ total_pages }}"    class="page-btn {% if current_page == total_pages %}disabled{% endif %}">»</a>
+        <a href="{{ base_url }}{{ current_page + 1 }}"
+           class="page-btn {% if current_page == total_pages %}disabled{% endif %}">›</a>
+        <a href="{{ base_url }}{{ total_pages }}"
+           class="page-btn {% if current_page == total_pages %}disabled{% endif %}">»</a>
       </div>
     </div>
     {% endif %}
+
   </div>
+
+  {# ── Edit Modal ── #}
+  <div class="modal-backdrop" id="edit-modal">
+    <div class="modal-box">
+      <h2 class="modal-title">Edit Request</h2>
+      <p class="modal-sub">Only descriptive fields can be edited. Headers and dataset type require a new request.</p>
+
+      <form method="POST" id="edit-form">
+        <input type="hidden" name="action"          value="edit">
+        <input type="hidden" name="request_id"      id="edit-request-id">
+        <input type="hidden" name="endpoint_filter" value="{{ endpoint_filter }}">
+        <input type="hidden" name="table_filter"    value="{{ table_filter }}">
+        <input type="hidden" name="header_filter"   value="{{ header_filter }}">
+
+        <label class="modal-label" for="edit-table-name">Table Name</label>
+        <input  class="modal-input" type="text" id="edit-table-name" name="table_name"
+                placeholder="e.g. enrollments_q3_2024">
+
+        <label class="modal-label" for="edit-description">Description</label>
+        <textarea class="modal-textarea" id="edit-description" name="dataset_description"
+                  placeholder="Describe what this dataset is for..."></textarea>
+
+        <label class="modal-label" for="edit-schema">Schema</label>
+        <input  class="modal-input" type="text" id="edit-schema" name="schema_name"
+                placeholder="e.g. supalle">
+
+        <div class="modal-footer">
+          <button type="button" class="btn-modal-cancel" onclick="closeEditModal()">Cancel</button>
+          <button type="submit" class="btn-modal-save">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   {% endif %}
 </div>
 {% endblock %}
@@ -262,10 +426,38 @@
 {% if not access_denied %}
 <script>
 (function () {
-  function dismiss(el) { el.classList.add('out'); setTimeout(() => el.remove(), 300); }
+  // ── Alert dismiss ────────────────────────────────────────────────────────
+  function dismiss(el) {
+    if (!el) return;
+    el.classList.add('out');
+    setTimeout(() => el.remove(), 300);
+  }
   document.querySelectorAll('[data-alert]').forEach(el => {
     el.querySelector('[data-close]')?.addEventListener('click', () => dismiss(el));
     setTimeout(() => dismiss(el), 5000);
+  });
+
+  // ── Edit modal ───────────────────────────────────────────────────────────
+  window.openEditModal = function(btn) {
+    document.getElementById('edit-request-id').value  = btn.dataset.id;
+    document.getElementById('edit-table-name').value  = btn.dataset.table;
+    document.getElementById('edit-description').value = btn.dataset.desc;
+    document.getElementById('edit-schema').value      = btn.dataset.schema;
+    document.getElementById('edit-modal').classList.add('open');
+  };
+
+  window.closeEditModal = function() {
+    document.getElementById('edit-modal').classList.remove('open');
+  };
+
+  // Close modal when clicking outside the box
+  document.getElementById('edit-modal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeEditModal();
+  });
+
+  // Close modal on Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeEditModal();
   });
 }());
 </script>
