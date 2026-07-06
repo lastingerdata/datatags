@@ -71,15 +71,18 @@ def fetch_reports():
 
     return []
 
-
 def latest_run(job_history):
     if not job_history:
         return None
+    blank_runs = [r for r in job_history if not r.get("start_time") and not r.get("end_time")]
+    normal_runs = [r for r in job_history if r.get("start_time") or r.get("end_time")]
+    if blank_runs:
+        return blank_runs[0]
     return sorted(
-        job_history,
+        normal_runs,
         key=lambda r: str(r.get("start_time") or r.get("end_time") or ""),
         reverse=True,
-    )[0]
+        )[0]
 
 
 def make_detail_key(report_name, run):
@@ -121,25 +124,26 @@ def build_summary_rows(reports):
         })
     return sorted(rows, key=lambda x: (x.get("report_name") or "").lower())
 
-
 def build_history_rows(report):
-    rows = []
-    report_name = report.get("report_name", "Unknown") if report else "Unknown"
-    for run in (report.get("job_history") or []) if report else []:
-        rows.append({
-            "report_name": report_name,
-            "description": report.get("description", ""),
-            "start_time": run.get("start_time", ""),
-            "end_time": run.get("end_time", ""),
-            "result": run.get("result_code", run.get("status", "")),
-            "details_url": compute_details_url(report_name, run),
-        })
-    return sorted(
-        rows,
-        key=lambda r: str(r.get("start_time") or r.get("end_time") or ""),
-        reverse=True
-    )
-
+   rows = []
+   report_name = report.get("report_name", "Unknown") if report else "Unknown"
+   for run in (report.get("job_history") or []) if report else []:
+       rows.append({
+           "report_name": report_name,
+           "description": report.get("description", ""),
+           "start_time": run.get("start_time", ""),
+           "end_time": run.get("end_time", ""),
+           "result": run.get("result_code", run.get("status", "")),
+           "details_url": compute_details_url(report_name, run),
+       })
+       blank_rows = [r for r in rows if not r.get("start_time") and not r.get("end_time")]
+       normal_rows = [r for r in rows if r.get("start_time") or r.get("end_time")]
+       normal_rows_sorted = sorted(
+           normal_rows,
+           key=lambda r: str(r.get("start_time") or r.get("end_time") or ""),
+           reverse=True
+           )
+   return blank_rows + normal_rows_sorted
 
 def find_run_by_key(reports, key):
     parsed = parse_detail_key(key)
@@ -220,7 +224,7 @@ def main():
             base_path=BASE_PATH,
             ext=EXT,
             view=view,
-            report_name=report_filter or "",
+            report_name=report_filter or " ",
             rows=rows,
             messages=[],
             user_role=get_user_role(get_current_user()),
