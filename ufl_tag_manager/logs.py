@@ -74,12 +74,8 @@ def fetch_reports():
 def latest_run(job_history):
     if not job_history:
         return None
-    blank_runs = [r for r in job_history if not r.get("start_time") and not r.get("end_time")]
-    normal_runs = [r for r in job_history if r.get("start_time") or r.get("end_time")]
-    if blank_runs:
-        return blank_runs[0]
     return sorted(
-        normal_runs,
+        job_history,
         key=lambda r: str(r.get("start_time") or r.get("end_time") or ""),
         reverse=True,
         )[0]
@@ -136,13 +132,13 @@ def build_history_rows(report):
            "result": run.get("result_code", run.get("status", "")),
            "details_url": compute_details_url(report_name, run),
        })
-       blank_rows = [r for r in rows if not r.get("start_time") and not r.get("end_time")]
-       normal_rows = [r for r in rows if r.get("start_time") or r.get("end_time")]
-       normal_rows_sorted = sorted(
-           normal_rows,
-           key=lambda r: str(r.get("start_time") or r.get("end_time") or ""),
-           reverse=True
-           )
+   blank_rows = [r for r in rows if not r.get("start_time") and not r.get("end_time")]
+   normal_rows = [r for r in rows if r.get("start_time") or r.get("end_time")]
+   normal_rows_sorted = sorted(
+        normal_rows,
+        key=lambda r: str(r.get("start_time") or r.get("end_time") or ""),
+        reverse=True
+    )
    return blank_rows + normal_rows_sorted
 
 def find_run_by_key(reports, key):
