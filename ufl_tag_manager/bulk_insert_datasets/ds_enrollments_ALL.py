@@ -1,5 +1,5 @@
-from root.snowflake.libs import enrollments_column_desc
 from root.flask.data_lake.libs.swagger_docs import swagger_dict
+from root.snowflake.libs import enrollments_column_desc
 
 enrollments_description = swagger_dict["enrollments"]["description"]
 
@@ -263,12 +263,12 @@ dataset_list = [
     {
         "EndPoint": 'enrollments',
         "Description": enrollments_description,
-        "TableName": "enrollments_okr_early_learning",
+        "TableName": "enrollments_okr_early_childhood",
         "column_description": {col_name: col_data.get("description", "") for col_name, col_data in enrollments_column_desc.enrollments_columns.items()},
         "headers": {
             "ApiKey": '596fa395d7a9072c06207b119ec415164487d50a37f904d08542305466a80fce', 
             "Segment": "all",
-            "tagSections": """[{"tag_name":"OKR","tag_value":"Early Learning"}]""",
+            "tagSections": """[{"tag_name":"OKR","tag_value":"Early Childhood"}]""",
         },        
     },
     {

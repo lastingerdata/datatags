@@ -1,5 +1,5 @@
-from root.snowflake.libs import surveys_column_desc
 from root.flask.data_lake.libs.swagger_docs import swagger_dict
+from root.snowflake.libs import surveys_column_desc
 
 surveys_description = swagger_dict["surveys"]["description"]
 
@@ -196,12 +196,12 @@ dataset_list = [
     {
         "EndPoint": 'surveys',
         "Description": surveys_description,
-        "TableName": "surveys_okr_early_learning_AY25_26",
+        "TableName": "surveys_okr_early_childhood_AY25_26",
         "column_description": {col_name: col_data.get("description", "") for col_name, col_data in surveys_column_desc.surveys_columns.items()},
         "headers": {
             "ApiKey": '596fa395d7a9072c06207b119ec415164487d50a37f904d08542305466a80fce', 
             "Segment": "Academic Year 2025-26",
-            "tagSections": """[{"tag_name":"OKR","tag_value":"Early Learning"}]""",
+            "tagSections": """[{"tag_name":"OKR","tag_value":"Early Childhood"}]""",
         },        
     },
     {
