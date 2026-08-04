@@ -94,7 +94,7 @@
           {# ── Admin (Dataset Requests + Admin tools) — ADMIN only ── #}
           {% if is_admin %}
           <div class="nav-group" id="navg-admin">
-            <button class="nav-group-btn {% if page_name in ['dataset_request','dataset_description','dataset_requests_list','user_datasets','reports_hub','user_access'] %}nav-group-btn--active{% endif %}"
+            <button class="nav-group-btn {% if page_name in ['dataset_request','dataset_description','dataset_requests_list','user_datasets','reports_hub','user_access','dataset_request_documentation'] %}nav-group-btn--active{% endif %}"
                     onclick="toggleNav('navg-admin', event)">
               Admin
               <svg class="nav-chevron" width="11" height="7" viewBox="0 0 11 7" fill="none"><path d="M1 1L5.5 6L10 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -115,6 +115,9 @@
                   </a>
                   <a href="{{ base_path }}/user_datasets{{ ext }}" class="nav-mega-link {% if page_name=='user_datasets' %}nav-mega-link--active{% endif %}">
                     <i class="ti ti-list" aria-hidden="true"></i> User requests list
+                  </a>
+                  <a href="{{ base_path }}/dataset_request_documentation{{ ext }}" class="nav-mega-link {% if page_name=='dataset_request_documentation' %}nav-mega-link--active{% endif %}">
+                    <i class="ti ti-book" aria-hidden="true"></i> Dataset documentation
                   </a>
                 </div>
 

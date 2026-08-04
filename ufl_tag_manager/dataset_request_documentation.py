@@ -24,10 +24,10 @@ def render(template, **kw):
 
 
 def _denied(current_user, user_role):
-    render("documentation.html",
+    render("dataset_request_documentation.html",
         current_user=current_user,
         base_path=get_base_path(),
-        page_name="documentation",
+        page_name="dataset_request_documentation",
         access_denied=True,
         user_role=user_role,
         is_admin=False,
@@ -45,11 +45,11 @@ def main():
         _denied(current_user, user_role)
         return
 
-    render("documentation.html",
+    render("dataset_request_documentation.html",
         current_user=current_user,
         base_path=get_base_path(),
         ext=".py",
-        page_name="documentation",
+        page_name="dataset_request_documentation",
         access_denied=False,
         user_role=user_role,
         is_admin=is_admin,
@@ -57,35 +57,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-# #!/usr/bin/env python3
-# import os, cgitb
-# from jinja2 import Environment, FileSystemLoader, select_autoescape
-
-# from env_config import get_base_path
-
-# cgitb.enable()
-
-# ROOT = os.path.dirname(os.path.abspath(__file__))
-# TEMPLATES = os.path.join(ROOT, "templates")
-
-# env = Environment(
-#     loader=FileSystemLoader(TEMPLATES),
-#     autoescape=select_autoescape(["html","xml"]),
-# )
-
-# def main():
-#     html = env.get_template("documentation.html").render(
-#         base_path=get_base_path(),
-#         ext=".py",
-#         user=os.environ.get("REMOTE_USER", "unknown"),
-#     )
-#     print("Content-Type: text/html; charset=utf-8")
-#     print()
-#     print(html)
-
-# if __name__ == "__main__":
-#     main()
