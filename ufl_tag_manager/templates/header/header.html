@@ -91,38 +91,56 @@
             </div>
           </div>
 
-          {# ── Admin (Dataset Requests + Admin tools) — ADMIN only ── #}
           {% if is_admin %}
-          <div class="nav-group" id="navg-admin">
-            <button class="nav-group-btn {% if page_name in ['dataset_request','dataset_description','dataset_requests_list','user_datasets','reports_hub','user_access','dataset_request_documentation'] %}nav-group-btn--active{% endif %}"
-                    onclick="toggleNav('navg-admin', event)">
-              Admin
+          <div class="nav-group" id="navg-datasets">
+            <button class="nav-group-btn {% if page_name in ['dataset_request','dataset_description','dataset_requests_list','user_datasets','dataset_request_documentation'] %}nav-group-btn--active{% endif %}"
+                    onclick="toggleNav('navg-datasets', event)">
+              Datasets
               <svg class="nav-chevron" width="11" height="7" viewBox="0 0 11 7" fill="none"><path d="M1 1L5.5 6L10 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
             </button>
             <div class="nav-mega">
-              <div class="nav-mega-inner" style="min-width:480px;">
-
+              <div class="nav-mega-inner" style="min-width:200px;">
                 <div class="nav-mega-col">
-                  <div class="nav-mega-heading">Dataset Requests</div>
+                  <div class="nav-mega-heading">REQUESTS</div>
                   <a href="{{ base_path }}/dataset_request{{ ext }}" class="nav-mega-link {% if page_name=='dataset_request' %}nav-mega-link--active{% endif %}">
                     <i class="ti ti-plus" aria-hidden="true"></i> New request
                   </a>
-                  <a href="{{ base_path }}/dataset_description{{ ext }}" class="nav-mega-link {% if page_name=='dataset_description' %}nav-mega-link--active{% endif %}">
-                    <i class="ti ti-book-2" aria-hidden="true"></i> Dataset guide
+                  <a href="{{ base_path }}/user_datasets{{ ext }}" class="nav-mega-link {% if page_name=='user_datasets' %}nav-mega-link--active{% endif %}">
+                    <i class="ti ti-list" aria-hidden="true"></i> User requests list
                   </a>
                   <a href="{{ base_path }}/dataset_requests_list{{ ext }}" class="nav-mega-link {% if page_name=='dataset_requests_list' %}nav-mega-link--active{% endif %}">
                     <i class="ti ti-list-check" aria-hidden="true"></i> Admin requests list
                   </a>
-                  <a href="{{ base_path }}/user_datasets{{ ext }}" class="nav-mega-link {% if page_name=='user_datasets' %}nav-mega-link--active{% endif %}">
-                    <i class="ti ti-list" aria-hidden="true"></i> User requests list
+                  
+                </div>
+                <div class="nav-mega-divider"></div>
+
+                <div class="nav-mega-col">
+                  <div class="nav-mega-heading">HELP</div>
+                    <a href="{{ base_path }}/dataset_description{{ ext }}" class="nav-mega-link {% if page_name=='dataset_description' %}nav-mega-link--active{% endif %}">
+                    <i class="ti ti-book-2" aria-hidden="true"></i> Dataset guide
                   </a>
                   <a href="{{ base_path }}/dataset_request_documentation{{ ext }}" class="nav-mega-link {% if page_name=='dataset_request_documentation' %}nav-mega-link--active{% endif %}">
                     <i class="ti ti-book" aria-hidden="true"></i> Dataset documentation
                   </a>
                 </div>
 
-                <div class="nav-mega-divider"></div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
 
+
+          {# ── Admin (Dataset Requests + Admin tools) — ADMIN only ── #}
+          {% if is_admin %}
+          <div class="nav-group" id="navg-admin">
+            <button class="nav-group-btn {% if page_name in ['reports_hub','user_access','diagrams'] %}nav-group-btn--active{% endif %}"
+                    onclick="toggleNav('navg-admin', event)">
+              Admin
+              <svg class="nav-chevron" width="11" height="7" viewBox="0 0 11 7" fill="none"><path d="M1 1L5.5 6L10 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+            <div class="nav-mega">
+              <div class="nav-mega-inner" style="min-width:200px;">
                 <div class="nav-mega-col">
                   <div class="nav-mega-heading">Admin Tools</div>
                   <a href="{{ base_path }}/reports_hub{{ ext }}" class="nav-mega-link {% if page_name=='reports_hub' %}nav-mega-link--active{% endif %}">
