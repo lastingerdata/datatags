@@ -84,7 +84,6 @@ def get_swagger_descriptions():
 
     return descriptions
 
-
 # ---------- Step 3: insert everything ----------
 
 def run(file_path, dry_run):
@@ -122,7 +121,7 @@ def run(file_path, dry_run):
         else:
             add_request(
                 endpoint, table_name, SCHEMA_NAME, headers_json,
-                REQUESTED_BY, description, True, "admin",
+                REQUESTED_BY, description, False, "admin",
             )
             print(f"INSERTED: {table_name}")
         inserted += 1
