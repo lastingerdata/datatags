@@ -11,7 +11,7 @@ import urllib.parse
 cgitb.enable()
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import get_base_path, can_write, get_current_user, can_edit_tags, get_user_role
+from env_config import get_base_path, can_write, get_current_user, can_edit_tags, get_user_role, has_any_access
 from libs import db_ops
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -94,6 +94,11 @@ def main():
 
         tag_id_int = _safe_int(tag_id)
         selected_tag_id = str(tag_id_int) if tag_id_int is not None else ""
+
+        if not has_any_access(user):
+                    print("Content-Type: text/html; charset=utf-8\n")
+                    print("<h2>Access Denied</h2><p>You do not have permission to access this page. Contact DataTeam to request access.</p>")
+                    return
 
         # POST actions
         if method == "POST":

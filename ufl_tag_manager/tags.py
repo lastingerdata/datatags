@@ -11,7 +11,7 @@ import urllib.parse
 cgitb.enable()
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import get_base_path, can_write, can_edit_tags, get_user_role
+from env_config import get_base_path, can_write, can_edit_tags, get_user_role, has_any_access
 from libs import db_ops
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -64,6 +64,7 @@ def parse_messages_from_qs():
     return messages
 
 
+
 def main():
     try:
         method = os.environ.get("REQUEST_METHOD", "GET").upper()
@@ -72,6 +73,10 @@ def main():
             or os.environ.get("HTTP_REMOTE_USER", "")
             or "unknown"
         ).strip()
+        if not has_any_access(user):
+            print("Content-Type: text/html; charset=utf-8\n")
+            print("<h2>Access Denied</h2><p>You do not have permission to access this page. Contact DataTeam to request access.</p>")
+            return
 
         if method == "POST" and not can_edit_tags(user):
             return redirect_with_messages([("danger", "Read-only account: you can view tags, but you cannot add/delete.")])

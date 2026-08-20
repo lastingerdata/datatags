@@ -87,7 +87,7 @@ def is_in_user_access(user: Optional[str] = None) -> bool:
 def get_user_role(user: Optional[str] = None) -> str:
     """
     Returns the user's role from user_access: 'read', 'read_write', or 'admin'.
-    Returns 'read' as the safe default if not found or on error.
+   
     """
     user = (user or get_current_user()).strip()
     if not user or user == "unknown":
@@ -108,7 +108,11 @@ def get_user_role(user: Optional[str] = None) -> str:
             db.close()
     except Exception:
         pass
-    return "read"
+    # return "read"
+    return None
+
+def has_any_access(user: Optional[str] = None) -> bool:
+    return get_user_role(user) is not None
 
 
 def can_write(user: Optional[str] = None) -> bool:
@@ -133,7 +137,7 @@ def can_edit_tags(user: Optional[str] = None) -> bool:
 
 # ---------------------------------------------------------------------------
 # Manager check — still config-based (guards the user_access management page
-# itself; cannot be DB-gated or you risk locking everyone out)
+# itself; 
 # ---------------------------------------------------------------------------
 
 def is_manager(user: Optional[str] = None) -> bool:
@@ -148,9 +152,6 @@ def is_manager(user: Optional[str] = None) -> bool:
     return user in set(_read_config().get("MANAGERS", []))
 
 
-# ---------------------------------------------------------------------------
-# Deprecated config-list helpers — kept for any legacy callers but no longer
-# used for access control. Safe to remove once all pages are updated.
 # ---------------------------------------------------------------------------
 
 def get_valid_users() -> Set[str]:

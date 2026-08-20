@@ -12,7 +12,7 @@ from html import escape
 cgitb.enable()
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from env_config import get_base_path, can_write,get_user_role,get_current_user
+from env_config import get_base_path, can_write,get_user_role,get_current_user, has_any_access
 from libs import db_ops
 
 BASE_PATH = get_base_path()
@@ -105,6 +105,7 @@ def section_tags_inserts():
     start_date = get_param(fs, "start_date", "").strip()
     end_date = get_param(fs, "end_date", "").strip()
     department = get_param(fs, "department", "").strip()
+    genius_sectionId = get_param(fs, "genius_sectionId", "").strip()
     term = get_param(fs, "term", "").strip()
     tagged_status = get_param(fs, "tagged_status", "").strip()
     page_str = get_param(fs, "page", "1").strip()
@@ -135,11 +136,17 @@ def section_tags_inserts():
         "start_date": start_date,
         "end_date": end_date,
         "department": department,
+        "genius_sectionId": genius_sectionId,
         "term": term,
         "tagged_status": tagged_status,
         "page": str(page),
         "per_page": str(per_page_val),
     }
+
+    if not has_any_access(session_user):
+                        print("Content-Type: text/html; charset=utf-8\n")
+                        print("<h2>Access Denied</h2><p>You do not have permission to access this page. Contact DataTeam to request access.</p>")
+                        return
 
     if method == "POST" and ("map" in fs or get_param(fs, "map", "") == "1"):
         selected = get_param_list(fs, "selected_courses")
@@ -237,6 +244,7 @@ def section_tags_inserts():
         start_date=start_date,
         end_date=end_date,
         department=department,
+        genius_sectionId=genius_sectionId,
         term=term,
         page_name="section_tags_inserts",
         tagged_status=tagged_status,
