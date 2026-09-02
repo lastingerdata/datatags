@@ -104,8 +104,8 @@ def section_tags_inserts():
     wild_card_course = get_param(fs, "wild_card_course", "").strip().lower()
     start_date = get_param(fs, "start_date", "").strip()
     end_date = get_param(fs, "end_date", "").strip()
-    department = get_param(fs, "department", "").strip()
     genius_sectionId = get_param(fs, "genius_sectionId", "").strip()
+    salesforce_id = get_param(fs, "salesforce_id", "").strip()
     term = get_param(fs, "term", "").strip()
     tagged_status = get_param(fs, "tagged_status", "").strip()
     page_str = get_param(fs, "page", "1").strip()
@@ -135,8 +135,8 @@ def section_tags_inserts():
         "wild_card_course": wild_card_course,
         "start_date": start_date,
         "end_date": end_date,
-        "department": department,
         "genius_sectionId": genius_sectionId,
+        "salesforce_id": salesforce_id,
         "term": term,
         "tagged_status": tagged_status,
         "page": str(page),
@@ -202,7 +202,8 @@ def section_tags_inserts():
             search_course=search_course or None,
             start_date=start_date or None,
             end_date=end_date or None,
-            department=department or None,
+            genius_sectionId=genius_sectionId or None,
+            salesforce_id=salesforce_id or None,
             term=term or None,
             tagged_status=tagged_status or None,
             wild_card=wild_card or None,
@@ -243,8 +244,8 @@ def section_tags_inserts():
         wild_card_course=wild_card_course,
         start_date=start_date,
         end_date=end_date,
-        department=department,
         genius_sectionId=genius_sectionId,
+        salesforce_id=salesforce_id,
         term=term,
         page_name="section_tags_inserts",
         tagged_status=tagged_status,

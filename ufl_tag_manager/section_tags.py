@@ -115,7 +115,7 @@ def main():
 
             if items:
                 for item in items:
-                    parts = item.split("_", 2)
+                    parts = item.split("|||", 2)
                     if len(parts) != 3:
                         continue
                     d2l_id, section_id, tag_entry_id = parts

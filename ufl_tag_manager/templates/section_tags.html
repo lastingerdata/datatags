@@ -235,7 +235,7 @@
   }
 
   .mappings-table thead th:nth-child(1) { width: 50px; }
-  .mappings-table thead th:nth-child(2) { width: 120px; }
+  .mappings-table thead th:nth-child(2) { width: 220px; }
   .mappings-table thead th:nth-child(3) { width: 120px; }
   .mappings-table thead th:nth-child(4) { width: auto; }
   .mappings-table thead th:nth-child(5) { width: 150px; }
@@ -418,7 +418,6 @@
   <div class="filter-section">
     <h3>Filter Courses</h3>
     <form method="GET" action="{{ base_path }}/section_tags{{ ext }}">
-      <!-- ✅ keep current sort when filtering -->
       <input type="hidden" name="sort_col" value="{{ sort_col or '' }}">
       <input type="hidden" name="sort_dir" value="{{ sort_dir or '' }}">
       <!-- optional: keep current page when filtering; most people reset to 1 -->
@@ -570,7 +569,7 @@
               {% set tname = m.tag_name or m['tag_name'] %}
               {% set tval = m.tag_value or m['tag_value'] %}
               {% set entry_id = m.tag_entry_id or m['tag_entry_id'] %}
-              {% set combo_id = d2l ~ '_' ~ sec ~ '_' ~ entry_id %}
+              {% set combo_id = d2l ~ '|||' ~ sec ~ '|||' ~ entry_id %}
 
               <tr>
                 <td>
