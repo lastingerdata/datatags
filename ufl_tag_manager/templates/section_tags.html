@@ -440,7 +440,7 @@
           </select>
         </div>
         <div class="filter-field">
-          <label>Genius Section ID</label>
+          <label>SIS Section ID</label>
           <input type="text" name="genius_sectionId" placeholder="Field value" value="{{ genius_sectionId or '' }}">
         </div>
         <div class="filter-field">
@@ -513,7 +513,7 @@
               </th>
 
               <th data-col="1" onclick="applySort('genius_sectionId')">
-                Genius Section ID
+                SIS Section ID
                 <span>
                   {% if sort_col == 'genius_sectionId' %}
                     {{ '▲' if (sort_dir or 'asc') == 'asc' else '▼' }}

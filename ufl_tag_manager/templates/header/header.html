@@ -68,6 +68,7 @@
           </div>
 
           {# ── Logs — ALL users ── #}
+          {% if is_admin %}
           <div class="nav-group" id="navg-logs">
             <button class="nav-group-btn {% if page_name in ['logs','rules','web_logs'] %}nav-group-btn--active{% endif %}"
                     onclick="toggleNav('navg-logs', event)">
@@ -90,6 +91,7 @@
               </div>
             </div>
           </div>
+          {% endif %}
 
           
           <div class="nav-group" id="navg-datasets">
@@ -108,9 +110,11 @@
                   <a href="{{ base_path }}/user_datasets{{ ext }}" class="nav-mega-link {% if page_name=='user_datasets' %}nav-mega-link--active{% endif %}">
                     <i class="ti ti-list" aria-hidden="true"></i> User requests list
                   </a>
+                  {% if is_admin %}
                   <a href="{{ base_path }}/dataset_requests_list{{ ext }}" class="nav-mega-link {% if page_name=='dataset_requests_list' %}nav-mega-link--active{% endif %}">
                     <i class="ti ti-list-check" aria-hidden="true"></i> Admin requests list
                   </a>
+                  {% endif %}
                   
                 </div>
                 <div class="nav-mega-divider"></div>
@@ -131,7 +135,7 @@
          
 
 
-          {# ── Admin (Dataset Requests + Admin tools) — ADMIN only ── #}
+    
           {% if is_admin %}
           <div class="nav-group" id="navg-admin">
             <button class="nav-group-btn {% if page_name in ['reports_hub','user_access','diagrams'] %}nav-group-btn--active{% endif %}"
@@ -143,15 +147,15 @@
               <div class="nav-mega-inner" style="min-width:200px;">
                 <div class="nav-mega-col">
                   <div class="nav-mega-heading">Admin Tools</div>
-                  <a href="{{ base_path }}/reports_hub{{ ext }}" class="nav-mega-link {% if page_name=='reports_hub' %}nav-mega-link--active{% endif %}">
+                  <!-- <a href="{{ base_path }}/reports_hub{{ ext }}" class="nav-mega-link {% if page_name=='reports_hub' %}nav-mega-link--active{% endif %}">
                     <i class="ti ti-chart-bar" aria-hidden="true"></i> Reports hub
-                  </a>
+                  </a> -->
                   <a href="{{ base_path }}/user_access{{ ext }}" class="nav-mega-link {% if page_name=='user_access' %}nav-mega-link--active{% endif %}">
                     <i class="ti ti-users" aria-hidden="true"></i> User access management
                   </a>
-                  <a href="{{ base_path }}/diagrams{{ ext }}" class="nav-mega-link {% if page_name=='diagrams' %}nav-mega-link--active{% endif %}">
+                  <!-- <a href="{{ base_path }}/diagrams{{ ext }}" class="nav-mega-link {% if page_name=='diagrams' %}nav-mega-link--active{% endif %}">
                     <i class="ti ti-diagrams" aria-hidden="true"></i> Diagrams
-                  </a>
+                  </a> -->
                 </div>
 
               </div>
@@ -160,11 +164,13 @@
           {% endif %}
 
           {# ── Rebuild Demo Table — ALL users ── #}
+          {% if is_admin %}
           <div class="nav-group">
             <button class="nav-group-btn" id="snowflake-link" onclick="runSnowflake(event)">
               Rebuild Demo Table
             </button>
           </div>
+          {% endif %}
 
         </nav>
       </div>

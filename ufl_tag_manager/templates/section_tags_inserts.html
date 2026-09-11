@@ -559,7 +559,7 @@
       <!-- Row 2: Genius Section ID, Term, Course Start Date, Course End Date -->
       <div class="filter-grid">
         <div class="filter-field">
-          <label>Genius Section ID</label>
+          <label>SIS Section ID</label>
           <input type="text" name="genius_sectionId" placeholder="Field value" value="{{ genius_sectionId or '' }}">
         </div>
         <div class="filter-field">
@@ -657,7 +657,7 @@
               <th id="th-0" style="width: 60px; text-align: left; padding-left: 12px;">
                 <input type="checkbox" id="select-all-top" {% if not can_write %}disabled{% endif %}>
               </th>
-              <th id="th-1" onclick="sortTable(1)">Genius SectionId<span></span></th>
+              <th id="th-1" onclick="sortTable(1)">SIS Section ID<span></span></th>
               <th id="th-2" onclick="sortTable(2)">D2L OrgUnitId<span></span></th>
               <th id="th-3" onclick="sortTable(3)">Section Name<span></span></th>
               <th id="th-4" onclick="sortTable(4)">Start Date<span></span></th>

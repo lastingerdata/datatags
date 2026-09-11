@@ -11,8 +11,8 @@
     "VERIFY_SSL": false
   },
 
-   "ADMIN_ONLY_MODE": true, 
-    "MANAGERS": [ "su.palle@ufl.edu","jnbunn@ufl.edu" ],
+   "ADMIN_ONLY_MODE": false, 
+    "MANAGERS": [ "su.palle@ufl.edu","jnbunn@ufl.edu"," dmcfarland@ufl.edu" , "dcshrum@ufl.edu"],
  
     "MYSQL": {
       "LOCAL": {

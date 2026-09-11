@@ -151,10 +151,17 @@ def section_tags_inserts():
     if method == "POST" and ("map" in fs or get_param(fs, "map", "") == "1"):
         selected = get_param_list(fs, "selected_courses")
 
-        if not can_write(session_user):
+        # if not can_write(session_user):
+        #     return redirect_with_messages(
+        #         f"{BASE_PATH}/section_tags_inserts{EXT}",
+        #         [("danger", "Read-only account: you can view courses, but you cannot add tags.")],
+        #         keep_qs,
+        #     )
+
+        if not has_any_access(session_user):
             return redirect_with_messages(
                 f"{BASE_PATH}/section_tags_inserts{EXT}",
-                [("danger", "Read-only account: you can view courses, but you cannot add tags.")],
+                [("danger", "You do not have permission to add tags.")],
                 keep_qs,
             )
 
@@ -254,7 +261,8 @@ def section_tags_inserts():
         total_results=total_count,
         total_pages=total_pages,
         url_for=lambda name, **kw: build_url_for(name, **kw),
-        can_write=can_write(session_user),
+        # can_write=can_write(session_user),
+        can_write=has_any_access(session_user),
         session_user=session_user,
         user=session_user,
         user_role=get_user_role(get_current_user()),

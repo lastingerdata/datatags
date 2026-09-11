@@ -94,7 +94,7 @@ def main():
                             print("<h2>Access Denied</h2><p>You do not have permission to access this page. Contact DataTeam to request access.</p>")
                             return
 
-        if method == "POST" and not can_write(user):
+        if method == "POST" and not has_any_access(user):
             redirect_with_messages(
                 [("danger", "Read-only account: you can view section tags, but you cannot remove them.")],
                 extra_qs=_get_current_filters_from_qs(),
@@ -187,7 +187,7 @@ def main():
             genius_sectionId=genius_sectionId,
             tag_name_filter=tag_name_filter,
             tag_value_filter=tag_value_filter,
-            can_write=can_write(user),
+            can_write=has_any_access(user),
             sort_col=sort_col,
             sort_dir=sort_dir,
             user_role=get_user_role(user),
