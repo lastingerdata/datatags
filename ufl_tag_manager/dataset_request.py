@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import os, re, cgi, cgitb, json
+import os, re, cgi, cgitb, json, sys
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from env_config import (
@@ -23,6 +23,7 @@ env  = Environment(
 
 SWAGGER_DOCS_URL        = "https://compute.lastinger.center.ufl.edu/swagger_docs"
 SNOWFLAKE_IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_$]{0,254}$")
+ALLOWED_TAGS = {"OKR", "Program", "Research/Funding"}
 
 _TYPE_MAP = {
     "int": "int", "integer": "int",
@@ -231,8 +232,11 @@ def main():
 
     endpoint_list  = sorted(endpoint_map)
     segment_values = get_segment_values()
-    all_tags       = get_all_tags()
+    all_tags_raw   = get_all_tags()
+    print(f"DEBUG all_tags: {all_tags_raw}", file=sys.stderr)
+    all_tags       = [t for t in all_tags_raw if t in ALLOWED_TAGS]
     all_tag_values = {tag: get_tag_values_by_tag(tag) for tag in all_tags}
+
 
     query_ep  = form.getfirst("ep", "").strip()
     ep_lookup = {ep.lower(): ep for ep in endpoint_list}
