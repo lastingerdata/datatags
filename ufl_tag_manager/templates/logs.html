@@ -204,6 +204,33 @@
       padding: 24px 20px;
     }
   }
+
+  .pipeline-overview {
+   margin-bottom: 40px;
+   font-family: 'IBM Plex Sans', sans-serif;
+   text-align: left;
+}
+.pipeline-overview h2 {
+   font-family: 'Poppins', sans-serif;
+   font-size: 24px;
+   font-weight: 700;
+   color: #002657;
+   margin-bottom: 16px;
+   text-align: left;
+}
+.pipeline-overview p {
+   font-size: 15px;
+   line-height: 1.7;
+   color: #374151;
+   margin-bottom: 12px;
+   text-align: left;
+}
+
+
+.logs-page h2 {
+    color: #002657 !important;
+}
+
 </style>
 
 <div class="logs-page">
@@ -248,6 +275,19 @@
       {% endfor %}
     {% endif %}
 
+
+    {% if view == "summary" %}
+    <div class="pipeline-overview">
+      <h2 class="page-title">Pipeline Overview</h2>
+      <p>
+        Our reporting processes automatically collect and update information from systems such as: Brightspace and Salesforce. Throughout the evening and overnight, this information is organized and prepared for use in reports and dashboards. By the following morning, updated data is available in Snowflake to creating a single reporting environment for reporting, analysis, and decision-making.
+      </p>
+      <p>
+        While many of these processes run nightly, others run on different schedules based on reporting needs.
+      </p>
+    </div>
+    {% endif %}
+
     {% from 'components/table/table.html' import table %}
     
     {% if rows and rows|length > 0 %}
@@ -261,17 +301,22 @@
           'result': row.result or '-',
           'result_raw': row.result,
           'details_url': row.details_url if row.details_url else '',
+          'frequency': row.frequency if row.frequency else '',
           'history_url': base_path + '/logs' + ext + '?report=' + (row.report_name|urlencode) if view == 'summary' else ''
         }) %}
       {% endfor %}
       
       {% if view == "summary" %}
+      <!-- <div>
+        <h2 class="page-title">Recent Report logs</h2>
+      </div> -->
         {{ table(
           columns=[
             {'key': 'report_name', 'label': 'Report Name', 'width': '8%'},
             {'key': 'description', 'label': 'Description', 'width': '16%'},
             {'key': 'start_time', 'label': 'Start Time', 'width': '11%'},
             {'key': 'end_time', 'label': 'End Time', 'width': '11%'},
+            {'key': 'frequency', 'label': 'Frequency', 'width': '10%'},
             {'key': 'result', 'label': 'Result', 'width': '8%'}
           ],
           data=processed_rows,
@@ -291,6 +336,7 @@
           ],
           empty_message="No logs found.",
           title="Recent Report Runs"
+          
         ) }}
       {% else %}
         {{ table(

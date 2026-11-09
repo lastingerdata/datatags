@@ -115,6 +115,7 @@ def build_summary_rows(reports):
             "description": r.get("description", ""),
             "start_time": last.get("start_time", ""),
             "end_time": last.get("end_time", ""),
+            "frequency": r.get("frequency", ""),
             "result": last.get("result_code", last.get("status", "")),
             "details_url": compute_details_url(report_name, last),
         })
